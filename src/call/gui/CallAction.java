@@ -17,11 +17,10 @@ import call.Util;
 
 public class CallAction extends AbstractConnection {
 
-	private final Contact contact;
 	private final JHoverButton callbutton;
 
 	public CallAction(Contact contact, JHoverButton callbutton) {
-		this.contact = contact;
+		super(contact);
 		this.callbutton = callbutton;
 	}
 
@@ -55,13 +54,10 @@ public class CallAction extends AbstractConnection {
 	private void start() {
 		Util.msg(contact).println("Call...", Color.green);
 		try {
-			setConnected(true);
 			Client client = Client.connect(contact.getHost(), contact.getPort(), SocketUtil.RequestType.Call);
-			// client.addCloseListener(this);
-			// client.addOpenListener(this);
 			Thread thr = new Thread(client);
 			thr.start();
-			Util.msg(contact).println("Connected.", Color.green);
+			//Util.msg(contact).println("Connected.", Color.green);
 		} catch (Exception e) {
 			Util.msg(contact).println("Call failed :(", Color.red);
 			Util.msg(contact).println("Error: " + e.getLocalizedMessage(), Color.red);
@@ -84,12 +80,9 @@ public class CallAction extends AbstractConnection {
 
 	@Override
 	public void open() {
+		Util.msg(contact).println("Connected.", Color.green);
 		updatebutton();
 		super.open();
-	}
-
-	public Connection getConnection() {
-		return CallFactory.getConnection(contact);
 	}
 
 	@Override

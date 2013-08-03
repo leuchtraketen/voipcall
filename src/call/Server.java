@@ -8,6 +8,10 @@ import java.util.List;
 
 public class Server extends AbstractConnection implements Runnable {
 
+	public Server() {
+		super(ContactList.me());
+	}
+
 	private boolean listening = false;
 
 	@Override
@@ -41,7 +45,7 @@ public class Server extends AbstractConnection implements Runnable {
 					final String remoteuser = SocketUtil.getHeaderValue(headers, "user");
 					final String remotehost = socket.getInetAddress().getCanonicalHostName();
 
-					Contact contact = ContactScanThread.findContact(remotehost, remoteuser);
+					Contact contact = ContactList.findContact(remotehost, remoteuser);
 					if (contact == null) {
 						System.out.println("No contact found for: " + remoteuser + "@" + remotehost);
 						contact = new Contact(remotehost, socket.getPort(), remoteuser);
@@ -60,11 +64,11 @@ public class Server extends AbstractConnection implements Runnable {
 					} else if (request.toLowerCase().equals("call")) {
 						socket.setSoTimeout(Config.SOCKET_TIMEOUT);
 						if (!contact.isReachable()) {
-							ContactScanThread.addContact(contact);
+							ContactList.addContact(contact);
 						}
 						CallThread call = CallFactory.createCall(contact, socket, headers);
 						new Thread(call).start();
-						Util.log(call, "Connected (Server).");
+						Util.log(contact, "Connected (Server).");
 
 					} else {
 						Util.log(socket.toString(), "Fuck! Unknown connection type!");

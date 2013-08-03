@@ -18,8 +18,8 @@ import javax.swing.JScrollPane;
 import call.CallUi;
 import call.Config;
 import call.Contact;
-import call.ContactScanThread;
-import call.ContactScanThread.Listener;
+import call.ContactList;
+import call.ContactList.Listener;
 import call.Util;
 
 public class ContactsBar {
@@ -55,15 +55,15 @@ public class ContactsBar {
 		private static final long serialVersionUID = -3163098678792030738L;
 
 		public ContactListModel() {
-			ContactScanThread.addListener(this);
+			ContactList.addListener(this);
 		}
 
 		public int getSize() {
-			return ContactScanThread.getContacts().size();
+			return ContactList.getContacts().size();
 		}
 
 		public Contact getElementAt(int index) {
-			List<Contact> list = ContactScanThread.getContacts();
+			List<Contact> list = ContactList.getContacts();
 			if (index > 0 && index < list.size()) {
 				return list.get(index);
 			} else if (list.size() > 0) {
@@ -97,7 +97,7 @@ public class ContactsBar {
 				if (index >= 0) {
 					Contact c = peermodel.getElementAt(index);
 					Util.msg(c).println(c, Color.blue, "Selected!");
-					CallUi.openCall(c);
+					CallUi.openChat(c);
 				}
 			}
 		}

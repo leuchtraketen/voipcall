@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
+import call.Call;
+import call.CallFactory;
 import call.CallUi;
 import call.Connection;
 import call.Contact;
@@ -14,6 +16,13 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 
 	@Override
 	public void openCall(Contact contact) {
+		@SuppressWarnings("unused")
+		Call call = CallFactory.getCall(contact);
+		
+	}
+
+	@Override
+	public void openChat(Contact contact) {
 		// open and select the tab
 		final String tabName = contact.getId();
 		final JComponent tabContent = ChatTab.getInstance(contact).getComponent();

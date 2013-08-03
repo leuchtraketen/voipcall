@@ -10,6 +10,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import call.CallPlayer;
+import call.ContactList;
 import call.Id;
 
 public class TestFileLoad implements Id {
@@ -20,7 +21,7 @@ public class TestFileLoad implements Id {
 	public TestFileLoad() {
 		try {
 			InputStream is = new FileInputStream(new File("test.pcm"));
-			new Thread(new CallPlayer(this, new BufferedInputStream(is))).start();
+			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(is))).start();
 		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
 			e.printStackTrace();
 		}

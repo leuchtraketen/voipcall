@@ -10,6 +10,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import call.CallPlayer;
 import call.CallRecorder;
+import call.ContactList;
 import call.Id;
 import call.Util;
 
@@ -28,9 +29,9 @@ public class TestLoop implements Id {
 			e.printStackTrace();
 		}
 		try {
-			new Thread(new CallRecorder(this, pos)).start();
+			new Thread(new CallRecorder(ContactList.me(), pos)).start();
 			Util.sleep(2000);
-			new Thread(new CallPlayer(this, new BufferedInputStream(pis))).start();
+			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(pis))).start();
 		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
 			e.printStackTrace();
 		}

@@ -16,14 +16,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class CallPlayer extends AbstractConnection implements Runnable {
 
-	private final Id id;
 	private final SourceDataLine line;
 	private final InputStream in;
 	private final List<OutputStream> captureStreams = new ArrayList<OutputStream>();
 
-	public CallPlayer(Id id, InputStream in) throws LineUnavailableException, UnsupportedAudioFileException,
+	public CallPlayer(Contact contact, InputStream in) throws LineUnavailableException, UnsupportedAudioFileException,
 			IOException {
-		this.id = id;
+		super(contact);
 		this.in = in;
 
 		int nChannels = Config.DEFAULT_CHANNELS;
@@ -34,8 +33,8 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 		int nFrameSize = (Config.DEFAULT_SAMPLE_SIZE / 8) * nChannels;
 		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.DEFAULT_SAMPLE_SIZE, nChannels,
 				nFrameSize, fRate, Config.DEFAULT_BIG_ENDIAN);
-		Util.log(id, "Player: start.");
-		Util.log(id, "Player: source audio format: " + audioFormat);
+		Util.log(contact, "Player: start.");
+		Util.log(contact, "Player: source audio format: " + audioFormat);
 
 		// in = AudioSystem.getAudioInputStream(inputStream);
 		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, audioFormat);
@@ -51,7 +50,6 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 		long lastTime = startTime;
 
 		byte[] buffer = new byte[1024 * 16];
-		setConnected(true);
 		try {
 			int cnt;
 			// Keep looping until the input read method returns -1 for empty
@@ -73,7 +71,7 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 					if (now > lastTime + 3000) {
 						long diffTime = now - startTime;
 						double speed = sent / diffTime * 1000;
-						Util.log(id, "Speed (receive): " + speed + " bytes/s (total: " + (sent / 1024)
+						Util.log(contact, "Speed (receive): " + speed + " bytes/s (total: " + (sent / 1024)
 								+ " KB)");
 						lastTime = now;
 					}
@@ -84,7 +82,7 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 			line.drain();
 			line.close();
 		} catch (SocketException e) {
-			Util.log(id, "Player: " + e.getLocalizedMessage());
+			Util.log(contact, "Player: " + e.getLocalizedMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -94,7 +92,7 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 	@Override
 	public void close() {
 		if (isConnected()) {
-			Util.log(id, "Player: stop.");
+			Util.log(contact, "Player: stop.");
 		}
 		if (line.isRunning())
 			line.stop();
@@ -112,7 +110,7 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 
 	@Override
 	public String getId() {
-		return "CallPlayer<" + id.getId() + ">";
+		return "CallPlayer<" + contact.getId() + ">";
 	}
 
 }

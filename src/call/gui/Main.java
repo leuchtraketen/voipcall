@@ -1,6 +1,6 @@
 package call.gui;
 
-import call.ContactScanThread;
+import call.ContactList;
 import call.Server;
 import call.Util;
 
@@ -13,7 +13,7 @@ public class Main {
 		Util.setNativeLookAndFeel();
 
 		MainGui.getInstance().runGui();
-		ContactScanThread.start();
+		ContactList.start();
 
 		Server server = new Server();
 		Thread thr = new Thread(server);

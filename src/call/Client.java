@@ -11,7 +11,6 @@ import java.util.List;
 
 public class Client extends AbstractConnection implements Runnable {
 
-	private final Contact contact;
 	private Socket socket;
 
 	private SocketUtil.RequestType request;
@@ -19,6 +18,7 @@ public class Client extends AbstractConnection implements Runnable {
 
 	public Client(String host, int port, SocketUtil.RequestType request) throws UnknownHostException,
 			IOException {
+		super(null);
 		this.request = request;
 
 		// open socket
@@ -33,7 +33,7 @@ public class Client extends AbstractConnection implements Runnable {
 		// create contact
 		host = socket.getInetAddress().getCanonicalHostName();
 		final String user = SocketUtil.getHeaderValue(headers, "User");
-		this.contact = new Contact(host, port, user);
+		setContact(new Contact(host, port, user));
 
 		// handle request
 		if (!request.equals(SocketUtil.RequestType.Status)) {
@@ -85,11 +85,8 @@ public class Client extends AbstractConnection implements Runnable {
 
 	@Override
 	public void run() {
-		setConnected(true);
 		if (request.equals(SocketUtil.RequestType.Call)) {
 			CallThread call = CallFactory.createCall(contact, socket, headers);
-			call.addCloseListener(this);
-			this.addCloseListener(call);
 			new Thread(call).start();
 		}
 	}

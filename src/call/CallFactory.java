@@ -6,61 +6,42 @@ import java.util.List;
 import java.util.Map;
 
 public class CallFactory {
-	
-	
 
-	private static final Map<Contact, Connection> connections = new HashMap<Contact, Connection>();
+	private static final Map<Contact, Call> calls = new HashMap<Contact, Call>();
 
-	public static CallThread createCall(Contact contact, Socket socket, List<String> headers) {
-		CallThread call = new CallThread(contact, socket, headers);
-		connections.put(contact, call);
-		call.addCloseListener(new Cleanup(contact));
-		CallUi.openCall(contact);
+	public static synchronized CallThread createCall(Contact contact, Socket socket, List<String> headers) {
+		CallThread callthread = new CallThread(contact, socket, headers);
+		Call call = new Call(contact, socket, headers);
+		call.addConnection(callthread);
+		CallUi.openChat(contact);
 		for (Connection conn : CallUi.getUiListeners(contact)) {
-			conn.addCloseListener(call);
-			conn.addOpenListener(call);
-			call.addCloseListener(conn);
-			call.addOpenListener(conn);
+			call.addConnection(conn);
 		}
-		return call;
+		calls.put(contact, call);
+		return callthread;
 	}
 
-	public static Connection getConnection(Contact contact) {
-		if (connections.containsKey(contact)) {
-			Connection connection = connections.get(contact);
-			if (connection.isConnected()) {
-				return connection;
-			} else {
-				connections.remove(contact);
-				return null;
-			}
+	public static Call getCall(Contact contact) {
+		if (calls.containsKey(contact)) {
+			Call call = calls.get(contact);
+			System.out.println("getCall: " + contact.getId() + " = " + call);
+			return call;
 		} else {
+			System.out.println("getCall: " + contact.getId() + " = null ");
 			return null;
 		}
 	}
 
-	private static class Cleanup extends AbstractConnection {
-
-		private final Contact contact;
-
-		public Cleanup(Contact contact) {
-			this.contact = contact;
+	public static synchronized void closeCall(Contact contact) {
+		if (calls.containsKey(contact)) {
+			calls.get(contact).close();
+			calls.remove(contact);
 		}
+	}
 
-		@Override
-		public boolean isConnected() {
-			return true;
-		}
-
-		@Override
-		public String getId() {
-			return "Cleanup<" + contact.getId() + ">";
-		}
-
-		@Override
-		public void close() {
-			connections.remove(contact);
-			super.close();
+	public static void openCall(Contact contact) {
+		if (calls.containsKey(contact)) {
+			calls.get(contact).open();
 		}
 	}
 

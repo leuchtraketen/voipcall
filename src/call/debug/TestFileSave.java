@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import javax.sound.sampled.LineUnavailableException;
 
 import call.CallRecorder;
+import call.ContactList;
 import call.Id;
 
 public class TestFileSave implements Id {
@@ -18,7 +19,7 @@ public class TestFileSave implements Id {
 	public TestFileSave() {
 		try {
 			OutputStream os = new FileOutputStream(new File("test.pcm"));
-			new Thread(new CallRecorder(this, os)).start();
+			new Thread(new CallRecorder(ContactList.me(), os)).start();
 		} catch (LineUnavailableException | FileNotFoundException e) {
 			e.printStackTrace();
 		}

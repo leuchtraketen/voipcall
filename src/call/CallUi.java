@@ -13,6 +13,10 @@ public class CallUi {
 		instance.openCall(contact);
 	}
 
+	public static void openChat(Contact contact) {
+		instance.openChat(contact);
+	}
+
 	public static List<Connection> getUiListeners(Contact contact) {
 		return instance.getUiListeners(contact);
 	}
@@ -20,6 +24,8 @@ public class CallUi {
 	public static interface CallUiAdapter {
 
 		public abstract void openCall(Contact contact);
+
+		public abstract void openChat(Contact contact);
 
 		public abstract List<Connection> getUiListeners(Contact contact);
 

@@ -8,10 +8,4 @@ public interface Connection extends Id {
 
 	void close();
 
-	void addOpenListener(Connection connection);
-
-	void addCloseListener(Connection connection);
-
-	boolean isFinished();
-
 }

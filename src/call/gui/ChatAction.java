@@ -12,16 +12,14 @@ import javax.swing.Action;
 import call.AbstractConnection;
 import call.Client;
 import call.Contact;
-import call.ContactScanThread;
+import call.ContactList;
 import call.SocketUtil;
 import call.Util;
 
 public class ChatAction extends AbstractConnection {
 
-	private final Contact contact;
-
 	public ChatAction(Contact contact) {
-		this.contact = contact;
+		super(contact);
 	}
 
 	private void sendmessage() {
@@ -37,7 +35,7 @@ public class ChatAction extends AbstractConnection {
 					pw.println(msg);
 					pw.close();
 					socket.close();
-					Util.msg(ContactScanThread.me()).println(ContactScanThread.me(), Color.blue, msg);
+					Util.msg(ContactList.me()).println(ContactList.me(), Color.blue, msg);
 				} catch (Exception e) {}
 			}
 		}).start();
