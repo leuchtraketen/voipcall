@@ -7,11 +7,11 @@ import java.io.OutputStream;
 
 import javax.sound.sampled.LineUnavailableException;
 
+import call.AbstractId;
 import call.CallRecorder;
 import call.ContactList;
-import call.Id;
 
-public class TestFileSave implements Id {
+public class TestFileSave extends AbstractId {
 	public static void main(String[] args) {
 		new TestFileSave();
 	}

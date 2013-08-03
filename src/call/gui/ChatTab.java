@@ -3,7 +3,7 @@ package call.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.Insets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,14 +54,13 @@ public class ChatTab {
 
 		panel = new ChatPanel(this);
 		panel.setBorder(BorderFactory.createEmptyBorder());
-		panel.setLayout(new BorderLayout());
+		panel.setLayout(setNoGaps(new BorderLayout()));
 		area = new JTextPane();
 
 		// area
 		new JTextPaneMessageOutput(contact, area);
 		area.setPreferredSize(new Dimension(500, 350));
-		Font font = new Font("Sans", Font.PLAIN, 12);
-		area.setFont(font);
+		area.setFont(Resources.TEXT_FONT);
 		area.setEditable(false);
 		DefaultCaret caret = (DefaultCaret) area.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -72,7 +71,7 @@ public class ChatTab {
 
 		// call panel
 		JPanel buttonpanel = new JPanel();
-		buttonpanel.setLayout(new FlowLayout());
+		buttonpanel.setLayout(setNoGaps(new FlowLayout()));
 		buttonpanel.setBorder(BorderFactory.createEmptyBorder());
 		panel.add(BorderLayout.NORTH, buttonpanel);
 
@@ -87,14 +86,14 @@ public class ChatTab {
 
 		// chat panel
 		JPanel chatpanel = new JPanel();
-		chatpanel.setLayout(new BorderLayout());
+		chatpanel.setLayout(setNoGaps(new BorderLayout()));
 		chatpanel.setBorder(BorderFactory.createEmptyBorder());
 
 		// chat field
 		chatfield = new JTextField();
 		chataction = new ChatAction(contact);
-		chatfield.setPreferredSize(new Dimension(500, 50));
-		//addEnterAction(chatfield, chataction.getActionListener());
+		// chatfield.setPreferredSize(new Dimension(500, 50));
+		// addEnterAction(chatfield, chataction.getActionListener());
 		chatpanel.add(BorderLayout.CENTER, chatfield);
 
 		// chat button
@@ -104,8 +103,22 @@ public class ChatTab {
 		chatbutton.setBorderPainted(false);
 		chatbutton.setFocusPainted(false);
 		chatbutton.setContentAreaFilled(false);
+		chatbutton.setBorder(null);
+		chatbutton.setMargin(new Insets(0,0,0,0));
 
 		panel.add(BorderLayout.SOUTH, chatpanel);
+	}
+
+	private BorderLayout setNoGaps(BorderLayout layout) {
+		layout.setHgap(0);
+		layout.setVgap(0);
+		return layout;
+	}
+
+	private FlowLayout setNoGaps(FlowLayout layout) {
+		layout.setHgap(0);
+		layout.setVgap(0);
+		return layout;
 	}
 
 	private void addEnterAction(JTextArea textarea, Action action) {

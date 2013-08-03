@@ -21,7 +21,6 @@ public class Client extends AbstractId {
 		this.request = request;
 
 		// open socket
-		System.out.println("open socket: " + host + ":" + port);
 		this.socket = new Socket(InetAddress.getByName(host), port);
 		socket.setReuseAddress(true);
 

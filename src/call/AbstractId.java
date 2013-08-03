@@ -22,4 +22,9 @@ public abstract class AbstractId implements Id {
 	public String toString() {
 		return getId();
 	}
+
+	@Override
+	public int compareTo(Id other) {
+		return getId().compareTo(other.getId());
+	}
 }

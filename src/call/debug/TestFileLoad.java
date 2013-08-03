@@ -9,11 +9,11 @@ import java.io.InputStream;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import call.AbstractId;
 import call.CallPlayer;
 import call.ContactList;
-import call.Id;
 
-public class TestFileLoad implements Id {
+public class TestFileLoad extends AbstractId {
 	public static void main(String[] args) {
 		new TestFileLoad();
 	}

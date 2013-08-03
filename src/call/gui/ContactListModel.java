@@ -1,5 +1,6 @@
 package call.gui;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractListModel;
@@ -22,7 +23,7 @@ public class ContactListModel extends AbstractListModel<Contact> implements List
 	}
 
 	public Contact getElementAt(int index) {
-		List<Contact> list = ContactList.getContacts();
+		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
 		if (index > 0 && index < list.size()) {
 			return list.get(index);
 		} else if (list.size() > 0) {

@@ -24,7 +24,6 @@ public class CallFactory {
 	public static synchronized Call getCall(Contact contact) {
 		if (calls.containsKey(contact)) {
 			Call call = calls.get(contact);
-			System.out.println("getCall: " + contact.getId() + " = " + call);
 			return call;
 		} else {
 			System.out.println("getCall: " + contact.getId() + " = null ");

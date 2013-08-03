@@ -9,14 +9,14 @@ import java.net.Socket;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import call.AbstractId;
 import call.Client;
 import call.Contact;
 import call.ContactList;
-import call.Id;
 import call.SocketUtil;
 import call.Util;
 
-public class ChatAction implements Id {
+public class ChatAction extends AbstractId {
 
 	private final Contact contact;
 

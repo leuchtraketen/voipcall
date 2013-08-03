@@ -1,92 +1,58 @@
 package call;
 
-import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class ContactList implements Runnable {
+public class ContactList {
 
-	private static boolean active;
-
-	private static List<Contact> contacts = new ArrayList<Contact>();
+	private static Set<Contact> contacts = new HashSet<Contact>();
 	private static List<Listener> listeners = new ArrayList<Listener>();
-	private static Set<String> runtimeContactHosts = new HashSet<String>();
+	private static Map<Contact, Boolean> online = new HashMap<Contact, Boolean>();
+	private static Lock lock = new ReentrantLock();
 
 	public ContactList() {}
 
 	public static List<Contact> getContacts() {
-		return contacts;
-	}
-
-	@Override
-	public void run() {
-		active = true;
-		while (active) {
-			scan();
-			Util.sleep(30000);
-		}
-	}
-
-	private static void scan() {
-		for (String host : Config.DEFAULT_CONTACT_HOSTS) {
-			scan(host);
-		}
-		for (String host : runtimeContactHosts) {
-			scan(host);
-		}
-	}
-
-	private static List<Thread> scan(String host) {
-		List<Thread> threads = new ArrayList<Thread>();
-		for (int i = 0; i < 5; ++i) {
-			threads.add(tryContact(host, Config.DEFAULT_PORT + 10 * i));
-		}
-		return threads;
-	}
-
-	private static Thread tryContact(final String host, final int port) {
-		Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Client client = Client.connect(host, port, SocketUtil.RequestType.Status);
-					client.close();
-					System.out.println("abc" + client);
-					if (!containsContact(client)) {
-						addContact(client.getContact());
-						Util.log(client, "Online");
-					}
-					update();
-				} catch (SocketException e) {} catch (Exception e) {
-					// Util.out(host + ":" + port, "Offline (" +
-					// e.getLocalizedMessage() + ")");
-					removeContact(host, port);
-				}
-			}
-		});
-		thread.start();
-		return thread;
+		lock.lock();
+		List<Contact> list = new ArrayList<Contact>(contacts);
+		Collections.sort(list, new ContactListComparator());
+		lock.unlock();
+		return list;
 	}
 
 	public static void addContact(Contact contact) {
-		if (!contacts.contains(contact))
+		lock.lock();
+		if (!contacts.contains(contact)) {
 			contacts.add(contact);
+			notifyListeners();
+		}
+		lock.unlock();
 	}
 
-	private static void removeContact(Contact contact) {
-		if (!contacts.contains(contact))
+	public static void removeContact(Contact contact) {
+		lock.lock();
+		if (contacts.contains(contact)) {
 			contacts.remove(contact);
+			notifyListeners();
+		}
+		lock.unlock();
 	}
 
-	public static Contact findContact(String host, String user) {
+	public static Contact findContact(String host, int port, String user) {
 		for (Contact contact : contacts) {
-			if (contact.isHost(host) && contact.isUser(user)) {
+			if ((host == null || contact.isHost(host)) && (port == 0 || contact.isPort(port))
+					&& (user == null || contact.isUser(user))) {
 				return contact;
 			}
 		}
-		runtimeContactHosts.add(host);
+		ContactScanner.addHostOfInterest(host);
 		return null;
 	}
 
@@ -99,46 +65,55 @@ public class ContactList implements Runnable {
 		return false;
 	}
 
-	private static boolean containsContact(Client client) {
-		return containsContact(client.getContact().getHost(), client.getContact().getPort(), client
-				.getContact().getUser());
+	public static boolean containsContact(Contact contact) {
+		return contacts.contains(contact);
 	}
 
-	private static void removeContact(String host, int port) {
-		Contact found = null;
-		for (Contact c : contacts) {
-			if (c.isHost(host) && c.isPort(port)) {
-				found = c;
+	public static boolean isOnline(Contact contact) {
+		return online.containsKey(contact) && online.get(contact);
+	}
+
+	public static void setOnline(Contact contact, boolean onlinestatus) {
+		lock.lock();
+		online.put(contact, onlinestatus);
+		notifyListeners();
+		lock.unlock();
+	}
+
+	public static void update() {
+		lock.lock();
+		notifyListeners();
+		lock.unlock();
+	}
+
+	private static void notifyListeners() {
+		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
+		Util.log("contactlist:", "--------");
+		for (Contact c : list) {
+			if (list.size() > 2) {
+				Util.log("contactlist:", c.getId() + " comp(1) = " + c.compareTo(list.get(0))
+						+ ", comp(2) = " + c.compareTo(list.get(1)) + ", equal(1) = " + c.equals(list.get(0))
+						+ ", equal(2) = " + c.equals(list.get(1)));
+			} else {
+				Util.log("contactlist:", c.getId());
 			}
 		}
-		if (found != null) {
-			removeContact(found);
-		}
-	}
+		Util.log("contactlist:", "________");
 
-	private static void update() {
 		for (Listener listener : listeners) {
 			listener.update();
 		}
-	}
-
-	public static void start() {
-		new Thread(new ContactList()).start();
 	}
 
 	public static void addListener(Listener listener) {
 		listeners.add(listener);
 	}
 
-	public static interface Listener {
-		void update();
-	}
-
-	public void close() {
-		active = false;
-	}
-
 	public static Contact me() {
 		return new Contact("127.0.0.1", Config.CURRENT_PORT, Util.getUserName());
+	}
+
+	public static interface Listener {
+		void update();
 	}
 }

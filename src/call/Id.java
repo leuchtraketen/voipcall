@@ -1,5 +1,5 @@
 package call;
 
-public interface Id {
+public interface Id extends Comparable<Id> {
 	String getId();
 }

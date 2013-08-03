@@ -3,14 +3,11 @@ package call;
 import java.awt.Color;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.swing.UIManager;
 
 public class Util {
 
@@ -142,18 +139,6 @@ public class Util {
 
 	public static String getUserName() {
 		return System.getProperty("user.name").split(" ")[0];
-	}
-
-	public static void setNativeLookAndFeel() {
-		try {
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-			// UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-
-			return;
-		} catch (Exception e) {}
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {}
 	}
 
 	public static <T> Set<T> asSet(T[] array) {

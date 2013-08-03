@@ -44,15 +44,21 @@ public class Server extends AbstractId implements Runnable {
 					final String remoteuser = SocketUtil.getHeaderValue(headers, "user");
 					final String remotehost = socket.getInetAddress().getCanonicalHostName();
 
-					Contact contact = ContactList.findContact(remotehost, remoteuser);
-					if (contact == null) {
-						System.out.println("No contact found for: " + remoteuser + "@" + remotehost);
-						contact = new Contact(remotehost, socket.getPort(), remoteuser,
-								Contact.Reachability.UNREACHABLE);
-					}
+					Contact contact;
+
+					// loopback connection?
 					if (Config.UID_S.equals(SocketUtil.getHeaderValue(headers, "UID"))) {
 						contact = new Contact(remotehost, socket.getPort(), remoteuser,
 								Contact.Reachability.LOOPBACK);
+					}
+					// normal connection
+					else {
+						contact = ContactList.findContact(remotehost, 0, remoteuser);
+						if (contact == null) {
+							contact = new Contact(remotehost, socket.getPort(), remoteuser,
+									Contact.Reachability.UNREACHABLE);
+							System.out.println("No contact found for: " + contact);
+						}
 					}
 
 					final String request = SocketUtil.getHeaderValue(headers, "request");

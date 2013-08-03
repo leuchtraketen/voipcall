@@ -1,5 +1,6 @@
 package call.gui;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import call.Call;
@@ -22,6 +23,7 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 		// open and select the tab
 		final String tabName = contact.getId();
 		final JComponent tabContent = ChatTab.getInstance(contact).getComponent();
+		//final Icon tabIcon = Resources.getIcon(contact);
 		
 		MainGui main = MainGui.getInstance();
 		main.closeInactiveTabsExcept(Util.asSet(new String[] { tabName }));

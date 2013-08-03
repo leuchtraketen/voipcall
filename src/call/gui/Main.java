@@ -1,8 +1,7 @@
 package call.gui;
 
-import call.ContactList;
+import call.ContactScanner;
 import call.Server;
-import call.Util;
 
 public class Main {
 	public static void main(String[] args) {
@@ -10,10 +9,10 @@ public class Main {
 	}
 
 	public Main() {
-		Util.setNativeLookAndFeel();
+		GuiUtil.setNativeLookAndFeel();
 
 		MainGui.getInstance().runGui();
-		ContactList.start();
+		new Thread(new ContactScanner()).start();
 
 		Server server = new Server();
 		Thread thr = new Thread(server);

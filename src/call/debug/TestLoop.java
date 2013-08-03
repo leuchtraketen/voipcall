@@ -8,14 +8,14 @@ import java.io.PipedOutputStream;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import call.AbstractId;
 import call.CallPlayer;
 import call.CallRecorder;
 import call.ContactList;
-import call.Id;
 import call.Util;
 
-public class TestLoop implements Id {
-	
+public class TestLoop extends AbstractId {
+
 	public static void main(String[] args) {
 		new TestLoop();
 	}

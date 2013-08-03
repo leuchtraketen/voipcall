@@ -1,6 +1,7 @@
 package call;
 
-public class Contact implements Id {
+public class Contact extends AbstractId {
+	
 	public static enum Reachability {
 		NORMAL, UNREACHABLE, LOOPBACK
 	}
@@ -86,19 +87,5 @@ public class Contact implements Id {
 
 	public boolean isUser(String user) {
 		return this.user.equals(user.toLowerCase());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj != null && obj instanceof Contact) {
-			Contact other = (Contact) obj;
-			return other.host.equals(host) && other.user.equals(user) && other.port == port;
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return getId().hashCode();
 	}
 }
