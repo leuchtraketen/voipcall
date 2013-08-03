@@ -4,5 +4,6 @@
 using namespace std;
 int main()
 {
+	system("java -Xmx64m -Xms64m -cp bin;. update.Main");
 	WinExec("java -cp bin;. call.TestGui", SW_HIDE);
 }
