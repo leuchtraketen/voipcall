@@ -26,7 +26,14 @@ public class Main {
 	private static PrintWriter logout;
 
 	public static void main(String[] args) {
-		autoupdate();
+		File dotgit = new File(".git");
+		File dotproject = new File(".project");
+		if (dotgit.exists() || dotproject.exists()) {
+			log("Running from a git repository.");
+			log("Auto-update disabled.");
+		} else {
+			autoupdate();
+		}
 	}
 
 	private static void log(Exception e) {

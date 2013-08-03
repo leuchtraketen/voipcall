@@ -4,24 +4,20 @@ public class Contact implements Id {
 	private final String host;
 	private final int port;
 	private final String user;
+	private boolean reachable;
 
 	public Contact(String host, int port, String user) {
-		this.host = host;
+		this.host = host.toLowerCase();
 		this.port = port;
-		this.user = user;
-	}
-
-	public Contact(Client client) {
-		this.host = client.getHost();
-		this.port = client.getPort();
-		this.user = client.getUser();
+		this.user = user.toLowerCase();
+		this.reachable = port > 0 ? true : false;
 	}
 
 	@Override
 	public String toString() {
-		if (port <= 0)
+		if (!reachable)
 			return Util.firstToUpperCase(user) + "@" + host + " (incoming)";
-		else if (port == CallConfig.DEFAULT_PORT)
+		else if (port == Config.DEFAULT_PORT)
 			return Util.firstToUpperCase(user) + "@" + host;
 		else
 			return Util.firstToUpperCase(user) + "@" + host + ":" + port;
@@ -42,6 +38,26 @@ public class Contact implements Id {
 
 	public String getUser() {
 		return user;
+	}
+
+	public boolean isReachable() {
+		return reachable;
+	}
+
+	public boolean isHost(String host) {
+		return this.host.equals(host.toLowerCase());
+	}
+
+	public boolean isPort(int port) {
+		return this.port == port;
+	}
+
+	public boolean isUser(String user) {
+		return this.user.equals(user.toLowerCase());
+	}
+
+	public void setReachable(boolean reachable) {
+		this.reachable = reachable;
 	}
 
 	@Override

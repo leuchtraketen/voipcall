@@ -14,12 +14,11 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class CallPlayer implements Runnable, Activatable {
+public class CallPlayer extends AbstractConnection implements Runnable {
 
 	private final Id id;
 	private final SourceDataLine line;
 	private final InputStream in;
-	private boolean stop = true;
 	private final List<OutputStream> captureStreams = new ArrayList<OutputStream>();
 
 	public CallPlayer(Id id, InputStream in) throws LineUnavailableException, UnsupportedAudioFileException,
@@ -27,14 +26,14 @@ public class CallPlayer implements Runnable, Activatable {
 		this.id = id;
 		this.in = in;
 
-		int nChannels = CallConfig.DEFAULT_CHANNELS;
-		float fRate = CallConfig.DEFAULT_RATE;
+		int nChannels = Config.DEFAULT_CHANNELS;
+		float fRate = Config.DEFAULT_RATE;
 
-		AudioFormat.Encoding encoding = CallConfig.DEFAULT_ENCODING;
+		AudioFormat.Encoding encoding = Config.DEFAULT_ENCODING;
 
-		int nFrameSize = (CallConfig.DEFAULT_SAMPLE_SIZE / 8) * nChannels;
-		AudioFormat audioFormat = new AudioFormat(encoding, fRate, CallConfig.DEFAULT_SAMPLE_SIZE, nChannels,
-				nFrameSize, fRate, CallConfig.DEFAULT_BIG_ENDIAN);
+		int nFrameSize = (Config.DEFAULT_SAMPLE_SIZE / 8) * nChannels;
+		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.DEFAULT_SAMPLE_SIZE, nChannels,
+				nFrameSize, fRate, Config.DEFAULT_BIG_ENDIAN);
 		Util.log(id, "Player: start.");
 		Util.log(id, "Player: source audio format: " + audioFormat);
 
@@ -52,12 +51,12 @@ public class CallPlayer implements Runnable, Activatable {
 		long lastTime = startTime;
 
 		byte[] buffer = new byte[1024 * 16];
-		stop = false;
+		setConnected(true);
 		try {
 			int cnt;
 			// Keep looping until the input read method returns -1 for empty
 			// stream.
-			while ((cnt = in.read(buffer, 0, buffer.length)) != -1 && !stop) {
+			while ((cnt = in.read(buffer, 0, buffer.length)) != -1 && isConnected()) {
 				if (cnt > 0) {
 					// Write data to the internal buffer of the data line where
 					// it will be delivered to the speaker.
@@ -94,18 +93,14 @@ public class CallPlayer implements Runnable, Activatable {
 
 	@Override
 	public void close() {
-		if (stop == false)
+		if (isConnected()) {
 			Util.log(id, "Player: stop.");
-		stop = true;
+		}
 		if (line.isRunning())
 			line.stop();
 		if (line.isOpen())
 			line.close();
-	}
-
-	@Override
-	public boolean isActive() {
-		return !stop;
+		super.close();
 	}
 
 	public void saveTo(Capture capture) {
@@ -113,6 +108,11 @@ public class CallPlayer implements Runnable, Activatable {
 		if (out != null) {
 			captureStreams.add(out);
 		}
+	}
+
+	@Override
+	public String getId() {
+		return "CallPlayer<" + id.getId() + ">";
 	}
 
 }

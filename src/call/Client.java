@@ -9,41 +9,42 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
 
-public class Client implements Runnable, Activatable, Id, CloseListener, CloseListener.CloseListening {
+public class Client extends AbstractConnection implements Runnable {
 
-	private boolean connected = false;
-	private final String host;
-	private final int port;
-	private final String user;
+	private final Contact contact;
 	private Socket socket;
 
 	private SocketUtil.RequestType request;
 	private final List<String> headers;
 
-	public CloseListeners closeListeners = new CloseListeners();
-
 	public Client(String host, int port, SocketUtil.RequestType request) throws UnknownHostException,
 			IOException {
-		this.socket = new Socket(InetAddress.getByName(host), port);
-		this.host = socket.getInetAddress().getCanonicalHostName();
-		this.port = port;
 		this.request = request;
+
+		// open socket
+		this.socket = new Socket(InetAddress.getByName(host), port);
 		socket.setReuseAddress(true);
 
+		// write and read headers
 		SocketUtil.writeHeaders(socket.getOutputStream(), request);
 		InputStream instream = socket.getInputStream();
 		this.headers = SocketUtil.readHeaders(instream);
-		this.user = SocketUtil.getHeaderValue(headers, "User");
 
+		// create contact
+		host = socket.getInetAddress().getCanonicalHostName();
+		final String user = SocketUtil.getHeaderValue(headers, "User");
+		this.contact = new Contact(host, port, user);
+
+		// handle request
 		if (!request.equals(SocketUtil.RequestType.Status)) {
-			socket.setSoTimeout(CallConfig.SOCKET_TIMEOUT);
+			socket.setSoTimeout(Config.SOCKET_TIMEOUT);
 			Util.log(this, "Connected (Client).");
 		}
 	}
 
 	public static Client connect(String host, SocketUtil.RequestType request) throws UnknownHostException {
 		Client client = null;
-		int port = CallConfig.DEFAULT_PORT;
+		int port = Config.DEFAULT_PORT;
 		for (int i = 0; i < 10; i++) {
 			try {
 				client = new Client(host, port, request);
@@ -84,70 +85,30 @@ public class Client implements Runnable, Activatable, Id, CloseListener, CloseLi
 
 	@Override
 	public void run() {
-		connected = true;
+		setConnected(true);
 		if (request.equals(SocketUtil.RequestType.Call)) {
-			Peer peer = Calls.registerPeer(socket, headers);
-			peer.closeListeners.add(this);
+			CallThread call = CallFactory.createCall(contact, socket, headers);
+			call.addCloseListener(this);
+			this.addCloseListener(call);
+			new Thread(call).start();
 		}
-	}
-
-	@Override
-	public boolean isActive() {
-		return connected;
 	}
 
 	@Override
 	public void close() {
-		connected = false;
 		try {
 			socket.close();
 		} catch (IOException e) {}
-	}
-
-	@Override
-	public void onClose() {
-		close();
-		closeListeners.onClose();
-	}
-
-	@Override
-	public String toString() {
-		return user + "@" + host + ":" + port;
+		super.close();
 	}
 
 	@Override
 	public String getId() {
-		return user + "@" + host + ":" + port;
+		return contact.getId();
 	}
 
-	public String getHost() {
-		return host;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj != null) {
-			return hashCode() == obj.hashCode();
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return getId().hashCode();
-	}
-
-	@Override
-	public CloseListeners getCloseListeners() {
-		return closeListeners;
+	public Contact getContact() {
+		return contact;
 	}
 
 	public Socket getSocket() {

@@ -1,17 +1,19 @@
-package call;
+package call.gui;
 
-import call.gui.MainGui;
+import call.ContactScanThread;
+import call.Server;
+import call.Util;
 
-public class TestGui {
+public class Main {
 	public static void main(String[] args) {
-		new TestGui();
+		new Main();
 	}
 
-	public TestGui() {
+	public Main() {
 		Util.setNativeLookAndFeel();
 
 		MainGui.getInstance().runGui();
-		Contacts.start();
+		ContactScanThread.start();
 
 		Server server = new Server();
 		Thread thr = new Thread(server);

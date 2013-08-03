@@ -16,6 +16,7 @@ public class SocketUtil {
 	public static void writeHeaders(OutputStream out, RequestType request) {
 		PrintWriter pw = new PrintWriter(out);
 		pw.println("User: " + Util.getUserName());
+		pw.println("UID: " + Config.UID_S);
 		if (request.equals(RequestType.Status))
 			pw.println("Request: Status");
 		else if (request.equals(RequestType.Call))

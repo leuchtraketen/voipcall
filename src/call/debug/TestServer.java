@@ -1,4 +1,6 @@
-package call;
+package call.debug;
+
+import call.Server;
 
 public class TestServer {
 	public static void main(String[] args) {

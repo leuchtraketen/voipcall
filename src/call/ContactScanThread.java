@@ -2,16 +2,19 @@ package call;
 
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-public class Contacts implements Runnable, Activatable {
+public class ContactScanThread extends AbstractConnection implements Runnable {
 
 	private static boolean active;
 
 	private static List<Contact> contacts = new ArrayList<Contact>();
 	private static List<Listener> listeners = new ArrayList<Listener>();
+	private static Set<String> runtimeContactHosts = new HashSet<String>();
 
-	public Contacts() {}
+	public ContactScanThread() {}
 
 	public static List<Contact> getContacts() {
 		return contacts;
@@ -27,7 +30,10 @@ public class Contacts implements Runnable, Activatable {
 	}
 
 	private static void scan() {
-		for (String host : CallConfig.DEFAULT_CONTACT_HOSTS) {
+		for (String host : Config.DEFAULT_CONTACT_HOSTS) {
+			scan(host);
+		}
+		for (String host : runtimeContactHosts) {
 			scan(host);
 		}
 	}
@@ -35,7 +41,7 @@ public class Contacts implements Runnable, Activatable {
 	private static List<Thread> scan(String host) {
 		List<Thread> threads = new ArrayList<Thread>();
 		for (int i = 0; i < 5; ++i) {
-			threads.add(tryContact(host, CallConfig.DEFAULT_PORT + 10 * i));
+			threads.add(tryContact(host, Config.DEFAULT_PORT + 10 * i));
 		}
 		return threads;
 	}
@@ -48,7 +54,7 @@ public class Contacts implements Runnable, Activatable {
 					Client client = Client.connect(host, port, SocketUtil.RequestType.Status);
 					client.close();
 					if (!containsContact(client)) {
-						addContact(new Contact(client));
+						addContact(client.getContact());
 						Util.log(client, "Online");
 					}
 					update();
@@ -75,27 +81,17 @@ public class Contacts implements Runnable, Activatable {
 
 	public static Contact findContact(String host, String user) {
 		for (Contact contact : contacts) {
-			if (contact.getHost().equals(host) && contact.getUser().equals(user)) {
+			if (contact.isHost(host) && contact.isUser(user)) {
 				return contact;
 			}
 		}
-		List<Thread> threads = scan(host);
-		for (Thread thread : threads) {
-			try {
-				thread.join();
-			} catch (InterruptedException e) {}
-		}
-		for (Contact contact : contacts) {
-			if (contact.getHost().equals(host) && contact.getUser().equals(user)) {
-				return contact;
-			}
-		}
+		runtimeContactHosts.add(host);
 		return null;
 	}
 
 	public static boolean containsContact(String host, int port, String user) {
 		for (Contact contact : contacts) {
-			if (contact.getHost().equals(host) && contact.getPort() == port && contact.getUser().equals(user)) {
+			if (contact.isHost(host) && contact.isPort(port) && contact.isUser(user)) {
 				return true;
 			}
 		}
@@ -103,13 +99,14 @@ public class Contacts implements Runnable, Activatable {
 	}
 
 	private static boolean containsContact(Client client) {
-		return containsContact(client.getHost(), client.getPort(), client.getUser());
+		return containsContact(client.getContact().getHost(), client.getContact().getPort(), client
+				.getContact().getUser());
 	}
 
 	private static void removeContact(String host, int port) {
 		Contact found = null;
 		for (Contact c : contacts) {
-			if (c.getHost().equals(host) && c.getPort() == port) {
+			if (c.isHost(host) && c.isPort(port)) {
 				found = c;
 			}
 		}
@@ -125,7 +122,7 @@ public class Contacts implements Runnable, Activatable {
 	}
 
 	public static void start() {
-		new Thread(new Contacts()).start();
+		new Thread(new ContactScanThread()).start();
 	}
 
 	public static void addListener(Listener listener) {
@@ -137,16 +134,22 @@ public class Contacts implements Runnable, Activatable {
 	}
 
 	@Override
-	public boolean isActive() {
+	public boolean isConnected() {
 		return active;
 	}
 
 	@Override
 	public void close() {
 		active = false;
+		super.close();
 	}
 
 	public static Contact me() {
-		return new Contact("127.0.0.1", CallConfig.CURRENT_PORT, Util.getUserName());
+		return new Contact("127.0.0.1", Config.CURRENT_PORT, Util.getUserName());
+	}
+
+	@Override
+	public String getId() {
+		return "Contacts";
 	}
 }

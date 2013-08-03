@@ -15,21 +15,20 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import call.CallConfig;
 import call.CallUi;
+import call.Config;
 import call.Contact;
-import call.Contacts;
-import call.Contacts.Listener;
-import call.Peer;
+import call.ContactScanThread;
+import call.ContactScanThread.Listener;
 import call.Util;
 
-public class ContactsGui extends CallUi.AbstractCallUi {
+public class ContactsBar {
 
 	private final JList<Contact> peerlist;
 	private final ContactListModel peermodel;
 	private final JPanel panel;
 
-	public ContactsGui() {
+	public ContactsBar() {
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		peermodel = new ContactListModel();
@@ -56,21 +55,21 @@ public class ContactsGui extends CallUi.AbstractCallUi {
 		private static final long serialVersionUID = -3163098678792030738L;
 
 		public ContactListModel() {
-			Contacts.addListener(this);
+			ContactScanThread.addListener(this);
 		}
 
 		public int getSize() {
-			return Contacts.getContacts().size();
+			return ContactScanThread.getContacts().size();
 		}
 
 		public Contact getElementAt(int index) {
-			List<Contact> list = Contacts.getContacts();
+			List<Contact> list = ContactScanThread.getContacts();
 			if (index > 0 && index < list.size()) {
 				return list.get(index);
 			} else if (list.size() > 0) {
 				return list.get(0);
 			} else {
-				return new Contact("localhost", CallConfig.CURRENT_PORT, "this instance");
+				return new Contact("localhost", Config.CURRENT_PORT, "this instance");
 			}
 		}
 
@@ -102,22 +101,6 @@ public class ContactsGui extends CallUi.AbstractCallUi {
 				}
 			}
 		}
-	}
-
-	@Override
-	public void openCall(Contact contact) {
-		// open and select the tab
-		final String tabName = contact.getId();
-		final JComponent tabContent = ChatGui.getInstance(contact).getComponent();
-		MainGui main = MainGui.getInstance();
-		main.closeInactiveTabs();
-		main.addTab(tabName, tabContent);
-		main.showTab(tabName);
-	}
-
-	@Override
-	protected void setConnection(Contact contact, Peer peer) {
-		ChatGui.getInstance(contact).setConnection(peer);
 	}
 
 }

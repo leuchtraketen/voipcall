@@ -1,4 +1,4 @@
-package call;
+package call.debug;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -8,6 +8,9 @@ import java.io.InputStream;
 
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import call.CallPlayer;
+import call.Id;
 
 public class TestFileLoad implements Id {
 	public static void main(String[] args) {

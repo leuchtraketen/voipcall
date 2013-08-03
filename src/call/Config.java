@@ -1,10 +1,15 @@
 package call;
 
+import java.util.Random;
+
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
-public class CallConfig {
+public class Config {
+
+	public static final int UID = new Random(System.currentTimeMillis()).nextInt();
+	public static final String UID_S = UID + "";
 
 	public static final AudioFormat.Encoding DEFAULT_ENCODING = AudioFormat.Encoding.PCM_SIGNED;
 	public static final boolean DEFAULT_BIG_ENDIAN = false;

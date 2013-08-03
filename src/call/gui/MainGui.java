@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -11,9 +12,10 @@ import javax.swing.JFrame;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import call.Activatable;
+import call.CallUi;
+import call.Connection;
 import call.Util;
-import call.gui.ChatGui.ChatPanel;
+import call.gui.ChatTab.ChatPanel;
 
 public class MainGui {
 
@@ -24,11 +26,12 @@ public class MainGui {
 	private final JSplitPane horizontalSplitPane;
 
 	private static MainGui instance;
-	private final ContactsGui contactsGui;
+	private final ContactsBar contactsGui;
 
 	public static MainGui getInstance() {
 		if (instance == null) {
 			instance = new MainGui();
+			CallUi.register(new GuiAdapter());
 		}
 		return instance;
 	}
@@ -38,7 +41,7 @@ public class MainGui {
 		window.setTitle(WINDOW_TITLE);
 		tabs = new JTabbedPane();
 
-		contactsGui = new ContactsGui();
+		contactsGui = new ContactsBar();
 		JComponent contactsPanel = contactsGui.getComponent();
 
 		horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -48,7 +51,7 @@ public class MainGui {
 		horizontalSplitPane.add(tabs);
 		window.add(BorderLayout.CENTER, horizontalSplitPane);
 
-		addTab("Terminal Output", new ConsoleGui().getComponent());
+		addTab("Terminal Output", new ConsoleTab().getComponent());
 	}
 
 	public void addTab(String name, JComponent component) {
@@ -68,15 +71,21 @@ public class MainGui {
 		}
 	}
 
-	public void closeInactiveTabs() {
+	public void closeInactiveTabsExcept(Set<String> except) {
 		for (int i = tabs.getTabCount() - 1; i >= 0; --i) {
-			Object component = tabs.getComponentAt(i);
-			if (component instanceof ChatPanel) {
-				ChatGui chatgui = ((ChatPanel) component).getChatGui();
-				Activatable connection = chatgui.getConnection();
-				if (connection == null || !connection.isActive()) {
-					tabs.remove((Component) component);
-				}
+			if (!except.contains(tabs.getTitleAt(i))) {
+				closeInactiveTab(i);
+			}
+		}
+	}
+
+	private void closeInactiveTab(int i) {
+		Object component = tabs.getComponentAt(i);
+		if (component instanceof ChatPanel) {
+			ChatTab chatgui = ((ChatPanel) component).getChatGui();
+			Connection connection = chatgui.getCallaction().getConnection();
+			if (connection == null || connection.isFinished()) {
+				tabs.remove((Component) component);
 			}
 		}
 	}

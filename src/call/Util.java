@@ -2,9 +2,12 @@ package call;
 
 import java.awt.Color;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.UIManager;
 
@@ -150,5 +153,9 @@ public class Util {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (Exception e) {}
+	}
+
+	public static <T> Set<T> asSet(T[] array) {
+		return new HashSet<T>(Arrays.asList(array));
 	}
 }

@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-public class Server implements Runnable, Activatable {
+public class Server extends AbstractConnection implements Runnable {
 
 	private boolean listening = false;
 
@@ -16,16 +16,16 @@ public class Server implements Runnable, Activatable {
 		while (listening) {
 			ServerSocket serverSocket = null;
 
-			CallConfig.CURRENT_PORT = CallConfig.DEFAULT_PORT;
+			Config.CURRENT_PORT = Config.DEFAULT_PORT;
 			while (serverSocket == null) {
 				try {
-					serverSocket = new ServerSocket(CallConfig.CURRENT_PORT);
-					System.out.println("Server listening on port: " + CallConfig.CURRENT_PORT);
+					serverSocket = new ServerSocket(Config.CURRENT_PORT);
+					System.out.println("Server listening on port: " + Config.CURRENT_PORT);
 				} catch (IOException e) {
-					System.err.println("Could not listen on port: " + CallConfig.CURRENT_PORT + ".");
+					System.err.println("Could not listen on port: " + Config.CURRENT_PORT + ".");
 					serverSocket = null;
 					Util.sleep(1000);
-					CallConfig.CURRENT_PORT += 10;
+					Config.CURRENT_PORT += 10;
 				}
 			}
 
@@ -41,40 +41,37 @@ public class Server implements Runnable, Activatable {
 					final String remoteuser = SocketUtil.getHeaderValue(headers, "user");
 					final String remotehost = socket.getInetAddress().getCanonicalHostName();
 
+					Contact contact = ContactScanThread.findContact(remotehost, remoteuser);
+					if (contact == null) {
+						System.out.println("No contact found for: " + remoteuser + "@" + remotehost);
+						contact = new Contact(remotehost, socket.getPort(), remoteuser);
+						contact.setReachable(true);
+					}
+					if (Config.UID_S.equals(SocketUtil.getHeaderValue(headers, "UID"))) {
+						contact = new Contact(remotehost, socket.getPort(), remoteuser);
+						contact.setReachable(true);
+					}
+
 					final String request = SocketUtil.getHeaderValue(headers, "request");
-					final Peer peer;
 					if (request.toLowerCase().equals("status")) {
 						// status connection
 						socket.close();
-						peer = null;
 
 					} else if (request.toLowerCase().equals("call")) {
-						socket.setSoTimeout(CallConfig.SOCKET_TIMEOUT);
-						peer = Calls.registerPeer(socket, headers);
-						Util.log(peer, "Connected (Server).");
+						socket.setSoTimeout(Config.SOCKET_TIMEOUT);
+						if (!contact.isReachable()) {
+							ContactScanThread.addContact(contact);
+						}
+						CallThread call = CallFactory.createCall(contact, socket, headers);
+						new Thread(call).start();
+						Util.log(call, "Connected (Server).");
 
 					} else {
 						Util.log(socket.toString(), "Fuck! Unknown connection type!");
 						for (String header : headers) {
 							Util.log(socket.toString(), "header: " + header);
 						}
-						peer = null;
 					}
-
-					new Thread(new Runnable() {
-						@Override
-						public void run() {
-							Contact contact = Contacts.findContact(remotehost, remoteuser);
-							if (contact == null) {
-								contact = new Contact(remotehost, 0, remoteuser);
-							}
-							Contacts.addContact(contact);
-							if (request.toLowerCase().equals("call")) {
-								CallUi.openCall(contact);
-								CallUi.setConnection(contact, peer);
-							}
-						}
-					}).start();
 
 				} catch (IOException e) {
 					System.out.println("Error in call accept loop!");
@@ -85,30 +82,23 @@ public class Server implements Runnable, Activatable {
 	}
 
 	@Override
-	public boolean isActive() {
+	public boolean isConnected() {
 		return listening;
 	}
 
 	@Override
 	public void close() {
 		listening = false;
+		super.close();
 	}
 
 	@Override
 	public String toString() {
-		return "0.0.0.0:" + CallConfig.CURRENT_PORT;
+		return "0.0.0.0:" + Config.CURRENT_PORT;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (obj != null) {
-			return hashCode() == obj.hashCode();
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return toString().hashCode();
+	public String getId() {
+		return toString();
 	}
 }

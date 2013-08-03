@@ -11,26 +11,25 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
-public class CallRecorder implements Runnable, Activatable {
+public class CallRecorder extends AbstractConnection implements Runnable {
 
 	private final Id id;
 	private final TargetDataLine line;
 	private final OutputStream out;
-	private boolean stop = true;
 	private final List<OutputStream> captureStreams = new ArrayList<OutputStream>();
 
 	public CallRecorder(Id id, OutputStream out) throws LineUnavailableException {
 		this.id = id;
 		this.out = out;
 
-		int nChannels = CallConfig.DEFAULT_CHANNELS;
-		float fRate = CallConfig.DEFAULT_RATE;
+		int nChannels = Config.DEFAULT_CHANNELS;
+		float fRate = Config.DEFAULT_RATE;
 
-		AudioFormat.Encoding encoding = CallConfig.DEFAULT_ENCODING;
+		AudioFormat.Encoding encoding = Config.DEFAULT_ENCODING;
 
-		int nFrameSize = (CallConfig.DEFAULT_SAMPLE_SIZE / 8) * nChannels;
-		AudioFormat audioFormat = new AudioFormat(encoding, fRate, CallConfig.DEFAULT_SAMPLE_SIZE, nChannels,
-				nFrameSize, fRate, CallConfig.DEFAULT_BIG_ENDIAN);
+		int nFrameSize = (Config.DEFAULT_SAMPLE_SIZE / 8) * nChannels;
+		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.DEFAULT_SAMPLE_SIZE, nChannels,
+				nFrameSize, fRate, Config.DEFAULT_BIG_ENDIAN);
 		Util.log(id, "Recorder: start.");
 		Util.log(id, "Recorder: target audio format: " + audioFormat);
 
@@ -52,10 +51,10 @@ public class CallRecorder implements Runnable, Activatable {
 
 		byte buffer[] = new byte[1024 * 16];
 
-		stop = false;
+		setConnected(true);
 		try {
-			while (!stop && line.isOpen()) {
-				System.out.println("stop = " + stop + ", line.isOpen() = " + line.isOpen());
+			while (isConnected() && line.isOpen()) {
+				//System.out.println("connected = " + isConnected() + ", line.isOpen() = " + line.isOpen());
 				// Read data from the internal buffer of the data line.
 				int cnt = line.read(buffer, 0, buffer.length);
 				// System.out.println("Buffer (send):    " + (100.0 /
@@ -79,7 +78,7 @@ public class CallRecorder implements Runnable, Activatable {
 					}
 				}
 			}
-			System.out.println("stop = " + stop + ", line.isOpen() = " + line.isOpen() + " (2)");
+			//System.out.println("connected = " + isConnected() + ", line.isOpen() = " + line.isOpen() + " (2)");
 			out.flush();
 		} catch (SocketException e) {
 			Util.log(id, "Recorder: " + e.getLocalizedMessage());
@@ -91,18 +90,14 @@ public class CallRecorder implements Runnable, Activatable {
 
 	@Override
 	public void close() {
-		if (stop == false)
+		if (isConnected()) {
 			Util.log(id, "Recorder: stop.");
-		stop = true;
+		}
 		if (line.isRunning())
 			line.stop();
 		if (line.isOpen())
 			line.close();
-	}
-
-	@Override
-	public boolean isActive() {
-		return !stop;
+		super.close();
 	}
 
 	public void saveTo(Capture capture) {
@@ -112,4 +107,8 @@ public class CallRecorder implements Runnable, Activatable {
 		}
 	}
 
+	@Override
+	public String getId() {
+		return "CallPlayer<" + id.getId() + ">";
+	}
 }

@@ -12,11 +12,11 @@ import javax.swing.text.DefaultCaret;
 import call.LogProvider;
 import call.Util;
 
-class ConsoleGui {
+class ConsoleTab {
 
 	JTextArea area = new JTextArea(20, 80);
 
-	public ConsoleGui() {
+	public ConsoleTab() {
 		// area
 		Font font = new Font("Monospaced", Font.PLAIN, 12);
 		area.setFont(font);
