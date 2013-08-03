@@ -109,6 +109,6 @@ public class CallRecorder extends AbstractConnection implements Runnable {
 
 	@Override
 	public String getId() {
-		return "CallPlayer<" + id.getId() + ">";
+		return "CallRecorder<" + id.getId() + ">";
 	}
 }

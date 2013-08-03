@@ -15,6 +15,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultCaret;
@@ -24,11 +25,10 @@ import call.Util;
 
 public class ChatTab {
 
-
 	// instances
 	private static final Map<Contact, ChatTab> instances = new HashMap<Contact, ChatTab>();
 
-	public static ChatTab getInstance(Contact c) {
+	public static synchronized ChatTab getInstance(Contact c) {
 		if (instances.containsKey(c)) {
 			return instances.get(c);
 		} else {
@@ -46,7 +46,7 @@ public class ChatTab {
 	private final JHoverButton chatbutton;
 	private final CallAction callaction;
 	private final ChatAction chataction;
-	private final JTextArea chatfield;
+	private final JTextField chatfield;
 
 	private ChatTab(Contact contact) {
 		this.contact = contact;
@@ -89,12 +89,12 @@ public class ChatTab {
 		JPanel chatpanel = new JPanel();
 		chatpanel.setLayout(new BorderLayout());
 		chatpanel.setBorder(BorderFactory.createEmptyBorder());
-		panel.add(BorderLayout.SOUTH, chatpanel);
 
 		// chat field
-		chatfield = new JTextArea(50, 3);
+		chatfield = new JTextField();
 		chataction = new ChatAction(contact);
-		addEnterAction(chatfield, chataction.getActionListener());
+		chatfield.setPreferredSize(new Dimension(500, 50));
+		//addEnterAction(chatfield, chataction.getActionListener());
 		chatpanel.add(BorderLayout.CENTER, chatfield);
 
 		// chat button
@@ -104,6 +104,8 @@ public class ChatTab {
 		chatbutton.setBorderPainted(false);
 		chatbutton.setFocusPainted(false);
 		chatbutton.setContentAreaFilled(false);
+
+		panel.add(BorderLayout.SOUTH, chatpanel);
 	}
 
 	private void addEnterAction(JTextArea textarea, Action action) {

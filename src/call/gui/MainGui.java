@@ -83,8 +83,11 @@ public class MainGui {
 		Object component = tabs.getComponentAt(i);
 		if (component instanceof ChatPanel) {
 			ChatTab chatgui = ((ChatPanel) component).getChatGui();
-			Connection connection = chatgui.getCallaction().getConnection();
+			/*Connection connection = chatgui.getCallaction().getConnection();
 			if (connection == null || connection.isFinished()) {
+				tabs.remove((Component) component);
+			}*/
+			if (!chatgui.getCallaction().isConnected()) {
 				tabs.remove((Component) component);
 			}
 		}

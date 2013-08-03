@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CallFactory {
+	
+	
 
 	private static final Map<Contact, Connection> connections = new HashMap<Contact, Connection>();
 
@@ -14,7 +16,12 @@ public class CallFactory {
 		connections.put(contact, call);
 		call.addCloseListener(new Cleanup(contact));
 		CallUi.openCall(contact);
-		CallUi.addUiListener(contact, call);
+		for (Connection conn : CallUi.getUiListeners(contact)) {
+			conn.addCloseListener(call);
+			conn.addOpenListener(call);
+			call.addCloseListener(conn);
+			call.addOpenListener(conn);
+		}
 		return call;
 	}
 

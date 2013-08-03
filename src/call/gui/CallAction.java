@@ -35,7 +35,7 @@ public class CallAction extends AbstractConnection {
 				if (!isConnected()) {
 					start();
 				} else {
-					stop();
+					close();
 				}
 
 				updatebutton();
@@ -57,8 +57,8 @@ public class CallAction extends AbstractConnection {
 		try {
 			setConnected(true);
 			Client client = Client.connect(contact.getHost(), contact.getPort(), SocketUtil.RequestType.Call);
-			client.addCloseListener(this);
-			client.addOpenListener(this);
+			// client.addCloseListener(this);
+			// client.addOpenListener(this);
 			Thread thr = new Thread(client);
 			thr.start();
 			Util.msg(contact).println("Connected.", Color.green);
@@ -70,13 +70,6 @@ public class CallAction extends AbstractConnection {
 		}
 	}
 
-	private void stop() {
-		if (isConnected())
-			getConnection().close();
-		Util.msg(contact).println("Disconnected.", Color.green);
-		updatebutton();
-	}
-
 	/*
 	 * @Override public boolean isConnected() { return getConnection() != null;
 	 * }
@@ -84,16 +77,19 @@ public class CallAction extends AbstractConnection {
 
 	@Override
 	public void close() {
-		stop();
+		Util.msg(contact).println("Disconnected.", Color.green);
+		updatebutton();
 		super.close();
+	}
+
+	@Override
+	public void open() {
+		updatebutton();
+		super.open();
 	}
 
 	public Connection getConnection() {
 		return CallFactory.getConnection(contact);
-	}
-
-	public void updateGui() {
-		updatebutton();
 	}
 
 	@Override

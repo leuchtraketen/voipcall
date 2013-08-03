@@ -10,17 +10,21 @@ public abstract class AbstractConnection implements Connection {
 	};
 
 	private State connected = State.VIRGIN;
+	private boolean inOpen = false;
+	private boolean inClose = false;
 
 	private List<Connection> openListeners = new ArrayList<Connection>();
 	private List<Connection> closeListeners = new ArrayList<Connection>();
 
 	@Override
 	public void addCloseListener(Connection connection) {
+		System.out.println("close listener: " + this.getId() + " -> " + connection.getId());
 		closeListeners.add(connection);
 	}
 
 	@Override
 	public void addOpenListener(Connection connection) {
+		System.out.println("open  listener: " + this.getId() + " -> " + connection.getId());
 		openListeners.add(connection);
 	}
 
@@ -55,24 +59,35 @@ public abstract class AbstractConnection implements Connection {
 
 	@Override
 	public void open() {
-		// if (!connected) {
-		connected = State.OPEN;
-		for (Connection cl : openListeners) {
-			cl.open();
+		if (!inOpen) {
+			System.out.println("open():  " + this.getId());
+			inOpen = true;
+			connected = State.OPEN;
+			for (Connection cl : openListeners) {
+				System.out.println("- open():  " + cl.getId());
+				cl.open();
+			}
+			inOpen = false;
 		}
-		// openListeners.clear();
-		// }
 	}
 
 	@Override
 	public void close() {
-		if (connected.equals(State.OPEN)) {
-			connected = State.CLOSED;
-			for (Connection cl : closeListeners) {
-				cl.close();
-			}
-			closeListeners.clear();
-			openListeners.clear();
+		if (!inClose) {
+			System.out.println("close(): " + this.getId());
+			inClose = true;
+			if (connected.equals(State.OPEN)) {
+				connected = State.CLOSED;
+				for (Connection cl : closeListeners) {
+					System.out.println("- close(): " + cl.getId());
+					cl.close();
+				}
+				closeListeners.clear();
+				openListeners.clear();
+			} else
+				System.out.println("- (not open)");
+
+			inClose = false;
 		}
 	}
 

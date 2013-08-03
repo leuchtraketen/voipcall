@@ -1,8 +1,12 @@
 package call.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JComponent;
 
 import call.CallUi;
+import call.Connection;
 import call.Contact;
 import call.Util;
 
@@ -20,10 +24,10 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 	}
 
 	@Override
-	public void updateCall(Contact contact) {
-		ChatTab.getInstance(contact).getCallaction().updateGui();
-		Util.log("fuck", "GuiAdapter.updateCall()");
-
+	public List<Connection> getUiListeners(Contact contact) {
+		List<Connection> listeners = new ArrayList<Connection>();
+		listeners.add(ChatTab.getInstance(contact).getCallaction());
+		return listeners;
 	}
 
 }

@@ -45,11 +45,11 @@ public class Server extends AbstractConnection implements Runnable {
 					if (contact == null) {
 						System.out.println("No contact found for: " + remoteuser + "@" + remotehost);
 						contact = new Contact(remotehost, socket.getPort(), remoteuser);
-						contact.setReachable(true);
+						contact.setReachable(false);
 					}
 					if (Config.UID_S.equals(SocketUtil.getHeaderValue(headers, "UID"))) {
 						contact = new Contact(remotehost, socket.getPort(), remoteuser);
-						contact.setReachable(true);
+						contact.setReachable(false);
 					}
 
 					final String request = SocketUtil.getHeaderValue(headers, "request");

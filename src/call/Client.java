@@ -104,7 +104,7 @@ public class Client extends AbstractConnection implements Runnable {
 
 	@Override
 	public String getId() {
-		return contact.getId();
+		return "Client<" + contact.getId() + ">";
 	}
 
 	public Contact getContact() {

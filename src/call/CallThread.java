@@ -67,6 +67,6 @@ public class CallThread extends AbstractConnection implements Runnable {
 
 	@Override
 	public String getId() {
-		return contact.getId();
+		return "CallThread<" + contact.getId() + ">";
 	}
 }
