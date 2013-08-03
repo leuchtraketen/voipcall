@@ -26,8 +26,7 @@ public class TestClient {
 					ip = "127.0.0.1";
 			}
 			client = Client.connect(ip, SocketUtil.RequestType.Call);
-			Thread thr = new Thread(client);
-			thr.start();
+			Thread thr = client.start();
 			thr.join();
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();

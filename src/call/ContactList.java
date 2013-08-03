@@ -53,6 +53,7 @@ public class ContactList implements Runnable {
 				try {
 					Client client = Client.connect(host, port, SocketUtil.RequestType.Status);
 					client.close();
+					System.out.println("abc" + client);
 					if (!containsContact(client)) {
 						addContact(client.getContact());
 						Util.log(client, "Online");

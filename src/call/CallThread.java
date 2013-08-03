@@ -10,7 +10,7 @@ import java.util.List;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class CallThread extends AbstractConnection implements Runnable {
+public class CallThread extends AbstractCallConnection implements Runnable {
 
 	private final Socket socket;
 	private final long time;
@@ -26,8 +26,6 @@ public class CallThread extends AbstractConnection implements Runnable {
 	@Override
 	public void run() {
 		try {
-			open();
-
 			OutputStream outstream = socket.getOutputStream();
 			out = new CallRecorder(contact, outstream);
 			out.saveTo(new CallCapture(time, contact.getHost(), "output"));
@@ -40,11 +38,19 @@ public class CallThread extends AbstractConnection implements Runnable {
 
 		} catch (LineUnavailableException | UnsupportedAudioFileException e) {
 			e.printStackTrace();
-			close();
+			CallFactory.closeCall(contact);
 		} catch (IOException e) {
 			e.printStackTrace();
-			close();
+			CallFactory.closeCall(contact);
 		}
+	}
+
+	@Override
+	public void onCallClose() {
+		try {
+			socket.close();
+		} catch (IOException e) {}
+		super.onCallClose();
 	}
 
 	public Socket getSocket() {

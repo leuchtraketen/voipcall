@@ -6,11 +6,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 
-public class Server extends AbstractConnection implements Runnable {
+public class Server extends AbstractId implements Runnable {
 
-	public Server() {
-		super(ContactList.me());
-	}
+	public Server() {}
 
 	private boolean listening = false;
 
@@ -36,6 +34,7 @@ public class Server extends AbstractConnection implements Runnable {
 			while (listening) {
 				try {
 					final Socket socket = serverSocket.accept();
+					Util.log(this, "Connecting (Server).");
 					socket.setReuseAddress(true);
 
 					SocketUtil.writeHeaders(socket.getOutputStream(), SocketUtil.RequestType.ServerCall);
@@ -48,12 +47,12 @@ public class Server extends AbstractConnection implements Runnable {
 					Contact contact = ContactList.findContact(remotehost, remoteuser);
 					if (contact == null) {
 						System.out.println("No contact found for: " + remoteuser + "@" + remotehost);
-						contact = new Contact(remotehost, socket.getPort(), remoteuser);
-						contact.setReachable(false);
+						contact = new Contact(remotehost, socket.getPort(), remoteuser,
+								Contact.Reachability.UNREACHABLE);
 					}
 					if (Config.UID_S.equals(SocketUtil.getHeaderValue(headers, "UID"))) {
-						contact = new Contact(remotehost, socket.getPort(), remoteuser);
-						contact.setReachable(false);
+						contact = new Contact(remotehost, socket.getPort(), remoteuser,
+								Contact.Reachability.LOOPBACK);
 					}
 
 					final String request = SocketUtil.getHeaderValue(headers, "request");
@@ -85,15 +84,12 @@ public class Server extends AbstractConnection implements Runnable {
 		}
 	}
 
-	@Override
 	public boolean isConnected() {
 		return listening;
 	}
 
-	@Override
 	public void close() {
 		listening = false;
-		super.close();
 	}
 
 	@Override

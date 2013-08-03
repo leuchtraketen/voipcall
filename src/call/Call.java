@@ -10,16 +10,19 @@ public class Call extends AbstractId {
 
 	private final Contact contact;
 	private final Socket socket;
+	@SuppressWarnings("unused")
 	private final List<String> headers;
-	private final Set<Connection> connections = new HashSet<Connection>();
+	private final Set<CallConnection> connections = new HashSet<CallConnection>();
+	private ConnectionState state;
 
 	public Call(Contact contact, Socket socket, List<String> headers) {
 		this.contact = contact;
 		this.socket = socket;
 		this.headers = headers;
+		this.state = ConnectionState.CONNECTING;
 	}
 
-	public void addConnection(Connection connection) {
+	public void addConnection(CallConnection connection) {
 		connections.add(connection);
 	}
 
@@ -27,19 +30,29 @@ public class Call extends AbstractId {
 		return contact;
 	}
 
-	public void close() {
-		for (Connection connection : connections) {
-			connection.close();
+	public synchronized void close() {
+		if (!state.equals(ConnectionState.CLOSED)) {
+			state = ConnectionState.CLOSED;
+			for (CallConnection connection : new HashSet<CallConnection>(connections)) {
+				connection.onCallClose();
+			}
+			try {
+				socket.close();
+			} catch (IOException e) {}
 		}
-		try {
-			socket.close();
-		} catch (IOException e) {}
 	}
 
-	public void open() {
-		for (Connection connection : connections) {
-			connection.open();
+	public synchronized void open() {
+		if (!state.equals(ConnectionState.OPEN)) {
+			state = ConnectionState.OPEN;
+			for (CallConnection connection : new HashSet<CallConnection>(connections)) {
+				connection.onCallOpen();
+			}
 		}
+	}
+
+	public ConnectionState getState() {
+		return state;
 	}
 
 	@Override

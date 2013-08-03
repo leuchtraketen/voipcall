@@ -17,17 +17,11 @@ public class CallUi {
 		instance.openChat(contact);
 	}
 
-	public static List<Connection> getUiListeners(Contact contact) {
-		return instance.getUiListeners(contact);
-	}
-
 	public static interface CallUiAdapter {
 
 		public abstract void openCall(Contact contact);
 
 		public abstract void openChat(Contact contact);
-
-		public abstract List<Connection> getUiListeners(Contact contact);
 
 	}
 

@@ -9,19 +9,19 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
 
-public class Client extends AbstractConnection implements Runnable {
+public class Client extends AbstractId {
 
-	private Socket socket;
-
-	private SocketUtil.RequestType request;
+	private final Socket socket;
+	private final Contact contact;
+	private final SocketUtil.RequestType request;
 	private final List<String> headers;
 
 	public Client(String host, int port, SocketUtil.RequestType request) throws UnknownHostException,
 			IOException {
-		super(null);
 		this.request = request;
 
 		// open socket
+		System.out.println("open socket: " + host + ":" + port);
 		this.socket = new Socket(InetAddress.getByName(host), port);
 		socket.setReuseAddress(true);
 
@@ -33,7 +33,7 @@ public class Client extends AbstractConnection implements Runnable {
 		// create contact
 		host = socket.getInetAddress().getCanonicalHostName();
 		final String user = SocketUtil.getHeaderValue(headers, "User");
-		setContact(new Contact(host, port, user));
+		contact = new Contact(host, port, user);
 
 		// handle request
 		if (!request.equals(SocketUtil.RequestType.Status)) {
@@ -83,20 +83,22 @@ public class Client extends AbstractConnection implements Runnable {
 		}
 	}
 
-	@Override
-	public void run() {
+	public Thread start() {
 		if (request.equals(SocketUtil.RequestType.Call)) {
 			CallThread call = CallFactory.createCall(contact, socket, headers);
-			new Thread(call).start();
+			Thread thr = new Thread(call);
+			thr.start();
+			return thr;
+		}
+		else {
+			throw new UnsupportedOperationException("Don't know what to do.....");
 		}
 	}
 
-	@Override
 	public void close() {
 		try {
 			socket.close();
 		} catch (IOException e) {}
-		super.close();
 	}
 
 	@Override

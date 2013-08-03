@@ -9,17 +9,19 @@ import java.net.Socket;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import call.AbstractConnection;
 import call.Client;
 import call.Contact;
 import call.ContactList;
+import call.Id;
 import call.SocketUtil;
 import call.Util;
 
-public class ChatAction extends AbstractConnection {
+public class ChatAction implements Id {
+
+	private final Contact contact;
 
 	public ChatAction(Contact contact) {
-		super(contact);
+		this.contact = contact;
 	}
 
 	private void sendmessage() {
@@ -40,14 +42,6 @@ public class ChatAction extends AbstractConnection {
 			}
 		}).start();
 	}
-
-	@Override
-	public boolean isConnected() {
-		return false;
-	}
-
-	@Override
-	public void close() {}
 
 	@Override
 	public String getId() {

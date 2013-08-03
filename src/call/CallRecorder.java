@@ -11,7 +11,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
-public class CallRecorder extends AbstractConnection implements Runnable {
+public class CallRecorder extends AbstractCallConnection implements Runnable {
 
 	private final TargetDataLine line;
 	private final OutputStream out;
@@ -50,8 +50,10 @@ public class CallRecorder extends AbstractConnection implements Runnable {
 
 		byte buffer[] = new byte[1024 * 16];
 
+		CallFactory.openCall(contact);
+
 		try {
-			while (isConnected() && line.isOpen()) {
+			while (isCallOpen() && line.isOpen()) {
 				// System.out.println("connected = " + isConnected() +
 				// ", line.isOpen() = " + line.isOpen());
 				// Read data from the internal buffer of the data line.
@@ -85,19 +87,19 @@ public class CallRecorder extends AbstractConnection implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		close();
+
+		CallFactory.closeCall(contact);
 	}
 
 	@Override
-	public void close() {
-		if (isConnected()) {
-			Util.log(contact, "Recorder: stop.");
-		}
+	public void onCallClose() {
+		Util.log(contact, "Recorder: stop.");
+
 		if (line.isRunning())
 			line.stop();
 		if (line.isOpen())
 			line.close();
-		super.close();
+		super.onCallClose();
 	}
 
 	public void saveTo(Capture capture) {

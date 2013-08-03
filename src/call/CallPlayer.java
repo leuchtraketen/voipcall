@@ -14,14 +14,14 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class CallPlayer extends AbstractConnection implements Runnable {
+public class CallPlayer extends AbstractCallConnection implements Runnable {
 
 	private final SourceDataLine line;
 	private final InputStream in;
 	private final List<OutputStream> captureStreams = new ArrayList<OutputStream>();
 
-	public CallPlayer(Contact contact, InputStream in) throws LineUnavailableException, UnsupportedAudioFileException,
-			IOException {
+	public CallPlayer(Contact contact, InputStream in) throws LineUnavailableException,
+			UnsupportedAudioFileException, IOException {
 		super(contact);
 		this.in = in;
 
@@ -50,11 +50,14 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 		long lastTime = startTime;
 
 		byte[] buffer = new byte[1024 * 16];
+
+		CallFactory.openCall(contact);
+
 		try {
 			int cnt;
 			// Keep looping until the input read method returns -1 for empty
 			// stream.
-			while ((cnt = in.read(buffer, 0, buffer.length)) != -1 && isConnected()) {
+			while ((cnt = in.read(buffer, 0, buffer.length)) != -1 && isCallOpen()) {
 				if (cnt > 0) {
 					// Write data to the internal buffer of the data line where
 					// it will be delivered to the speaker.
@@ -86,19 +89,18 @@ public class CallPlayer extends AbstractConnection implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		close();
+
+		CallFactory.closeCall(contact);
 	}
 
 	@Override
-	public void close() {
-		if (isConnected()) {
-			Util.log(contact, "Player: stop.");
-		}
+	public void onCallClose() {
+		Util.log(contact, "Player: stop.");
 		if (line.isRunning())
 			line.stop();
 		if (line.isOpen())
 			line.close();
-		super.close();
+		super.onCallClose();
 	}
 
 	public void saveTo(Capture capture) {

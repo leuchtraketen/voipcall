@@ -7,21 +7,26 @@ import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import call.AbstractConnection;
+import call.AbstractCallConnection;
+import call.AbstractId;
 import call.CallFactory;
-import call.Connection;
 import call.Client;
 import call.Contact;
 import call.SocketUtil;
 import call.Util;
 
-public class CallAction extends AbstractConnection {
+public class CallAction extends AbstractId {
 
 	private final JHoverButton callbutton;
+	private final Contact contact;
 
 	public CallAction(Contact contact, JHoverButton callbutton) {
-		super(contact);
+		this.contact = contact;
 		this.callbutton = callbutton;
+	}
+
+	public Action getActionListener() {
+		return new Listener();
 	}
 
 	public void buttonclick() {
@@ -31,10 +36,19 @@ public class CallAction extends AbstractConnection {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				if (!isConnected()) {
+				switch (CallFactory.getCallState(contact)) {
+				case CLOSED:
 					start();
-				} else {
-					close();
+					break;
+				case CONNECTING:
+					stop();
+					break;
+				case OPEN:
+					stop();
+					break;
+				default:
+					break;
+
 				}
 
 				updatebutton();
@@ -43,46 +57,43 @@ public class CallAction extends AbstractConnection {
 	}
 
 	void updatebutton() {
-		if (!isConnected()) {
+		switch (CallFactory.getCallState(contact)) {
+		case CLOSED:
 			callbutton.setIcon(Resources.ICON_START_CALL, Resources.ICON_START_CALL_HOVER);
-		} else {
+			callbutton.setEnabled(true);
+			break;
+		case CONNECTING:
+			callbutton.setIcon(Resources.ICON_CONNECT_CALL);
+			callbutton.setEnabled(false);
+			break;
+		case OPEN:
 			callbutton.setIcon(Resources.ICON_STOP_CALL, Resources.ICON_STOP_CALL_HOVER);
+			callbutton.setEnabled(true);
+			break;
+		default:
+			break;
+
 		}
-		callbutton.setEnabled(true);
 	}
 
 	private void start() {
 		Util.msg(contact).println("Call...", Color.green);
 		try {
 			Client client = Client.connect(contact.getHost(), contact.getPort(), SocketUtil.RequestType.Call);
-			Thread thr = new Thread(client);
-			thr.start();
-			//Util.msg(contact).println("Connected.", Color.green);
+			@SuppressWarnings("unused")
+			Thread thread = client.start();
+			openCall();
+			// Util.msg(contact).println("Connected.", Color.green);
 		} catch (Exception e) {
 			Util.msg(contact).println("Call failed :(", Color.red);
 			Util.msg(contact).println("Error: " + e.getLocalizedMessage(), Color.red);
 			e.printStackTrace();
-			close();
+			CallFactory.closeCall(contact);
 		}
 	}
 
-	/*
-	 * @Override public boolean isConnected() { return getConnection() != null;
-	 * }
-	 */
-
-	@Override
-	public void close() {
-		Util.msg(contact).println("Disconnected.", Color.green);
-		updatebutton();
-		super.close();
-	}
-
-	@Override
-	public void open() {
-		Util.msg(contact).println("Connected.", Color.green);
-		updatebutton();
-		super.open();
+	private void stop() {
+		CallFactory.closeCall(contact);
 	}
 
 	@Override
@@ -90,8 +101,35 @@ public class CallAction extends AbstractConnection {
 		return "CallAction<" + contact + ">";
 	}
 
-	public Action getActionListener() {
-		return new Listener();
+	public void openCall() {
+		new CallActionConnection(contact);
+		updatebutton();
+	}
+
+	private class CallActionConnection extends AbstractCallConnection {
+
+		public CallActionConnection(Contact contact) {
+			super(contact);
+		}
+
+		@Override
+		public void onCallClose() {
+			Util.msg(contact).println("Disconnected.", Color.green);
+			updatebutton();
+			super.onCallClose();
+		}
+
+		@Override
+		public void onCallOpen() {
+			Util.msg(contact).println("Connected.", Color.green);
+			updatebutton();
+			super.onCallOpen();
+		}
+
+		@Override
+		public String getId() {
+			return "CallActionConnection<" + contact + ">";
+		}
 	}
 
 	private class Listener extends AbstractAction implements ActionListener {
@@ -99,6 +137,7 @@ public class CallAction extends AbstractConnection {
 
 		@Override
 		public synchronized void actionPerformed(ActionEvent event) {
+
 			buttonclick();
 		}
 	}
