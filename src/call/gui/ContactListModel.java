@@ -33,6 +33,16 @@ public class ContactListModel extends AbstractListModel<Contact> implements List
 		}
 	}
 
+	public int indexOfElement(Contact contact) {
+		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
+		for (int i = 0; i < list.size(); ++i) {
+			if (contact.equals(list.get(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	@Override
 	public void update() {
 		this.fireContentsChanged(this, 0, getSize());

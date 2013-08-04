@@ -50,4 +50,15 @@ public class ContactsBar implements Listener {
 		panel.repaint();
 	}
 
+	public void setSelectedContact(Contact contact) {
+		if (contact != null) {
+			int index = peermodel.indexOfElement(contact);
+			if (index >= 0 && peerlist.getSelectedIndex() != index) {
+				peerlist.setSelectedIndex(index);
+			}
+		} else {
+			peerlist.clearSelection();
+		}
+	}
+
 }

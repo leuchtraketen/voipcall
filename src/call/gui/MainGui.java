@@ -72,12 +72,15 @@ public class MainGui {
 				int index = pane.getSelectedIndex();
 				Object component = tabs.getComponentAt(index);
 				if (component instanceof ChatPanel) {
-					final ChatTab chatgui = ((ChatPanel) component).getChatGui();
+					final ChatTab chattab = ((ChatPanel) component).getChatGui();
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							chatgui.focus();
+							chattab.focus();
+							contactsGui.setSelectedContact(chattab.getContact());
 						}
 					});
+				} else {
+					contactsGui.setSelectedContact(null);
 				}
 			}
 		});
@@ -98,7 +101,7 @@ public class MainGui {
 
 	public void showTab(String name) {
 		int index = tabs.indexOfTab(name);
-		if (index != -1) {
+		if (index != -1 && tabs.getSelectedIndex() != index) {
 			tabs.setSelectedIndex(index);
 		}
 	}

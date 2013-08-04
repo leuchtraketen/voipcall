@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo mv /var/lib/alsa/asound.state /root/
+sudo mount -t tmpfs none /var/lib/alsa
