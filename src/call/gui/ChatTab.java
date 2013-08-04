@@ -91,20 +91,23 @@ public class ChatTab {
 
 		// chat field
 		chatfield = new JTextField();
-		chataction = new ChatAction(contact);
 		// chatfield.setPreferredSize(new Dimension(500, 50));
 		// addEnterAction(chatfield, chataction.getActionListener());
 		chatpanel.add(BorderLayout.CENTER, chatfield);
 
 		// chat button
-		chatbutton = new JHoverButton(Resources.ICON_START_CHAT_SEND, Resources.ICON_START_CHAT_SEND_HOVER);
-		chatbutton.addActionListener(chataction.getActionListener());
+		chatbutton = new JHoverButton(Resources.ICON_START_CHAT, Resources.ICON_START_CHAT_HOVER);
 		chatpanel.add(BorderLayout.EAST, chatbutton);
 		chatbutton.setBorderPainted(false);
 		chatbutton.setFocusPainted(false);
 		chatbutton.setContentAreaFilled(false);
 		chatbutton.setBorder(null);
 		chatbutton.setMargin(new Insets(0,0,0,0));
+		
+		// chat action
+		chataction = new ChatAction(contact, chatfield, chatbutton);
+		chatfield.addKeyListener(chataction.getKeyListener());
+		chatbutton.addActionListener(chataction.getActionListener());
 
 		panel.add(BorderLayout.SOUTH, chatpanel);
 	}
@@ -121,6 +124,7 @@ public class ChatTab {
 		return layout;
 	}
 
+	@SuppressWarnings("unused")
 	private void addEnterAction(JTextArea textarea, Action action) {
 		InputMap input = textarea.getInputMap();
 		KeyStroke enter = KeyStroke.getKeyStroke("ENTER");

@@ -3,11 +3,15 @@ package call.gui;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JTextField;
 
 import call.AbstractId;
 import call.Client;
@@ -19,28 +23,54 @@ import call.Util;
 public class ChatAction extends AbstractId {
 
 	private final Contact contact;
+	private final JTextField chatfield;
+	private final JHoverButton chatbutton;
 
-	public ChatAction(Contact contact) {
+	public ChatAction(Contact contact, JTextField chatfield, JHoverButton chatbutton) {
 		this.contact = contact;
+		this.chatfield = chatfield;
+		this.chatbutton = chatbutton;
 	}
 
-	private void sendmessage() {
-		final String msg = "";
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Client client = Client.connect(contact.getHost(), contact.getPort(),
-							SocketUtil.RequestType.Chat);
-					Socket socket = client.getSocket();
-					PrintWriter pw = new PrintWriter(socket.getOutputStream());
-					pw.println(msg);
-					pw.close();
-					socket.close();
-					Util.msg(ContactList.me()).println(ContactList.me(), Color.blue, msg);
-				} catch (Exception e) {}
+	private synchronized void sendmessage() {
+		final String msg = chatfield.getText();
+		if (msg.length() > 0) {
+			try {
+				chatfield.setText("");
+				updateChatForm(true);
+				sendmessage(msg);
+			} catch (Exception e) {
+				chatfield.setText(msg);
 			}
-		}).start();
+		}
+		updateChatForm(false);
+	}
+
+	void updateChatForm(boolean sending) {
+		if (sending) {
+			chatfield.setEditable(false);
+			chatbutton.setIcon(Resources.ICON_CONNECT_CHAT, Resources.ICON_CONNECT_CHAT);
+			chatbutton.setEnabled(true);
+			chatbutton.repaint();
+		} else {
+			chatfield.setEditable(true);
+			chatbutton.setIcon(Resources.ICON_START_CHAT, Resources.ICON_START_CHAT_HOVER);
+			chatbutton.setEnabled(true);
+			chatbutton.repaint();
+		}
+	}
+
+	private void sendmessage(String msg) throws IOException {
+		Util.log(this, "sendmessage: " + msg + " (start)");
+		Client client = Client.connect(contact.getHost(), contact.getPort(), SocketUtil.RequestType.Chat);
+		Socket socket = client.getSocket();
+		PrintWriter pw = new PrintWriter(socket.getOutputStream());
+		pw.println(msg);
+		pw.close();
+		socket.close();
+		Util.msg(ContactList.me()).println(ContactList.me(), Color.blue, msg);
+		Util.log(this, "sendmessage: " + msg + " (done)");
+		Util.sleep(2000);
 	}
 
 	@Override
@@ -48,17 +78,45 @@ public class ChatAction extends AbstractId {
 		return "ChatAction<" + contact + ">";
 	}
 
-	public Action getActionListener() {
-		return new Listener();
+	private class Handler implements Runnable {
+		@Override
+		public void run() {
+			sendmessage();
+		}
 	}
 
-	private class Listener extends AbstractAction implements ActionListener {
+	public Action getActionListener() {
+		return new ChatActionListener();
+	}
+
+	private class ChatActionListener extends AbstractAction implements ActionListener {
 		private static final long serialVersionUID = -2894054980727988921L;
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			sendmessage();
+			new Thread(new Handler()).start();
 		}
+	}
+
+	public KeyListener getKeyListener() {
+		return new ChatKeyListener();
+	}
+
+	private class ChatKeyListener implements KeyListener {
+
+		@Override
+		public void keyPressed(KeyEvent e) {
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				new Thread(new Handler()).start();
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e) {}
+
+		@Override
+		public void keyTyped(KeyEvent e) {}
+
 	}
 
 }
