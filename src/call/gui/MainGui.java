@@ -167,7 +167,7 @@ public class MainGui {
 
 		// Add a JLabel with title and the left-side tab icon
 		JLabel lblTitle = new JLabel(title);
-		lblTitle.setFont(Resources.TEXT_FONT);
+		lblTitle.setFont(Resources.FONT_TABTITLE);
 		if (icon != null) {
 			lblTitle.setIcon(icon);
 		}

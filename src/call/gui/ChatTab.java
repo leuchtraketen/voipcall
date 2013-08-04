@@ -60,7 +60,7 @@ public class ChatTab {
 		// area
 		new JTextPaneMessageOutput(contact, area);
 		area.setPreferredSize(new Dimension(650, 350));
-		area.setFont(Resources.TEXT_FONT);
+		area.setFont(Resources.FONT_TEXT);
 		area.setEditable(false);
 		DefaultCaret caret = (DefaultCaret) area.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -91,6 +91,7 @@ public class ChatTab {
 
 		// chat field
 		chatfield = new JTextField();
+		chatfield.setFont(Resources.FONT_TEXT);
 		// chatfield.setPreferredSize(new Dimension(500, 50));
 		// addEnterAction(chatfield, chataction.getActionListener());
 		chatpanel.add(BorderLayout.CENTER, chatfield);

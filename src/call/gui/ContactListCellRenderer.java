@@ -27,7 +27,7 @@ public class ContactListCellRenderer implements ListCellRenderer<Contact> {
 
 		JLabel textlabel = new JLabel();
 		textlabel.setText(value.toString());
-		textlabel.setFont(Resources.TEXT_FONT);
+		textlabel.setFont(Resources.FONT_LIST);
 		setColors(textlabel, list, isSelected);
 		cell.add(textlabel, BorderLayout.CENTER);
 

@@ -87,6 +87,15 @@ public class ContactList {
 	}
 
 	private static void notifyListeners() {
+		// debugContactList();
+		
+		for (Listener listener : listeners) {
+			listener.update();
+		}
+	}
+
+	@SuppressWarnings("unused")
+	private static void debugContactList() {
 		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
 		Util.log("contactlist:", "--------");
 		for (Contact c : list) {
@@ -99,10 +108,6 @@ public class ContactList {
 			}
 		}
 		Util.log("contactlist:", "________");
-
-		for (Listener listener : listeners) {
-			listener.update();
-		}
 	}
 
 	public static void addListener(Listener listener) {

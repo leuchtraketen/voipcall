@@ -14,7 +14,7 @@ class ConsoleTab {
 
 	public ConsoleTab() {
 		// area
-		Font font = new Font("Monospaced", Font.PLAIN, 12);
+		Font font = Resources.FONT_CONSOLE;
 		area.setFont(font);
 		area.setEditable(false);
 		DefaultCaret caret = (DefaultCaret) area.getCaret();

@@ -34,7 +34,6 @@ public class Server extends AbstractId implements Runnable {
 			while (listening) {
 				try {
 					final Socket socket = serverSocket.accept();
-					Util.log(this, "Connecting (Server).");
 					socket.setReuseAddress(true);
 
 					SocketUtil.writeHeaders(socket.getOutputStream(), SocketUtil.RequestType.ServerCall);
@@ -57,7 +56,7 @@ public class Server extends AbstractId implements Runnable {
 						if (contact == null) {
 							contact = new Contact(remotehost, socket.getPort(), remoteuser,
 									Contact.Reachability.UNREACHABLE);
-							System.out.println("No contact found for: " + contact);
+							//System.out.println("No contact found for: " + contact);
 						}
 					}
 

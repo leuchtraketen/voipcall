@@ -44,7 +44,6 @@ public class ContactScanner implements Runnable {
 				try {
 					StatusClient client = new StatusClient(host, port);
 					client.close();
-					System.out.println("abc " + client);
 					ContactList.addContact(client.getContact());
 					ContactList.setOnline(client.getContact(), true);
 					

@@ -27,17 +27,18 @@ public class Contact extends AbstractId {
 
 	@Override
 	public String toString() {
+		// Util.firstToUpperCase(user)
 		switch (reachability) {
 		case LOOPBACK:
-			return Util.firstToUpperCase(user) + "@" + host + " (loop)";
+			return user + "@" + host + " (loop)";
 		case UNREACHABLE:
-			return Util.firstToUpperCase(user) + "@" + host + " (unreachable)";
+			return user + "@" + host + " (unreachable)";
 		case NORMAL:
 		default:
 			if (port == Config.DEFAULT_PORT)
-				return Util.firstToUpperCase(user) + "@" + host;
+				return user + "@" + host;
 			else
-				return Util.firstToUpperCase(user) + "@" + host + ":" + port;
+				return user + "@" + host + ":" + port;
 		}
 	}
 
