@@ -9,10 +9,11 @@ public class CallCapture implements Capture {
 
 	private final File outputFile;
 
-	public CallCapture(long time, String user, String channel) {
-		File directory = new File(System.getProperty("user.home"), "Calls/Calls with " + user);
+	public CallCapture(long time, Contact contact, String channel) {
+		File directory = new File(System.getProperty("user.home"), "Calls/Calls with " + contact.getUser());
 		directory.mkdirs();
-		String filename = "Call with " + user + ", " + Util.formatDateTime(time) + ", " + channel + ".pcm";
+		String filename = "Call with " + contact.getUser() + " at " + contact.getHost() + ", "
+				+ Util.formatDateTime(time) + ", " + channel + ".pcm";
 		if (Util.isWindows()) {
 			filename = filename.replace(':', '-').replace(',', '-');
 		}

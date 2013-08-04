@@ -84,6 +84,7 @@ public class Server extends AbstractId implements Runnable {
 							ContactList.addContact(contact);
 						}
 						ChatClient client = new ChatClient(contact, socket, headers);
+						client.saveTo(new ChatCapture(contact));
 						new Thread(client).start();
 						Util.log(contact, "Connected tp chat (Server).");
 

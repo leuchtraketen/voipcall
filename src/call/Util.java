@@ -1,11 +1,13 @@
 package call;
 
 import java.awt.Color;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +37,14 @@ public class Util {
 	public static Msg msg(Contact contact) {
 		MessageOutput msgout = messageOutputs.containsKey(contact) ? messageOutputs.get(contact) : null;
 		return new Msg(msgout);
+	}
+
+	public static Msg msg(List<PrintWriter> pw) {
+		return new Msg(new PrintWriterMessageOutput(pw));
+	}
+
+	public static Msg msg(PrintWriter pw) {
+		return new Msg(new PrintWriterMessageOutput(pw));
 	}
 
 	public static class Msg {

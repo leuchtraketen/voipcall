@@ -28,12 +28,12 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 		try {
 			OutputStream outstream = socket.getOutputStream();
 			out = new CallRecorder(contact, outstream);
-			out.saveTo(new CallCapture(time, contact.getHost(), "output"));
+			out.saveTo(new CallCapture(time, contact, "output"));
 			new Thread(out).start();
 
 			InputStream instream = socket.getInputStream();
 			in = new CallPlayer(contact, new BufferedInputStream(instream));
-			in.saveTo(new CallCapture(time, contact.getHost(), "input"));
+			in.saveTo(new CallCapture(time, contact, "input"));
 			new Thread(in).start();
 
 		} catch (LineUnavailableException | UnsupportedAudioFileException e) {

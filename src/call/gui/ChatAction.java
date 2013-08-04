@@ -12,6 +12,7 @@ import javax.swing.Action;
 import javax.swing.JTextField;
 
 import call.AbstractId;
+import call.ChatCapture;
 import call.ChatClient;
 import call.Contact;
 import call.Util;
@@ -63,6 +64,7 @@ public class ChatAction extends AbstractId {
 	private void sendmessage(String msg) throws IOException {
 		Util.log(this, "sendmessage: " + msg + " (start)");
 		ChatClient client = new ChatClient(contact);
+		client.saveTo(new ChatCapture(contact));
 		client.sendMessage(msg);
 		client.close();
 		Util.log(this, "sendmessage: " + msg + " (done)");
