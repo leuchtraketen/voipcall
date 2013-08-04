@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 
-import call.Client;
-import call.SocketUtil;
+import call.CallClient;
+import call.Config;
 
 public class TestClient {
 	public static void main(String[] args) {
@@ -14,7 +14,7 @@ public class TestClient {
 	}
 
 	public TestClient(String ip) {
-		Client client;
+		CallClient client;
 		try {
 			// client = Client.connect("127.0.0.1");
 			if (ip == null) {
@@ -25,8 +25,8 @@ public class TestClient {
 				if (ip.length() < 3)
 					ip = "127.0.0.1";
 			}
-			client = Client.connect(ip, SocketUtil.RequestType.Call);
-			Thread thr = client.start();
+			client = new CallClient(ip, Config.DEFAULT_PORT);
+			Thread thr = client.startCall();
 			thr.join();
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();

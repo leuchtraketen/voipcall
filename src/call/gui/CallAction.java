@@ -9,10 +9,9 @@ import javax.swing.Action;
 
 import call.AbstractCallConnection;
 import call.AbstractId;
+import call.CallClient;
 import call.CallFactory;
-import call.Client;
 import call.Contact;
-import call.SocketUtil;
 import call.Util;
 
 public class CallAction extends AbstractId {
@@ -79,9 +78,9 @@ public class CallAction extends AbstractId {
 	private void start() {
 		Util.msg(contact).println("Call...", Color.green);
 		try {
-			Client client = Client.connect(contact.getHost(), contact.getPort(), SocketUtil.RequestType.Call);
+			CallClient client = new CallClient(contact);
 			@SuppressWarnings("unused")
-			Thread thread = client.start();
+			Thread thread = client.startCall();
 			openCall();
 			// Util.msg(contact).println("Connected.", Color.green);
 		} catch (Exception e) {

@@ -1,6 +1,5 @@
 package call.gui;
 
-import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import call.Call;

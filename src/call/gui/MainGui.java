@@ -22,6 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import call.CallFactory;
 import call.CallUi;
@@ -62,6 +65,22 @@ public class MainGui {
 		window.add(BorderLayout.CENTER, horizontalSplitPane);
 
 		addTab("Terminal Output", new ConsoleTab().getComponent());
+
+		tabs.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				JTabbedPane pane = (JTabbedPane) e.getSource();
+				int index = pane.getSelectedIndex();
+				Object component = tabs.getComponentAt(index);
+				if (component instanceof ChatPanel) {
+					final ChatTab chatgui = ((ChatPanel) component).getChatGui();
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							chatgui.focus();
+						}
+					});
+				}
+			}
+		});
 	}
 
 	public void addTab(String name, JComponent component, Icon icon) {
@@ -73,7 +92,7 @@ public class MainGui {
 	public void addTab(String name, JComponent component) {
 		if (tabs.indexOfTab(name) == -1) {
 			addClosableTab(tabs, component, name, null);
-//			tabs.addTab(name, component);
+			// tabs.addTab(name, component);
 		}
 	}
 
@@ -108,7 +127,7 @@ public class MainGui {
 	}
 
 	public void runGui() {
-		window.setSize(600, 350);
+		window.setSize(750, 350);
 		window.pack();
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();

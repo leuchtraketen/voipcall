@@ -21,6 +21,8 @@ public class SocketUtil {
 			pw.println("Request: Status");
 		else if (request.equals(RequestType.Call))
 			pw.println("Request: Call");
+		else if (request.equals(RequestType.Chat))
+			pw.println("Request: Chat");
 		else if (request.equals(RequestType.ServerCall))
 			pw.println("Request: ServerRole");
 
@@ -62,9 +64,10 @@ public class SocketUtil {
 		StringBuffer sb = new StringBuffer("");
 		// try {
 		_ch = in.read();
-		while (_ch != _LF) {
-			if (_ch != _CR)
+		while (_ch != _LF && _ch != -1) {
+			if (_ch != _CR) {
 				sb.append((char) _ch);
+			}
 			_ch = in.read();
 		}
 		// } catch (IOException e) {

@@ -1,5 +1,6 @@
 package call.gui;
 
+import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.Icon;
@@ -45,6 +46,9 @@ public class Resources {
 			TEXT_TAB_CLOSE);
 
 	public static final Font TEXT_FONT = new Font("Sans", Font.PLAIN, 12);
+
+	public static final Color COLOR_CHAT_ME = new Color(0x09, 0x8d, 0xde);
+	public static final Color COLOR_CHAT_PEER = new Color(0x00, 0x63, 0xd8);
 
 	public static String getToolTipText(Contact value) {
 		if (value.isUnreachable()) {

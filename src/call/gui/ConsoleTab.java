@@ -10,7 +10,7 @@ import javax.swing.text.DefaultCaret;
 
 class ConsoleTab {
 
-	JTextArea area = new JTextArea(20, 80);
+	JTextArea area = new JTextArea(20, 100);
 
 	public ConsoleTab() {
 		// area

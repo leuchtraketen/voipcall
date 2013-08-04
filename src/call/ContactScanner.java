@@ -31,7 +31,7 @@ public class ContactScanner implements Runnable {
 
 	private static List<Thread> scan(String host) {
 		List<Thread> threads = new ArrayList<Thread>();
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i <= 5; ++i) {
 			threads.add(checkContact(host, Config.DEFAULT_PORT + 10 * i));
 		}
 		return threads;
@@ -42,7 +42,7 @@ public class ContactScanner implements Runnable {
 			@Override
 			public void run() {
 				try {
-					Client client = Client.connect(host, port, SocketUtil.RequestType.Status);
+					StatusClient client = new StatusClient(host, port);
 					client.close();
 					System.out.println("abc " + client);
 					ContactList.addContact(client.getContact());

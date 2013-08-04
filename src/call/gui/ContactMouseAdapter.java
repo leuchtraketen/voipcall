@@ -1,6 +1,5 @@
 package call.gui;
 
-import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
@@ -8,7 +7,6 @@ import javax.swing.JList;
 
 import call.CallUi;
 import call.Contact;
-import call.Util;
 
 public class ContactMouseAdapter extends MouseAdapter {
 	private final JList<Contact> contactlist;
@@ -27,7 +25,7 @@ public class ContactMouseAdapter extends MouseAdapter {
 			int index = contactlist.locationToIndex(mouseEvent.getPoint());
 			if (index >= 0) {
 				Contact c = contactmodel.getElementAt(index);
-				Util.msg(c).println(c, Color.blue, "Selected!");
+				// Util.msg(c).println(c, Color.blue, "Selected!");
 				CallUi.openChat(c);
 			}
 		}

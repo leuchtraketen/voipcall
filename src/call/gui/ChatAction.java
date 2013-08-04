@@ -6,18 +6,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JTextField;
 
 import call.AbstractId;
-import call.Client;
+import call.ChatClient;
 import call.Contact;
-import call.ContactList;
-import call.SocketUtil;
 import call.Util;
 
 public class ChatAction extends AbstractId {
@@ -40,7 +36,11 @@ public class ChatAction extends AbstractId {
 				updateChatForm(true);
 				sendmessage(msg);
 			} catch (Exception e) {
+				e.printStackTrace();
+				Util.sleep(1000);
 				chatfield.setText(msg);
+				chatfield.setCaretPosition(msg.length());
+				Util.msg(contact).println("Error: " + e.getLocalizedMessage(), Color.red);
 			}
 		}
 		updateChatForm(false);
@@ -62,15 +62,10 @@ public class ChatAction extends AbstractId {
 
 	private void sendmessage(String msg) throws IOException {
 		Util.log(this, "sendmessage: " + msg + " (start)");
-		Client client = Client.connect(contact.getHost(), contact.getPort(), SocketUtil.RequestType.Chat);
-		Socket socket = client.getSocket();
-		PrintWriter pw = new PrintWriter(socket.getOutputStream());
-		pw.println(msg);
-		pw.close();
-		socket.close();
-		Util.msg(ContactList.me()).println(ContactList.me(), Color.blue, msg);
+		ChatClient client = new ChatClient(contact);
+		client.sendMessage(msg);
+		client.close();
 		Util.log(this, "sendmessage: " + msg + " (done)");
-		Util.sleep(2000);
 	}
 
 	@Override

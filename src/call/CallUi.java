@@ -1,7 +1,5 @@
 package call;
 
-import java.util.List;
-
 public class CallUi {
 	private static CallUiAdapter instance = null;
 

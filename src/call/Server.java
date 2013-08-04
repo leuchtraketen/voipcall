@@ -61,21 +61,34 @@ public class Server extends AbstractId implements Runnable {
 						}
 					}
 
+					// handle request
 					final String request = SocketUtil.getHeaderValue(headers, "request");
 					if (request.toLowerCase().equals("status")) {
 						// status connection
 						socket.close();
 
 					} else if (request.toLowerCase().equals("call")) {
+						// call connection
 						socket.setSoTimeout(Config.SOCKET_TIMEOUT);
 						if (!contact.isReachable()) {
 							ContactList.addContact(contact);
 						}
-						CallThread call = CallFactory.createCall(contact, socket, headers);
-						new Thread(call).start();
-						Util.log(contact, "Connected (Server).");
+						CallClient client = new CallClient(contact, socket, headers);
+						client.startCall();
+						Util.log(contact, "Connected to call (Server).");
+
+					} else if (request.toLowerCase().equals("chat")) {
+						// chat connection
+						socket.setSoTimeout(Config.SOCKET_TIMEOUT);
+						if (!contact.isReachable()) {
+							ContactList.addContact(contact);
+						}
+						ChatClient client = new ChatClient(contact, socket, headers);
+						new Thread(client).start();
+						Util.log(contact, "Connected tp chat (Server).");
 
 					} else {
+						// unknown connection
 						Util.log(socket.toString(), "Fuck! Unknown connection type!");
 						for (String header : headers) {
 							Util.log(socket.toString(), "header: " + header);
