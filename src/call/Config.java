@@ -1,21 +1,30 @@
 package call;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
+import com.google.common.primitives.Floats;
+
 public class Config {
 
 	public static final int UID = new Random(System.currentTimeMillis()).nextInt();
 	public static final String UID_S = UID + "";
 
-	public static final AudioFormat.Encoding DEFAULT_ENCODING = AudioFormat.Encoding.PCM_SIGNED;
-	public static final boolean DEFAULT_BIG_ENDIAN = false;
-	public static final int DEFAULT_SAMPLE_SIZE = 16;
-	public static final int DEFAULT_CHANNELS = 1;
-	public static final float DEFAULT_RATE = 44100.0F;
+	public static final AudioFormat.Encoding ENCODING_PCM_SIGNED = AudioFormat.Encoding.PCM_SIGNED;
+	public static final float[] PCM_RATES = calcPCMRates();
+	public static final float PCM_DEFAULT_RATE = 44100.0F;
+	public static final boolean PCM_DEFAULT_BIG_ENDIAN = false;
+	public static final int[] PCM_SAMPLE_SIZES = { 16, 8 };
+	public static final int PCM_DEFAULT_SAMPLE_SIZE = 16;
+	public static final int[] PCM_CHANNELS = { 1, 2 };
+	public static final int PCM_DEFAULT_CHANNELS = 1;
+
+	public static final AudioFormat.Encoding DEFAULT_ENCODING = ENCODING_PCM_SIGNED;
 	public static final int INTERNAL_BUFFER_SIZE = AudioSystem.NOT_SPECIFIED;
 	public static final AudioFileFormat.Type DEFAULT_TARGET_TYPE = AudioFileFormat.Type.WAVE;
 
@@ -31,5 +40,26 @@ public class Config {
 			"dsl-ka.tobias-schulz.eu", "dsl-hg.tobias-schulz.eu", "freehal.net",
 
 	};
+
+	private static float[] calcPCMRates() {
+		final int maxmult = 18;
+		float[] rates = new float[2 * maxmult];
+
+		int index = 0;
+		for (int mult = 1; mult <= maxmult; ++mult) {
+			for (float base : new float[] { 11025.0f, 8000.0f }) {
+				rates[index++] = base * mult;
+			}
+		}
+
+		Arrays.sort(rates);
+		Collections.reverse(Floats.asList(rates));
+
+		return rates;
+
+		// { 8 * 22050.0f, 7 * 22050.0f, 6 * 22050.0f, 5 * 22050.0f,
+		// 4 * 22050.0f, 3 * 22050.0f, 2 * 22050.0f, 22050.0f, 16000.0f,
+		// 11025.0f, 8000.0f }
+	}
 
 }

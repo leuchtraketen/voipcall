@@ -25,14 +25,14 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 		super(contact);
 		this.in = in;
 
-		int nChannels = Config.DEFAULT_CHANNELS;
-		float fRate = Config.DEFAULT_RATE;
+		int nChannels = Config.PCM_DEFAULT_CHANNELS;
+		float fRate = Config.PCM_DEFAULT_RATE;
 
 		AudioFormat.Encoding encoding = Config.DEFAULT_ENCODING;
 
-		int nFrameSize = (Config.DEFAULT_SAMPLE_SIZE / 8) * nChannels;
-		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.DEFAULT_SAMPLE_SIZE, nChannels,
-				nFrameSize, fRate, Config.DEFAULT_BIG_ENDIAN);
+		int nFrameSize = (Config.PCM_DEFAULT_SAMPLE_SIZE / 8) * nChannels;
+		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.PCM_DEFAULT_SAMPLE_SIZE, nChannels,
+				nFrameSize, fRate, Config.PCM_DEFAULT_BIG_ENDIAN);
 		Util.log(contact, "Player: start.");
 		Util.log(contact, "Player: source audio format: " + audioFormat);
 

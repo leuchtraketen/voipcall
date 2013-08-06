@@ -32,7 +32,8 @@ public class Main {
 			log("Running from a git repository.");
 			log("Auto-update disabled.");
 		} else {
-			autoupdate();
+			autoupdate("compiled.zip");
+			autoupdate("dependencies.zip");
 		}
 	}
 
@@ -66,25 +67,25 @@ public class Main {
 		}
 	}
 
-	private static void autoupdate() {
+	private static void autoupdate(String zipname) {
 		setTrustManager();
 		try {
-			URL url = new URL("https://github.com/tobiasschulz/voipcall/raw/master/compiled.zip");
+			URL url = new URL("https://github.com/tobiasschulz/voipcall/raw/master/" + zipname);
 			HttpURLConnection connection;
 			connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.connect();
 
 			InputStream stream = connection.getInputStream();
-			File zipfile = new File("compiled.zip");
+			File zipfile = new File(zipname);
 			if (zipfile.exists() && !zipfile.isFile() || !zipfile.canRead() || !zipfile.canWrite()) {
 				zipfile.delete();
 			}
 			if (zipfile.exists()) {
 				long oldsize = zipfile.length();
-				log("Found previous compiled.zip.");
+				log("Found previous " + zipname + ".");
 				log("Old size: " + oldsize);
-				long newsize = copy(stream, new FileOutputStream("compiled.zip"));
+				long newsize = copy(stream, new FileOutputStream(zipname));
 				log("New size: " + newsize);
 				if (oldsize != newsize) {
 					log("Different files: extracting...");
@@ -93,8 +94,8 @@ public class Main {
 					log("No changes...");
 				}
 			} else {
-				log("No previous compiled.zip was found.");
-				long newsize = copy(stream, new FileOutputStream("compiled.zip"));
+				log("No previous " + zipname + " was found.");
+				long newsize = copy(stream, new FileOutputStream(zipname));
 				log("Size: " + newsize);
 				log("Extracting...");
 				extractFolder(zipfile, new File("."));
