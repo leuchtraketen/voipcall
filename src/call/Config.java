@@ -8,15 +8,13 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
-import com.google.common.primitives.Floats;
-
 public class Config {
 
 	public static final int UID = new Random(System.currentTimeMillis()).nextInt();
 	public static final String UID_S = UID + "";
 
 	public static final AudioFormat.Encoding ENCODING_PCM_SIGNED = AudioFormat.Encoding.PCM_SIGNED;
-	public static final float[] PCM_RATES = calcPCMRates();
+	public static final Float[] PCM_RATES = calcPCMRates();
 	public static final float PCM_DEFAULT_RATE = 44100.0F;
 	public static final boolean PCM_DEFAULT_BIG_ENDIAN = false;
 	public static final int[] PCM_SAMPLE_SIZES = { 16, 8 };
@@ -41,9 +39,9 @@ public class Config {
 
 	};
 
-	private static float[] calcPCMRates() {
+	private static Float[] calcPCMRates() {
 		final int maxmult = 18;
-		float[] rates = new float[2 * maxmult];
+		Float[] rates = new Float[2 * maxmult];
 
 		int index = 0;
 		for (int mult = 1; mult <= maxmult; ++mult) {
@@ -52,8 +50,7 @@ public class Config {
 			}
 		}
 
-		Arrays.sort(rates);
-		Collections.reverse(Floats.asList(rates));
+		Arrays.sort(rates, Collections.reverseOrder());
 
 		return rates;
 
