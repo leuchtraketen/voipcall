@@ -22,6 +22,7 @@ public class CallAction extends AbstractId {
 	public CallAction(Contact contact, JHoverButton callbutton) {
 		this.contact = contact;
 		this.callbutton = callbutton;
+		updatebutton();
 	}
 
 	public Action getActionListener() {
@@ -58,7 +59,10 @@ public class CallAction extends AbstractId {
 	void updatebutton() {
 		switch (CallFactory.getCallState(contact)) {
 		case CLOSED:
-			callbutton.setIcon(Resources.ICON_START_CALL, Resources.ICON_START_CALL_HOVER);
+			if (contact.isReachable())
+				callbutton.setIcon(Resources.ICON_START_CALL, Resources.ICON_START_CALL_HOVER);
+			else
+				callbutton.setIcon(Resources.ICON_START_CALL_DISABLED, Resources.ICON_START_CALL_DISABLED);
 			callbutton.setEnabled(true);
 			break;
 		case CONNECTING:

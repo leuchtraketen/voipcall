@@ -15,7 +15,7 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 
 	private final TargetDataLine line;
 	private final OutputStream out;
-	private final List<OutputStream> captureStreams = new ArrayList<OutputStream>();
+	private final List<OutputStream> captureStreams = new ArrayList<>();
 
 	public CallRecorder(Contact contact, OutputStream out) throws LineUnavailableException {
 		super(contact);

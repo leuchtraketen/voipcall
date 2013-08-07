@@ -5,7 +5,6 @@ import java.awt.Dimension;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -14,17 +13,21 @@ import call.Contact;
 import call.ContactList;
 import call.ContactList.Listener;
 
-public class ContactsBar implements Listener {
+public class ContactListGui implements Listener {
 
+	@SuppressWarnings("unused")
+	private final MainWindow main;
 	private final JList<Contact> peerlist;
 	private final ContactListModel peermodel;
 	private final JPanel panel;
 
-	public ContactsBar() {
+	public ContactListGui(MainWindow main) {
+		this.main = main;
+
 		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		peermodel = new ContactListModel();
-		peerlist = new JList<Contact>(peermodel);
+		peerlist = new JList<>(peermodel);
 		peerlist.setCellRenderer(new ContactListCellRenderer());
 
 		// peer list
@@ -39,16 +42,19 @@ public class ContactsBar implements Listener {
 
 	public JComponent getComponent() {
 		JScrollPane listPane = new JScrollPane(peerlist);
-		panel.add(BorderLayout.NORTH, new JLabel("Contacts", JLabel.CENTER));
+		// panel.add(BorderLayout.NORTH, new JLabel("Contacts", JLabel.CENTER));
 		panel.add(BorderLayout.CENTER, listPane);
 		panel.setPreferredSize(new Dimension(180, 350));
 		return panel;
 	}
 
 	@Override
-	public void update() {
+	public void onAnyContactUpdate() {
 		panel.repaint();
 	}
+
+	@Override
+	public void onContactUpdate(Contact contact) {}
 
 	public void setSelectedContact(Contact contact) {
 		if (contact != null) {

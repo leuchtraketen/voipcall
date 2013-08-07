@@ -1,9 +1,13 @@
 package call.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.LayoutManager;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +16,7 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -20,19 +25,26 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultCaret;
 
+import call.ChatCapture;
+import call.Config;
 import call.Contact;
+import call.ContactList;
+import call.Ping;
+import call.PingClient;
 import call.Util;
 
-public class ChatTab {
+public class ChatTab implements PingClient.Listener, ContactList.Listener, Runnable {
 
 	// instances
-	private static final Map<Contact, ChatTab> instances = new HashMap<Contact, ChatTab>();
+	private static final Map<Contact, ChatTab> instances = new HashMap<>();
+	private int generation = 1;
 
 	public static synchronized ChatTab getInstance(Contact c) {
 		if (instances.containsKey(c)) {
 			return instances.get(c);
 		} else {
 			ChatTab instance = new ChatTab(c);
+			new Thread(instance).start();
 			instances.put(c, instance);
 			return instance;
 		}
@@ -40,19 +52,24 @@ public class ChatTab {
 
 	// gui elements
 	private final JTextPane area;
-	private final ChatPanel panel;
+	private final ChatTabComponent panel;
 	private final Contact contact;
 	private final JHoverButton callbutton;
 	private final JHoverButton chatbutton;
 	private final CallAction callaction;
 	private final ChatAction chataction;
 	private final JTextField chatfield;
+	private final JLabel infolabelping;
+	private final JLabel infolabeluptime;
+
+	// info data
+	private Ping ping;
 
 	private ChatTab(Contact contact) {
 		this.contact = contact;
-		Util.log(contact, "new ChatTab");
+		// Util.log(contact, "new ChatTab");
 
-		panel = new ChatPanel(this);
+		panel = new ChatTabComponent(this);
 		panel.setBorder(BorderFactory.createEmptyBorder());
 		panel.setLayout(setNoGaps(new BorderLayout()));
 		area = new JTextPane();
@@ -64,6 +81,7 @@ public class ChatTab {
 		area.setEditable(false);
 		DefaultCaret caret = (DefaultCaret) area.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		restoreChatlog();
 
 		// scrollpane
 		JScrollPane areaPane = new JScrollPane(area);
@@ -71,7 +89,7 @@ public class ChatTab {
 
 		// call panel
 		JPanel buttonpanel = new JPanel();
-		buttonpanel.setLayout(setNoGaps(new FlowLayout()));
+		buttonpanel.setLayout(setNoGaps(new BorderLayout()));
 		buttonpanel.setBorder(BorderFactory.createEmptyBorder());
 		panel.add(BorderLayout.NORTH, buttonpanel);
 
@@ -79,10 +97,23 @@ public class ChatTab {
 		callbutton = new JHoverButton(Resources.ICON_START_CALL, Resources.ICON_START_CALL_HOVER);
 		callaction = new CallAction(contact, callbutton);
 		callbutton.addActionListener(callaction.getActionListener());
-		buttonpanel.add(callbutton);
+		buttonpanel.add(BorderLayout.WEST, callbutton);
 		callbutton.setBorderPainted(false);
 		callbutton.setFocusPainted(false);
 		callbutton.setContentAreaFilled(false);
+
+		// info panel
+		JPanel infopanel = new JPanel();
+		infopanel.setLayout(new FlowLayout());
+		infopanel.setBorder(BorderFactory.createEmptyBorder());
+
+		infopanel
+				.add(createTwoRowsPanel(new JLabel(Resources.LABEL_PING), new JLabel(Resources.LABEL_UPTIME)));
+		infolabelping = new JLabel(Resources.TEXT_PING_UNKNOWN);
+		infolabeluptime = new JLabel(Resources.TEXT_PING_UNKNOWN);
+		infopanel.add(createTwoRowsPanel(infolabelping, infolabeluptime));
+
+		buttonpanel.add(BorderLayout.EAST, infopanel);
 
 		// chat panel
 		JPanel chatpanel = new JPanel();
@@ -103,16 +134,33 @@ public class ChatTab {
 		chatbutton.setFocusPainted(false);
 		chatbutton.setContentAreaFilled(false);
 		chatbutton.setBorder(null);
-		chatbutton.setMargin(new Insets(0,0,0,0));
-		
+		chatbutton.setMargin(new Insets(0, 0, 0, 0));
+
 		// chat action
 		chataction = new ChatAction(contact, chatfield, chatbutton);
 		chatfield.addKeyListener(chataction.getKeyListener());
 		chatbutton.addActionListener(chataction.getActionListener());
 
 		panel.add(BorderLayout.SOUTH, chatpanel);
+
+		// add listeners
+		PingClient.addListener(contact, this);
+		ContactList.addListener(this);
 	}
 
+	private Component createTwoRowsPanel(JComponent c1, JComponent c2) {
+		JPanel panel = new JPanel();
+		panel.setLayout(setNoGaps(new GridLayout(2, 1)));
+		panel.add(c1);
+		panel.add(c2);
+		return panel;
+	}
+
+	private LayoutManager setNoGaps(GridLayout layout) {
+		layout.setHgap(0);
+		layout.setVgap(0);
+		return layout;
+	}
 
 	private BorderLayout setNoGaps(BorderLayout layout) {
 		layout.setHgap(0);
@@ -120,6 +168,7 @@ public class ChatTab {
 		return layout;
 	}
 
+	@SuppressWarnings("unused")
 	private FlowLayout setNoGaps(FlowLayout layout) {
 		layout.setHgap(0);
 		layout.setVgap(0);
@@ -153,6 +202,51 @@ public class ChatTab {
 		return chataction;
 	}
 
+	public void focus() {
+		chatfield.requestFocusInWindow();
+	}
+
+	@Override
+	public void onPingUpdate(Contact contact) {
+		ping = PingClient.getPing(contact);
+	}
+
+	@Override
+	public void onContactUpdate(Contact contact) {}
+
+	@Override
+	public void onAnyContactUpdate() {}
+
+	@Override
+	public void run() {
+		final int currentGeneration = generation;
+		while (currentGeneration == generation) {
+			if (ContactList.isOnline(contact)) {
+				if (ping != null) {
+					infolabelping.setText(ping.toString());
+					infolabeluptime.setText(Util.formatMilliSecondsHumanReadable(System.currentTimeMillis()
+							- ping.getUptime()));
+				}
+				Util.sleep(1000);
+			} else if (contact.isLoop()) {
+				infolabelping.setText(Resources.TEXT_PING_NOT_SUPPORTED);
+				infolabelping.setForeground(Color.RED);
+				infolabeluptime.setText(Util.formatMilliSecondsHumanReadable(System.currentTimeMillis()
+						- Config.CURRENT_UPTIME));
+				Util.sleep(1000);
+			} else {
+				infolabelping.setText(Resources.TEXT_PING_OFFLINE);
+				infolabeluptime.setText(Resources.TEXT_PING_OFFLINE);
+				Util.sleep(5000);
+			}
+		}
+	}
+
+	private void restoreChatlog() {
+		// deserialize chat log!
+		new ChatCapture(contact).deserialize(Util.msg(contact).getMessageOutput());
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null) {
@@ -166,20 +260,16 @@ public class ChatTab {
 		return contact.hashCode() + 17;
 	}
 
-	public class ChatPanel extends JPanel {
+	public class ChatTabComponent extends JPanel {
 		private static final long serialVersionUID = -2089483699485903634L;
-		private ChatTab chatgui;
+		private ChatTab chattab;
 
-		public ChatPanel(ChatTab chatgui) {
-			this.chatgui = chatgui;
+		public ChatTabComponent(ChatTab chattab) {
+			this.chattab = chattab;
 		}
 
-		public ChatTab getChatGui() {
-			return chatgui;
+		public ChatTab getChatTab() {
+			return chattab;
 		}
-	}
-
-	public void focus() {
-		chatfield.requestFocusInWindow();
 	}
 }

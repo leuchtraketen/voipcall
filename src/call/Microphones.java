@@ -11,14 +11,14 @@ import javax.sound.sampled.TargetDataLine;
 
 public class Microphones {
 
-	private Set<Microphone> microphones = new HashSet<Microphone>();
+	private Set<Microphone> microphones = new HashSet<>();
 
 	public Microphones() {
 		microphones = discover();
 	}
 
 	private Set<Microphone> discover() {
-		Set<Microphone> microphones = new HashSet<Microphone>();
+		Set<Microphone> microphones = new HashSet<>();
 		for (Mixer.Info mixerinfo : AudioSystem.getMixerInfo()) {
 			System.out.println("mixerinfo: " + mixerinfo);
 			Mixer mixer = AudioSystem.getMixer(mixerinfo);

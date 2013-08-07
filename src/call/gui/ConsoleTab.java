@@ -8,26 +8,74 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
 
-class ConsoleTab {
+import call.AbstractId;
+import call.Config;
+import call.Config.Option;
+import call.ConfigListener;
+import call.Util;
 
-	JTextArea area = new JTextArea(20, 100);
+public class ConsoleTab extends AbstractId implements ConfigListener {
 
-	public ConsoleTab() {
+	private final MainWindow main;
+	private final JTextArea area;
+	private final JScrollPane areaPane;
+
+	public ConsoleTab(MainWindow main) {
+		this.main = main;
+
 		// area
+		area = new JTextArea();
 		Font font = Resources.FONT_CONSOLE;
 		area.setFont(font);
 		area.setEditable(false);
 		DefaultCaret caret = (DefaultCaret) area.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		areaPane = new JScrollPane(area);
 
 		// system output
 		PrintStream windowStream = new PrintStream(new JTextAreaOutputStream(area));
-		System.setOut(windowStream);
-		System.setErr(windowStream);
+		Util.setOutAndErr(windowStream);
+
+		// config listener
+		Config.addConfigListener(this);
+		Config.notifyConfigListener(this);
 	}
 
 	public JComponent getComponent() {
-		JScrollPane areaPane = new JScrollPane(area);
 		return areaPane;
 	}
+
+	private void showConsoleTab() {
+		main.getTabs().removeTab(Resources.TABNAME_CONSOLE);
+		main.getTabs().addTab(Resources.TABNAME_CONSOLE, areaPane);
+	}
+
+	private void hideConsoleTab() {
+		main.getTabs().removeTab(Resources.TABNAME_CONSOLE);
+	}
+
+	@Override
+	public void onConfigUpdate(Option option, float value) {}
+
+	@Override
+	public void onConfigUpdate(Option option, int value) {}
+
+	@Override
+	public void onConfigUpdate(Option option, boolean value) {
+		if (option.equals(Config.SHOW_CONSOLE)) {
+			if (value)
+				showConsoleTab();
+			else
+				hideConsoleTab();
+		}
+	}
+
+	@Override
+	public void onConfigUpdate(Option option, String value) {}
+
+	@Override
+	public String getId() {
+		return "ConsoleTab";
+	}
+
 }

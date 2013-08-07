@@ -19,11 +19,11 @@ public class ContactListModel extends AbstractListModel<Contact> implements List
 	}
 
 	public int getSize() {
-		return ContactList.getContacts().size();
+		return ContactList.getSortedContacts().size();
 	}
 
 	public Contact getElementAt(int index) {
-		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
+		List<Contact> list = new ArrayList<>(ContactList.getSortedContacts());
 		if (index > 0 && index < list.size()) {
 			return list.get(index);
 		} else if (list.size() > 0) {
@@ -34,7 +34,7 @@ public class ContactListModel extends AbstractListModel<Contact> implements List
 	}
 
 	public int indexOfElement(Contact contact) {
-		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
+		List<Contact> list = new ArrayList<>(ContactList.getSortedContacts());
 		for (int i = 0; i < list.size(); ++i) {
 			if (contact.equals(list.get(i))) {
 				return i;
@@ -44,7 +44,10 @@ public class ContactListModel extends AbstractListModel<Contact> implements List
 	}
 
 	@Override
-	public void update() {
+	public void onAnyContactUpdate() {
 		this.fireContentsChanged(this, 0, getSize());
 	}
+
+	@Override
+	public void onContactUpdate(Contact contact) {}
 }

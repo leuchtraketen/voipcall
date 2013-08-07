@@ -12,17 +12,32 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ContactList {
 
-	private static Set<Contact> contacts = new HashSet<Contact>();
-	private static List<Listener> listeners = new ArrayList<Listener>();
-	private static Map<Contact, Boolean> online = new HashMap<Contact, Boolean>();
+	private static Set<Contact> contacts = new HashSet<>();
+	private static List<Listener> listeners = new ArrayList<>();
+	private static Map<Contact, Boolean> online = new HashMap<>();
 	private static Lock lock = new ReentrantLock();
 
 	public ContactList() {}
 
-	public static List<Contact> getContacts() {
+	public static void clear() {
 		lock.lock();
-		List<Contact> list = new ArrayList<Contact>(contacts);
+		contacts.clear();
+		online.clear();
+		notifyListeners();
+		lock.unlock();
+	}
+
+	public static List<Contact> getSortedContacts() {
+		lock.lock();
+		List<Contact> list = new ArrayList<>(contacts);
 		Collections.sort(list, new ContactListComparator());
+		lock.unlock();
+		return list;
+	}
+
+	public static List<Contact> getUnsortedContacts() {
+		lock.lock();
+		List<Contact> list = new ArrayList<>(contacts);
 		lock.unlock();
 		return list;
 	}
@@ -31,7 +46,7 @@ public class ContactList {
 		lock.lock();
 		if (!contacts.contains(contact)) {
 			contacts.add(contact);
-			notifyListeners();
+			notifyListeners(contact);
 		}
 		lock.unlock();
 	}
@@ -40,7 +55,7 @@ public class ContactList {
 		lock.lock();
 		if (contacts.contains(contact)) {
 			contacts.remove(contact);
-			notifyListeners();
+			notifyListeners(contact);
 		}
 		lock.unlock();
 	}
@@ -76,7 +91,7 @@ public class ContactList {
 	public static void setOnline(Contact contact, boolean onlinestatus) {
 		lock.lock();
 		online.put(contact, onlinestatus);
-		notifyListeners();
+		notifyListeners(contact);
 		lock.unlock();
 	}
 
@@ -87,16 +102,21 @@ public class ContactList {
 	}
 
 	private static void notifyListeners() {
-		// debugContactList();
-		
 		for (Listener listener : listeners) {
-			listener.update();
+			listener.onAnyContactUpdate();
+		}
+	}
+
+	private static void notifyListeners(Contact contact) {
+		for (Listener listener : listeners) {
+			listener.onContactUpdate(contact);
+			listener.onAnyContactUpdate();
 		}
 	}
 
 	@SuppressWarnings("unused")
 	private static void debugContactList() {
-		List<Contact> list = new ArrayList<Contact>(ContactList.getContacts());
+		List<Contact> list = new ArrayList<Contact>(ContactList.getSortedContacts());
 		Util.log("contactlist:", "--------");
 		for (Contact c : list) {
 			if (list.size() > 2) {
@@ -119,6 +139,8 @@ public class ContactList {
 	}
 
 	public static interface Listener {
-		void update();
+		void onContactUpdate(Contact contact);
+
+		void onAnyContactUpdate();
 	}
 }

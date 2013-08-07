@@ -3,7 +3,6 @@ package call;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,7 +15,7 @@ import call.gui.Resources;
 public class ChatClient extends AbstractClient implements Runnable {
 
 	private final PrintWriter out;
-	private final List<PrintWriter> capture = new ArrayList<PrintWriter>();
+	private final List<MessageOutput> capture = new ArrayList<>();
 
 	public ChatClient(String host, int port) throws UnknownHostException, IOException {
 		super(host, port, RequestType.Chat);
@@ -67,12 +66,9 @@ public class ChatClient extends AbstractClient implements Runnable {
 		Util.msg(capture).println(ContactList.me(), Resources.COLOR_CHAT_ME, msg);
 	}
 
-	public void saveTo(Capture capture) {
+	public void saveTo(ChatCapture capture) {
 		try {
-			OutputStream out = capture.getCaptureOutputStream();
-			if (out != null) {
-				this.capture.add(new PrintWriter(out));
-			}
+			this.capture.add(capture.getMessageOutput());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -81,9 +77,9 @@ public class ChatClient extends AbstractClient implements Runnable {
 	@Override
 	public void close() {
 		super.close();
-		for (PrintWriter pw : capture) {
+		for (MessageOutput msgout : capture) {
 			try {
-				pw.close();
+				msgout.close();
 			} catch (Exception e) {}
 		}
 	}

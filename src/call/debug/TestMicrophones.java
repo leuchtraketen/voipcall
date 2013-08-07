@@ -18,6 +18,7 @@ public class TestMicrophones {
 	}
 
 	public TestMicrophones(String ip) {
+		@SuppressWarnings("unused")
 		Microphones micros = new Microphones();
 
 		int rows = 20;

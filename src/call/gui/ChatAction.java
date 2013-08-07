@@ -27,6 +27,7 @@ public class ChatAction extends AbstractId {
 		this.contact = contact;
 		this.chatfield = chatfield;
 		this.chatbutton = chatbutton;
+		updateChatForm(false);
 	}
 
 	private synchronized void sendmessage() {
@@ -55,7 +56,10 @@ public class ChatAction extends AbstractId {
 			chatbutton.repaint();
 		} else {
 			chatfield.setEditable(true);
-			chatbutton.setIcon(Resources.ICON_START_CHAT, Resources.ICON_START_CHAT_HOVER);
+			if (contact.isReachable())
+				chatbutton.setIcon(Resources.ICON_START_CHAT, Resources.ICON_START_CHAT_HOVER);
+			else
+				chatbutton.setIcon(Resources.ICON_START_CHAT_DISABLED, Resources.ICON_START_CHAT_DISABLED);
 			chatbutton.setEnabled(true);
 			chatbutton.repaint();
 		}

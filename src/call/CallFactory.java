@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class CallFactory {
 
-	private static final Map<Contact, Call> calls = new HashMap<Contact, Call>();
+	private static final Map<Contact, Call> calls = new HashMap<>();
 
 	public static synchronized CallThread createCall(Contact contact, Socket socket, List<String> headers) {
 		// initialize call map

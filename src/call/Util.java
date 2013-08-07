@@ -1,9 +1,11 @@
 package call;
 
-import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,10 +15,33 @@ import java.util.Set;
 
 public class Util {
 
-	private static SimpleDateFormat datetime = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	private static SimpleDateFormat datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static String OS = System.getProperty("os.name").toLowerCase();
-	public static LogProvider currentLogProvider = null;
-	private static final Map<Contact, MessageOutput> messageOutputs = new HashMap<Contact, MessageOutput>();
+	@SuppressWarnings("unused")
+	private static LogProvider currentLogProvider;
+	private static ByteArrayOutputStream outputbuffer;
+	private static final Map<Contact, MessageOutput> messageOutputs = new HashMap<>();
+
+	public static final PrintStream STDOUT = new PrintStream(System.out);
+	public static final PrintStream STDERR = new PrintStream(System.err);
+
+	public static void initOutputBuffer() {
+		ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		setOutAndErr(new PrintStream(buf));
+		outputbuffer = buf;
+	}
+
+	public static void setOutAndErr(PrintStream stream) {
+		System.out.flush();
+		System.err.flush();
+		if (outputbuffer != null) {
+			String cached = outputbuffer.toString();
+			stream.print(cached);
+			outputbuffer = null;
+		}
+		System.setOut(new PrintStream(new MultiOutputStream(stream, STDOUT)));
+		System.setErr(new PrintStream(new MultiOutputStream(stream, STDERR)));
+	}
 
 	public static void setLogProvider(LogProvider log) {
 		Util.currentLogProvider = log;
@@ -34,82 +59,21 @@ public class Util {
 		System.out.println("[" + id.getId() + "] " + msg);
 	}
 
-	public static Msg msg(Contact contact) {
+	public static MessageWriter msg(Contact contact) {
 		MessageOutput msgout = messageOutputs.containsKey(contact) ? messageOutputs.get(contact) : null;
-		return new Msg(msgout);
+		return new MessageWriter(msgout);
 	}
 
-	public static Msg msg(List<PrintWriter> pw) {
-		return new Msg(new PrintWriterMessageOutput(pw));
+	public static MessageWriter msg(PrintWriter pw) {
+		return new MessageWriter(new HumanReadableMessageOutput(pw));
 	}
 
-	public static Msg msg(PrintWriter pw) {
-		return new Msg(new PrintWriterMessageOutput(pw));
+	public static MessageWriter msg(MessageOutput msgout) {
+		return new MessageWriter(msgout);
 	}
 
-	public static class Msg {
-		private final MessageOutput msgout;
-
-		private Msg(MessageOutput msgout) {
-			this.msgout = msgout;
-		}
-
-		public void start() {
-			print(formatDateTime(System.currentTimeMillis()), Color.gray);
-			printspace();
-		}
-
-		public void stop() {
-			print("\n");
-		}
-
-		public void println(String str, Color color, String str2) {
-			start();
-			print(str, color);
-			printspace();
-			print(str2);
-			stop();
-		}
-
-		private void printspace() {
-			print(" ");
-		}
-
-		public void println(Contact contact, Color color, String str2) {
-			start();
-			print(contact, color);
-			printspace();
-			print(str2);
-			stop();
-		}
-
-		private void print(Contact contact, Color color) {
-			print(Util.firstToUpperCase(contact.getUser()), color);
-		}
-
-		public void println(String str, Color color) {
-			start();
-			print(str, color);
-			stop();
-		}
-
-		public void println(String str) {
-			start();
-			print(str);
-			stop();
-		}
-
-		public void print(String str) {
-			print(str, Color.black);
-		}
-
-		public void print(String str, Color color) {
-			if (msgout != null) {
-				msgout.append(str, color);
-			} else {
-				System.out.println("msg: \"" + str + "\"");
-			}
-		}
+	public static MessageWriter msg(List<MessageOutput> msgout) {
+		return new MessageWriter(new MultiMessageOutput(msgout));
 	}
 
 	public static boolean sleep(long sleepTime) {
@@ -152,7 +116,65 @@ public class Util {
 	}
 
 	public static <T> Set<T> asSet(T[] array) {
-		return new HashSet<T>(Arrays.asList(array));
+		return new HashSet<>(Arrays.asList(array));
+	}
+
+	public static String join(Collection<String> strings, String separator) {
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		for (String s : strings) {
+			if (s.length() > 0) {
+				sb.append(sep).append(s);
+				sep = separator;
+			}
+		}
+		return sb.toString();
+	}
+
+	public static String[] split(String separator, String str) {
+		if (str.length() == 0) {
+			return new String[] {};
+		} else {
+			String[] splitted = str.split(separator);
+			return splitted;
+		}
+	}
+
+	public static String formatMilliSecondsHumanReadable(long x) {
+		@SuppressWarnings("unused")
+		long millis = 0;
+		long seconds = 0;
+		long minutes = 0;
+		long hours = 0;
+		long days = 0;
+
+		seconds = (int) (x / 1000);
+		millis = x % 1000;
+
+		minutes = (int) (seconds / 60);
+		seconds = seconds % 60;
+
+		hours = (int) (minutes / 60);
+		hours = hours % 60;
+
+		days = (int) (hours / 24);
+		days = days % 24;
+
+		String str = seconds + "s";
+		/*
+		 * if (millis >= 100) str += "." + millis; else if (millis >= 10) str +=
+		 * ".0" + millis; else if (millis >= 1) str += ".00" + millis; str +=
+		 * " seconds";
+		 */
+
+		if (minutes > 0)
+			str = minutes + "m " + str;
+		if (hours > 0)
+			str = hours + "h " + str;
+		if (days > 0)
+			str = days + "d " + str;
+
+		return str;
 	}
 
 }

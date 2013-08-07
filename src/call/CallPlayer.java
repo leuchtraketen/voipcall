@@ -18,7 +18,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 
 	private final SourceDataLine line;
 	private final InputStream in;
-	private final List<OutputStream> captureStreams = new ArrayList<OutputStream>();
+	private final List<OutputStream> captureStreams = new ArrayList<>();
 
 	public CallPlayer(Contact contact, InputStream in) throws LineUnavailableException,
 			UnsupportedAudioFileException, IOException {

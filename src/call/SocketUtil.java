@@ -10,19 +10,22 @@ import java.util.List;
 public class SocketUtil {
 
 	public static enum RequestType {
-		Status, Call, ServerCall, Chat
+		Status, Call, ServerCall, Chat, Ping
 	};
 
 	public static void writeHeaders(OutputStream out, RequestType request) {
 		PrintWriter pw = new PrintWriter(out);
 		pw.println("User: " + Util.getUserName());
 		pw.println("UID: " + Config.UID_S);
+		pw.println("Uptime: " + Config.CURRENT_UPTIME);
 		if (request.equals(RequestType.Status))
 			pw.println("Request: Status");
 		else if (request.equals(RequestType.Call))
 			pw.println("Request: Call");
 		else if (request.equals(RequestType.Chat))
 			pw.println("Request: Chat");
+		else if (request.equals(RequestType.Ping))
+			pw.println("Request: Ping");
 		else if (request.equals(RequestType.ServerCall))
 			pw.println("Request: ServerRole");
 
@@ -30,8 +33,14 @@ public class SocketUtil {
 		pw.flush();
 	}
 
+	public static void writeLine(OutputStream out, String line) {
+		PrintWriter pw = new PrintWriter(out);
+		pw.println(line);
+		pw.flush();
+	}
+
 	public static List<String> readHeaders(InputStream in) throws IOException {
-		List<String> headers = new ArrayList<String>();
+		List<String> headers = new ArrayList<>();
 		String line;
 		while ((line = readLine(in)) != null) {
 			if (line.length() <= 2)

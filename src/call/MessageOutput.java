@@ -6,4 +6,6 @@ public interface MessageOutput {
 
 	void append(String str, Color c);
 
+	void close();
+
 }

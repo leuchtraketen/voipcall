@@ -12,6 +12,8 @@ import call.ContactList;
 public class Resources {
 
 	// resources
+	public static final String TABNAME_CONSOLE = "Terminal";
+	
 	public static final String TEXT_START_CALL = "Call";
 	public static final String TEXT_STOP_CALL = "End Call";
 	public static final String TEXT_CONNECT_CALL = "Connect...";
@@ -21,6 +23,8 @@ public class Resources {
 	public static final ImageIcon ICON_START_CALL = new ImageIcon("img/start-call.png", TEXT_START_CALL);
 	public static final ImageIcon ICON_START_CALL_HOVER = new ImageIcon("img/start-call-hover.png",
 			TEXT_START_CALL);
+	public static final ImageIcon ICON_START_CALL_DISABLED = new ImageIcon("img/start-call-disabled.png",
+			TEXT_START_CALL);
 	public static final ImageIcon ICON_STOP_CALL = new ImageIcon("img/stop-call.png", TEXT_STOP_CALL);
 	public static final ImageIcon ICON_STOP_CALL_HOVER = new ImageIcon("img/stop-call-hover.png",
 			TEXT_STOP_CALL);
@@ -28,11 +32,20 @@ public class Resources {
 	public static final ImageIcon ICON_START_CHAT = new ImageIcon("img/start-chat.png", TEXT_START_CHAT);
 	public static final ImageIcon ICON_START_CHAT_HOVER = new ImageIcon("img/start-chat-hover.png",
 			TEXT_START_CHAT);
+	public static final ImageIcon ICON_START_CHAT_DISABLED = new ImageIcon("img/start-chat-disabled.png",
+			TEXT_STOP_CALL);
 	public static final ImageIcon ICON_CONNECT_CHAT = new ImageIcon("img/connect-chat.png", TEXT_CONNECT_CHAT);
 
 	public static final String TEXT_USER_ONLINE = "Online";
 	public static final String TEXT_USER_OFFLINE = "Offline";
 	public static final String TEXT_USER_UNREACHABLE = "Unreachable";
+
+	public static final String TEXT_PING_NOT_SUPPORTED = "not supported";
+	public static final String TEXT_PING_OFFLINE = "offline";
+	public static final String TEXT_PING_UNKNOWN = "unknown";
+
+	public static final String LABEL_PING = "Ping:";
+	public static final String LABEL_UPTIME = "Online:";
 
 	public static final ImageIcon ICON_USER_ONLINE = new ImageIcon("img/user-available.png", TEXT_USER_ONLINE);
 	public static final ImageIcon ICON_USER_OFFLINE = new ImageIcon("img/user-offline.png", TEXT_USER_OFFLINE);
@@ -52,6 +65,10 @@ public class Resources {
 
 	public static final Color COLOR_CHAT_ME = new Color(0x09, 0x8d, 0xde);
 	public static final Color COLOR_CHAT_PEER = new Color(0x00, 0x63, 0xd8);
+
+	public static final Icon ICON_CONTACTS_RELOAD = new ImageIcon("img/contacts-reload.png");
+	public static final Icon ICON_CONTACTS_ADD = new ImageIcon("img/contacts-add.png");
+	public static final Icon ICON_CONSOLE = new ImageIcon("img/console.png");
 
 	public static String getToolTipText(Contact value) {
 		if (value.isUnreachable()) {

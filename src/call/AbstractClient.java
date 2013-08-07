@@ -38,7 +38,7 @@ public abstract class AbstractClient extends AbstractId {
 	private void init(String host, int port) throws IOException {
 		try {
 			connect(host, port);
-		} catch (NoRouteToHostException | ConnectException e) {
+		} catch (UnknownHostException | NoRouteToHostException | ConnectException e) {
 			throw e;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -62,7 +62,7 @@ public abstract class AbstractClient extends AbstractId {
 		this.contact = new Contact(host, port, user);
 
 		// handle request
-		if (!request.equals(RequestType.Status)) {
+		if (!request.equals(RequestType.Status) && !request.equals(RequestType.Ping)) {
 			socket.setSoTimeout(Config.SOCKET_TIMEOUT);
 			Util.log(this, "Connected (Client).");
 		}

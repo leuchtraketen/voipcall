@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
-public class CallCapture implements Capture {
+public class CallCapture extends AbstractId implements Capture {
 
 	private final File outputFile;
 
@@ -27,6 +27,11 @@ public class CallCapture implements Capture {
 		} catch (FileNotFoundException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public String getId() {
+		return "CallCapture";
 	}
 
 }

@@ -12,7 +12,7 @@ public class Call extends AbstractId {
 	private final Socket socket;
 	@SuppressWarnings("unused")
 	private final List<String> headers;
-	private final Set<CallConnection> connections = new HashSet<CallConnection>();
+	private final Set<CallConnection> connections = new HashSet<>();
 	private ConnectionState state;
 
 	public Call(Contact contact, Socket socket, List<String> headers) {
@@ -33,7 +33,7 @@ public class Call extends AbstractId {
 	public synchronized void close() {
 		if (!state.equals(ConnectionState.CLOSED)) {
 			state = ConnectionState.CLOSED;
-			for (CallConnection connection : new HashSet<CallConnection>(connections)) {
+			for (CallConnection connection : new HashSet<>(connections)) {
 				connection.onCallClose();
 			}
 			try {
@@ -45,7 +45,7 @@ public class Call extends AbstractId {
 	public synchronized void open() {
 		if (!state.equals(ConnectionState.OPEN)) {
 			state = ConnectionState.OPEN;
-			for (CallConnection connection : new HashSet<CallConnection>(connections)) {
+			for (CallConnection connection : new HashSet<>(connections)) {
 				connection.onCallOpen();
 			}
 		}

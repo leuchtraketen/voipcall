@@ -37,14 +37,17 @@ public class JTextPaneMessageOutput implements LogProvider, MessageOutput {
 		aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
 
 		/*
-		 * int len = area.getDocument().getLength();
-		 * area.setCaretPosition(len); area.setCharacterAttributes(aset,
-		 * false); area.replaceSelection(str);
+		 * int len = area.getDocument().getLength(); area.setCaretPosition(len);
+		 * area.setCharacterAttributes(aset, false); area.replaceSelection(str);
 		 */
 
 		DefaultStyledDocument document = (DefaultStyledDocument) area.getDocument();
 		try {
-			document.insertString(document.getEndPosition().getOffset(), str, aset);
+			if (area.getText().length() < 3)
+				area.setText("");
+			// document.insertString(0, str, aset);
+			// else
+			document.insertString(document.getEndPosition().getOffset() - 1, str, aset);
 		} catch (BadLocationException e) {}
 
 	}
@@ -53,4 +56,7 @@ public class JTextPaneMessageOutput implements LogProvider, MessageOutput {
 	public String getLog() {
 		return area.getText();
 	}
+
+	@Override
+	public void close() {}
 }

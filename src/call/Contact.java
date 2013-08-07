@@ -1,7 +1,7 @@
 package call;
 
 public class Contact extends AbstractId {
-	
+
 	public static enum Reachability {
 		NORMAL, UNREACHABLE, LOOPBACK
 	}
@@ -30,7 +30,7 @@ public class Contact extends AbstractId {
 		// Util.firstToUpperCase(user)
 		switch (reachability) {
 		case LOOPBACK:
-			return user + "@" + host + " (loop)";
+			return "loopback device";
 		case UNREACHABLE:
 			return user + "@" + host + " (unreachable)";
 		case NORMAL:
@@ -46,7 +46,8 @@ public class Contact extends AbstractId {
 	public String getId() {
 		switch (reachability) {
 		case LOOPBACK:
-			return user + "@" + host + ":" + port + " (loop)";
+			// return user + "@" + host + ":" + port + " (loop)";
+			return "loopback device";
 		case UNREACHABLE:
 		case NORMAL:
 		default:

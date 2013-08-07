@@ -34,69 +34,9 @@ public class Server extends AbstractId implements Runnable {
 			while (listening) {
 				try {
 					final Socket socket = serverSocket.accept();
-					socket.setReuseAddress(true);
-
-					SocketUtil.writeHeaders(socket.getOutputStream(), SocketUtil.RequestType.ServerCall);
-					final InputStream instream = socket.getInputStream();
-					final List<String> headers = SocketUtil.readHeaders(instream);
-
-					final String remoteuser = SocketUtil.getHeaderValue(headers, "user");
-					final String remotehost = socket.getInetAddress().getCanonicalHostName();
-
-					Contact contact;
-
-					// loopback connection?
-					if (Config.UID_S.equals(SocketUtil.getHeaderValue(headers, "UID"))) {
-						contact = new Contact(remotehost, socket.getPort(), remoteuser,
-								Contact.Reachability.LOOPBACK);
-					}
-					// normal connection
-					else {
-						contact = ContactList.findContact(remotehost, 0, remoteuser);
-						if (contact == null) {
-							contact = new Contact(remotehost, socket.getPort(), remoteuser,
-									Contact.Reachability.UNREACHABLE);
-							//System.out.println("No contact found for: " + contact);
-						}
-					}
-
-					// handle request
-					final String request = SocketUtil.getHeaderValue(headers, "request");
-					if (request.toLowerCase().equals("status")) {
-						// status connection
-						socket.close();
-
-					} else if (request.toLowerCase().equals("call")) {
-						// call connection
-						socket.setSoTimeout(Config.SOCKET_TIMEOUT);
-						if (!contact.isReachable()) {
-							ContactList.addContact(contact);
-						}
-						CallClient client = new CallClient(contact, socket, headers);
-						client.startCall();
-						Util.log(contact, "Connected to call (Server).");
-
-					} else if (request.toLowerCase().equals("chat")) {
-						// chat connection
-						socket.setSoTimeout(Config.SOCKET_TIMEOUT);
-						if (!contact.isReachable()) {
-							ContactList.addContact(contact);
-						}
-						ChatClient client = new ChatClient(contact, socket, headers);
-						client.saveTo(new ChatCapture(contact));
-						new Thread(client).start();
-						Util.log(contact, "Connected tp chat (Server).");
-
-					} else {
-						// unknown connection
-						Util.log(socket.toString(), "Fuck! Unknown connection type!");
-						for (String header : headers) {
-							Util.log(socket.toString(), "header: " + header);
-						}
-					}
-
+					new Thread(new Acceptor(socket)).start();
 				} catch (IOException e) {
-					System.out.println("Error in call accept loop!");
+					System.out.println("Error in call accept loop (class Server)!");
 					e.printStackTrace();
 				}
 			}
@@ -119,5 +59,91 @@ public class Server extends AbstractId implements Runnable {
 	@Override
 	public String getId() {
 		return toString();
+	}
+
+	private static class Acceptor implements Runnable {
+		final Socket socket;
+
+		public Acceptor(Socket socket) {
+			this.socket = socket;
+		}
+
+		@Override
+		public void run() {
+			try {
+				handle();
+			} catch (IOException e) {
+				System.out.println("Error in call accept loop (class Acceptor)!");
+				e.printStackTrace();
+			}
+		}
+
+		private void handle() throws IOException {
+			socket.setReuseAddress(true);
+
+			SocketUtil.writeHeaders(socket.getOutputStream(), SocketUtil.RequestType.ServerCall);
+			final InputStream instream = socket.getInputStream();
+			final List<String> headers = SocketUtil.readHeaders(instream);
+
+			final String remoteuser = SocketUtil.getHeaderValue(headers, "user");
+			final String remotehost = socket.getInetAddress().getCanonicalHostName();
+
+			Contact contact;
+
+			// loopback connection?
+			if (Config.UID_S.equals(SocketUtil.getHeaderValue(headers, "UID"))) {
+				contact = new Contact(remotehost, socket.getPort(), remoteuser, Contact.Reachability.LOOPBACK);
+			}
+			// normal connection
+			else {
+				contact = ContactList.findContact(remotehost, 0, remoteuser);
+				if (contact == null) {
+					contact = new Contact(remotehost, socket.getPort(), remoteuser,
+							Contact.Reachability.UNREACHABLE);
+					// System.out.println("No contact found for: " +
+					// contact);
+				}
+			}
+
+			// handle request
+			final String request = SocketUtil.getHeaderValue(headers, "request");
+			if (request.toLowerCase().equals("status")) {
+				// status connection
+				socket.close();
+
+			} else if (request.toLowerCase().equals("ping")) {
+				// ping connection
+				PingClient client = new PingClient(contact, socket, headers);
+				new Thread(client).start();
+
+			} else if (request.toLowerCase().equals("call")) {
+				// call connection
+				socket.setSoTimeout(Config.SOCKET_TIMEOUT);
+				if (!contact.isReachable()) {
+					ContactList.addContact(contact);
+				}
+				CallClient client = new CallClient(contact, socket, headers);
+				client.startCall();
+				Util.log(contact, "Connected to call (Server).");
+
+			} else if (request.toLowerCase().equals("chat")) {
+				// chat connection
+				socket.setSoTimeout(Config.SOCKET_TIMEOUT);
+				if (!contact.isReachable()) {
+					ContactList.addContact(contact);
+				}
+				ChatClient client = new ChatClient(contact, socket, headers);
+				client.saveTo(new ChatCapture(contact));
+				new Thread(client).start();
+				Util.log(contact, "Connected tp chat (Server).");
+
+			} else {
+				// unknown connection
+				Util.log(socket.toString(), "Fuck! Unknown connection type!");
+				for (String header : headers) {
+					Util.log(socket.toString(), "header: " + header);
+				}
+			}
+		}
 	}
 }

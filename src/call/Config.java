@@ -2,6 +2,8 @@ package call;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -28,6 +30,7 @@ public class Config {
 
 	public static final int DEFAULT_PORT = 4000;
 	public static final int SOCKET_TIMEOUT = 7000;
+	public static final long CURRENT_UPTIME = System.currentTimeMillis();
 	public static int CURRENT_PORT = DEFAULT_PORT;
 
 	public static String[] DEFAULT_CONTACT_HOSTS = { "127.0.0.1", "192.168.223.3", "192.168.223.5",
@@ -39,8 +42,15 @@ public class Config {
 
 	};
 
+	public static final BooleanOption SHOW_CONSOLE = new BooleanOption("show-console", true);
+	public static final StringOption CUSTOM_CONTACTS = new StringOption("custom-contacts", "");
+
+	public static final Option ALL_OPTIONS[] = new Option[] { SHOW_CONSOLE, CUSTOM_CONTACTS };
+
+	private static final ConfigStorage CONFIG_STORAGE = new DefaultConfigStorage();
+
 	private static Float[] calcPCMRates() {
-		final int maxmult = 18;
+		final int maxmult = 24;
 		Float[] rates = new Float[2 * maxmult];
 
 		int index = 0;
@@ -59,4 +69,217 @@ public class Config {
 		// 11025.0f, 8000.0f }
 	}
 
+	public static interface Option extends Id {
+
+		String getName();
+
+		String getDefaultStringValue();
+
+		String getStringValue();
+
+		void setStringValue(String value);
+
+	}
+
+	public static abstract class AbstractOption extends AbstractId implements Option {
+		protected final String optionname;
+
+		protected AbstractOption(final String optionname) {
+			this.optionname = optionname;
+		}
+
+		public String toString() {
+			return optionname;
+		}
+
+		@Override
+		public String getName() {
+			return optionname;
+		}
+
+		@Override
+		public abstract String getDefaultStringValue();
+
+		@Override
+		public void setStringValue(String value) {
+			CONFIG_STORAGE.setOption(this, value);
+		}
+
+		@Override
+		public abstract String getStringValue();
+	}
+
+	public static class StringOption extends AbstractOption {
+		protected final String defaultvalue;
+
+		protected StringOption(String optionname, String defaultvalue) {
+			super(optionname);
+			this.defaultvalue = defaultvalue;
+		}
+
+		@Override
+		public String getId() {
+			return "StringOption<" + optionname + ">";
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, "" + defaultvalue);
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			return defaultvalue;
+		}
+	}
+
+	public static class BooleanOption extends AbstractOption {
+		private static final String PREFIX = "(boolean)";
+		private boolean defaultvalue;
+
+		protected BooleanOption(String optionname, boolean defaultvalue) {
+			super(optionname);
+			this.defaultvalue = defaultvalue;
+		}
+
+		public boolean getBooleanValue() {
+			if (CONFIG_STORAGE.hasOption(this)) {
+				String value = CONFIG_STORAGE.getOption(this, "");
+				if (value.startsWith(PREFIX) && Primitives.isBoolean(value.substring(PREFIX.length())))
+					return Primitives.toBoolean(value.substring(PREFIX.length()), defaultvalue);
+				else
+					return defaultvalue;
+			} else {
+				return defaultvalue;
+			}
+		}
+
+		public void setBooleanValue(boolean value) {
+			setStringValue(PREFIX + value);
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, getDefaultStringValue());
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			return PREFIX + defaultvalue;
+		}
+
+		@Override
+		public String getId() {
+			return "BooleanOption<" + optionname + ">";
+		}
+	}
+
+	public static class IntegerOption extends AbstractOption {
+		private static final String PREFIX = "(int)";
+		private int defaultvalue;
+
+		protected IntegerOption(String optionname, int defaultvalue) {
+			super(optionname);
+			this.defaultvalue = defaultvalue;
+		}
+
+		public int getIntegerValue() {
+			if (CONFIG_STORAGE.hasOption(this)) {
+				String value = CONFIG_STORAGE.getOption(this, "");
+				if (value.startsWith(PREFIX) && Primitives.isBoolean(value.substring(PREFIX.length())))
+					return Primitives.toInteger(value.substring(PREFIX.length()), defaultvalue);
+				else
+					return defaultvalue;
+			} else {
+				return defaultvalue;
+			}
+		}
+
+		public void setIntegerValue(int value) {
+			setStringValue(PREFIX + value);
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, getDefaultStringValue());
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			return PREFIX + defaultvalue;
+		}
+
+		@Override
+		public String getId() {
+			return "IntegerOption<" + optionname + ">";
+		}
+	}
+
+	public static class FloatOption extends AbstractOption {
+		private static final String PREFIX = "(float)";
+		private float defaultvalue;
+
+		protected FloatOption(String optionname, float defaultvalue) {
+			super(optionname);
+			this.defaultvalue = defaultvalue;
+		}
+
+		public float getFloatValue() {
+			if (CONFIG_STORAGE.hasOption(this)) {
+				String value = CONFIG_STORAGE.getOption(this, "");
+				if (value.startsWith(PREFIX) && Primitives.isBoolean(value.substring(PREFIX.length())))
+					return Primitives.toFloat(value.substring(PREFIX.length()), defaultvalue);
+				else
+					return defaultvalue;
+			} else {
+				return defaultvalue;
+			}
+		}
+
+		public void setFloatValue(float value) {
+			setStringValue(PREFIX + value);
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, getDefaultStringValue());
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			return PREFIX + defaultvalue;
+		}
+
+		@Override
+		public String getId() {
+			return "FloatOption<" + optionname + ">";
+		}
+	}
+
+	public static Option fromString(String optionname) {
+		if (optionname != null) {
+			for (Option option : ALL_OPTIONS) {
+				if (optionname.equalsIgnoreCase(option.getName())) {
+					return option;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static Map<Option, String> getDefaultValues() {
+		Map<Option, String> defaultValues = new HashMap<>();
+		for (Option option : ALL_OPTIONS) {
+			defaultValues.put(option, option.getDefaultStringValue());
+		}
+		return defaultValues;
+	}
+
+	public static void addConfigListener(ConfigListener listener) {
+		CONFIG_STORAGE.addConfigListener(listener);
+	}
+
+	public static void notifyConfigListener(ConfigListener listener) {
+		CONFIG_STORAGE.notifyConfigListener(listener);
+	}
 }

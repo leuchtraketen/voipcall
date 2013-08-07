@@ -24,7 +24,7 @@ public class Microphone {
 	}
 
 	private List<Format> findFormats() {
-		List<Format> formats = new ArrayList<Format>();
+		List<Format> formats = new ArrayList<>();
 
 		for (float rate : Config.PCM_RATES) {
 			for (int samplesize : Config.PCM_SAMPLE_SIZES) {
