@@ -15,11 +15,19 @@ public class CallUi {
 		instance.openChat(contact);
 	}
 
+	public static void updateCallStats(Contact contact, float incomingSpeed, long incomingTotal, float outgoingSpeed,
+			long outgoingTotal) {
+		instance.updateCallStats(contact, incomingSpeed, incomingTotal, outgoingSpeed, outgoingTotal);
+	}
+
 	public static interface CallUiAdapter {
 
 		public abstract void openCall(Contact contact);
 
 		public abstract void openChat(Contact contact);
+
+		public abstract void updateCallStats(Contact contact, float incomingSpeed, long incomingTotal, float outgoingSpeed,
+				long outgoingTotal);
 
 	}
 

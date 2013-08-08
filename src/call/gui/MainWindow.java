@@ -48,6 +48,13 @@ public class MainWindow extends AbstractId {
 		console = new ConsoleTab(this);
 	}
 
+	public void setTitle(String title) {
+		if (title == null || title.length() == 0)
+			window.setTitle(WINDOW_TITLE);
+		else
+			window.setTitle(title);
+	}
+
 	public void runGui() {
 		tabs.tabs.setPreferredSize(new Dimension(750, 350));
 		window.pack();

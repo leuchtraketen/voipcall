@@ -47,6 +47,15 @@ public class MainTabs extends AbstractTabs implements ChangeListener {
 		JTabbedPane pane = (JTabbedPane) e.getSource();
 		int index = pane.getSelectedIndex();
 		if (index != -1) {
+			// set title
+			String title = CloseableTab.getTitleAt(pane, index);
+			if (title != null && title.length() > 0) {
+				main.setTitle(title);
+			}else {
+				main.setTitle(null);
+			}
+
+			// change focus
 			Object component = tabs.getComponentAt(index);
 			if (component instanceof ChatTabComponent) {
 				final ChatTab chattab = ((ChatTabComponent) component).getChatTab();

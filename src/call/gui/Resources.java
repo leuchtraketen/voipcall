@@ -40,12 +40,16 @@ public class Resources {
 	public static final String TEXT_USER_OFFLINE = "Offline";
 	public static final String TEXT_USER_UNREACHABLE = "Unreachable";
 
+	public static final String LABEL_PING = "Ping:";
+	public static final String LABEL_UPTIME = "Online:";
+	public static final String LABEL_INCOMING = "Incoming:";
+	public static final String LABEL_OUTGOING = "Outgoing:";
+
 	public static final String TEXT_PING_NOT_SUPPORTED = "not supported";
 	public static final String TEXT_PING_OFFLINE = "offline";
 	public static final String TEXT_PING_UNKNOWN = "unknown";
-
-	public static final String LABEL_PING = "Ping:";
-	public static final String LABEL_UPTIME = "Online:";
+	public static final String TEXT_CALLSTATS_INCOMING = "unknown";
+	public static final String TEXT_CALLSTATS_OUTGOING = "unknown";
 
 	public static final ImageIcon ICON_USER_ONLINE = new ImageIcon("img/user-available.png", TEXT_USER_ONLINE);
 	public static final ImageIcon ICON_USER_OFFLINE = new ImageIcon("img/user-offline.png", TEXT_USER_OFFLINE);

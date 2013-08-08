@@ -26,7 +26,7 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 	@Override
 	public void openChat(Contact contact) {
 		// open and select the tab
-		final String tabName = contact.getId();
+		final String tabName = contact.toString();
 		final JComponent tabContent = ChatTab.getInstance(contact).getComponent();
 		// final Icon tabIcon = Resources.getIcon(contact);
 
@@ -34,6 +34,13 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 		tabs.closeInactiveChatTabsExcept(Util.asSet(new String[] { tabName }));
 		tabs.addTab(tabName, tabContent);
 		tabs.showTab(tabName);
+	}
+
+	@Override
+	public void updateCallStats(Contact contact, float incomingSpeed, long incomingTotal,
+			float outgoingSpeed, long outgoingTotal) {
+		ChatTab.getInstance(contact).updateCallStats(incomingSpeed, incomingTotal, outgoingSpeed,
+				outgoingTotal);
 	}
 
 }

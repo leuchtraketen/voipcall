@@ -54,13 +54,7 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 
 		try {
 			while (isCallOpen() && line.isOpen()) {
-				// System.out.println("connected = " + isConnected() +
-				// ", line.isOpen() = " + line.isOpen());
-				// Read data from the internal buffer of the data line.
 				int cnt = line.read(buffer, 0, buffer.length);
-				// System.out.println("Buffer (send):    " + (100.0 /
-				// buffer.length * cnt) + "% (" + cnt + " of " + buffer.length +
-				// " bytes used)");
 				if (cnt > 0) {
 					// Save data in output stream object.
 					out.write(buffer, 0, cnt);
@@ -72,9 +66,10 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 					long now = System.currentTimeMillis();
 					if (now > lastTime + 3000) {
 						long diffTime = now - startTime;
-						double speed = sent / diffTime * 1000;
-						Util.log(contact, "Speed (send):    " + speed + " bytes/s (total: " + (sent / 1024)
-								+ " KB)");
+						float speed = sent / diffTime * 1000;
+						// Util.log(contact, "Speed (send):    " + speed +
+						// " bytes/s (total: " + (sent / 1024) + " KB)");
+						CallUi.updateCallStats(contact, -1, -1, speed, sent);
 						lastTime = now;
 					}
 				}
@@ -94,11 +89,11 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 	@Override
 	public void onCallClose() {
 		Util.log(contact, "Recorder: stop.");
-
 		if (line.isRunning())
 			line.stop();
 		if (line.isOpen())
 			line.close();
+		CallUi.updateCallStats(contact, -1, -1, 0, 0);
 		super.onCallClose();
 	}
 

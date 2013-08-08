@@ -23,6 +23,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.border.EtchedBorder;
 import javax.swing.text.DefaultCaret;
 
 import call.ChatCapture;
@@ -61,6 +62,8 @@ public class ChatTab implements PingClient.Listener, ContactList.Listener, Runna
 	private final JTextField chatfield;
 	private final JLabel infolabelping;
 	private final JLabel infolabeluptime;
+	private final JLabel infolabelincoming;
+	private final JLabel infolabeloutgoing;
 
 	// info data
 	private Ping ping;
@@ -104,14 +107,23 @@ public class ChatTab implements PingClient.Listener, ContactList.Listener, Runna
 
 		// info panel
 		JPanel infopanel = new JPanel();
-		infopanel.setLayout(new FlowLayout());
+		FlowLayout flow = new FlowLayout();
+		flow.setVgap(0);
+		infopanel.setLayout(flow);
 		infopanel.setBorder(BorderFactory.createEmptyBorder());
 
 		infopanel
 				.add(createTwoRowsPanel(new JLabel(Resources.LABEL_PING), new JLabel(Resources.LABEL_UPTIME)));
-		infolabelping = new JLabel(Resources.TEXT_PING_UNKNOWN);
-		infolabeluptime = new JLabel(Resources.TEXT_PING_UNKNOWN);
+		infolabelping = createInfoField(Resources.TEXT_PING_UNKNOWN);
+		infolabeluptime = createInfoField(Resources.TEXT_PING_UNKNOWN);
 		infopanel.add(createTwoRowsPanel(infolabelping, infolabeluptime));
+
+		infopanel.add(createTwoRowsPanel(new JLabel(Resources.LABEL_INCOMING), new JLabel(
+				Resources.LABEL_OUTGOING)));
+		infolabelincoming = createInfoField(Resources.TEXT_CALLSTATS_INCOMING);
+		infolabeloutgoing = createInfoField(Resources.TEXT_CALLSTATS_OUTGOING);
+		infopanel.add(createTwoRowsPanel(infolabelincoming, infolabeloutgoing));
+		updateCallStats(0, 0, 0, 0);
 
 		buttonpanel.add(BorderLayout.EAST, infopanel);
 
@@ -146,6 +158,17 @@ public class ChatTab implements PingClient.Listener, ContactList.Listener, Runna
 		// add listeners
 		PingClient.addListener(contact, this);
 		ContactList.addListener(this);
+	}
+
+	private JLabel createInfoField(String text) {
+		JLabel info = new JLabel();
+		info.setText(text);
+		info.setBackground(Color.white);
+		info.setOpaque(true);
+		info.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEtchedBorder(EtchedBorder.LOWERED),
+				BorderFactory.createMatteBorder(0, 3, 0, 3, Color.white)));
+		return info;
 	}
 
 	private Component createTwoRowsPanel(JComponent c1, JComponent c2) {
@@ -245,6 +268,14 @@ public class ChatTab implements PingClient.Listener, ContactList.Listener, Runna
 	private void restoreChatlog() {
 		// deserialize chat log!
 		new ChatCapture(contact).deserialize(Util.msg(contact).getMessageOutput());
+	}
+
+	public void updateCallStats(float incomingSpeed, long incomingTotal, float outgoingSpeed,
+			long outgoingTotal) {
+		if (incomingSpeed != -1)
+			infolabelincoming.setText(Util.formatBytesHumanReadable(incomingSpeed) + "/s");
+		if (outgoingSpeed != -1)
+			infolabeloutgoing.setText(Util.formatBytesHumanReadable(outgoingSpeed) + "/s");
 	}
 
 	@Override

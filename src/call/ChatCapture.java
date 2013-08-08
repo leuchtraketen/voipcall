@@ -61,9 +61,7 @@ public class ChatCapture extends AbstractId implements Capture {
 				lines.add(line);
 			}
 			br.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} catch (IOException e) {}
 
 		SerializedMessageOutput.deserialize(lines, messageoutput);
 	}

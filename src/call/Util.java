@@ -177,4 +177,18 @@ public class Util {
 		return str;
 	}
 
+	public static String formatBytesHumanReadable(float number) {
+		String unit = "bytes";
+		if (number > 1024) {
+			number /= 1024;
+			unit = "KiB";
+		}
+		if (number > 1024) {
+			number /= 1024;
+			unit = "MiB";
+		}
+		number = (float) ((long) (number * 1000)) / 1000;
+		return number + " " + unit;
+	}
+
 }

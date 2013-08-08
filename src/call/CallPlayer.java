@@ -67,15 +67,13 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 					}
 
 					sent += cnt;
-					// System.out.println("Buffer (receive): " + (100.0 /
-					// buffer.length * cnt) + "% (" + cnt + " of " +
-					// buffer.length + " bytes used)");
 					long now = System.currentTimeMillis();
 					if (now > lastTime + 3000) {
 						long diffTime = now - startTime;
-						double speed = sent / diffTime * 1000;
-						Util.log(contact, "Speed (receive): " + speed + " bytes/s (total: " + (sent / 1024)
-								+ " KB)");
+						float speed = sent / diffTime * 1000;
+						// Util.log(contact, "Speed (receive): " + speed +
+						// " bytes/s (total: " + (sent / 1024) + " KB)");
+						CallUi.updateCallStats(contact, speed, sent, -1, -1);
 						lastTime = now;
 					}
 				}
@@ -100,6 +98,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 			line.stop();
 		if (line.isOpen())
 			line.close();
+		CallUi.updateCallStats(contact, 0, 0, -1, -1);
 		super.onCallClose();
 	}
 
