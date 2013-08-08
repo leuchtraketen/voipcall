@@ -35,7 +35,7 @@ public class ConsoleTab extends AbstractId implements ConfigListener {
 
 		// system output
 		PrintStream windowStream = new PrintStream(new JTextAreaOutputStream(area));
-		//Util.setOutAndErr(windowStream);
+		Util.setOutAndErr(windowStream);
 
 		// config listener
 		Config.addConfigListener(this);
@@ -48,7 +48,7 @@ public class ConsoleTab extends AbstractId implements ConfigListener {
 
 	private void showConsoleTab() {
 		main.getTabs().removeTab(Resources.TABNAME_CONSOLE);
-		main.getTabs().addTab(Resources.TABNAME_CONSOLE, areaPane);
+		main.getTabs().addTab(Resources.TABNAME_CONSOLE, areaPane, Resources.ICON_CONSOLE);
 	}
 
 	private void hideConsoleTab() {

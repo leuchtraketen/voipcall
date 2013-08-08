@@ -80,21 +80,21 @@ public class DefaultConfigStorage extends AbstractId implements ConfigStorage {
 
 	private void notifyConfigListener(ConfigListener listener, Option option) {
 		if (option instanceof FloatOption) {
-			Util.log(this, "notify1: " + listener);
+			// Util.log(this, "notify1: " + listener);
 			listener.onConfigUpdate(option, ((FloatOption) option).getFloatValue());
 		} else if (option instanceof BooleanOption) {
-			Util.log(this, "notify2: " + listener);
+			// Util.log(this, "notify2: " + listener);
 			listener.onConfigUpdate(option, ((BooleanOption) option).getBooleanValue());
 		} else if (option instanceof IntegerOption) {
-			Util.log(this, "notify3: " + listener);
+			// Util.log(this, "notify3: " + listener);
 			listener.onConfigUpdate(option, ((IntegerOption) option).getIntegerValue());
 		} else if (option instanceof SerializedOption) {
-			Util.log(this, "notify4: " + listener);
+			// Util.log(this, "notify4: " + listener);
 			try {
 				listener.onConfigUpdate(option, ((SerializedOption<?>) option).getDeserializedValue());
 			} catch (UnknownDefaultValueException e) {}
 		} else {
-			Util.log(this, "notify5: " + listener);
+			// Util.log(this, "notify5: " + listener);
 			listener.onConfigUpdate(option, option.getStringValue());
 		}
 	}

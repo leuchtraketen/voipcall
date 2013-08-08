@@ -87,7 +87,7 @@ public class Resources {
 	public static final Icon ICON_CONTACTS_RELOAD = new ImageIcon("img/contacts-reload.png");
 	public static final Icon ICON_CONTACTS_ADD = new ImageIcon("img/contacts-add.png");
 	public static final Icon ICON_CONSOLE = new ImageIcon("img/console.png");
-	public static final Icon ICON_SETTINGS_CODECS = new ImageIcon("img/codecs.png");
+	public static final Icon ICON_SETTINGS_AUDIO = new ImageIcon("img/microphone.png");
 
 	public static String getToolTipText(Contact value) {
 		if (value.isUnreachable()) {

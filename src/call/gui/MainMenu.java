@@ -87,7 +87,7 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 		JMenu menu = new JMenu(TEXT_MENU_SETTINGS);
 		menu.setMnemonic(KeyEvent.VK_S);
 
-		itemSettingsAudio = new JMenuItem(TEXT_MENUITEM_SETTINGS_AUDIO, Resources.ICON_SETTINGS_CODECS);
+		itemSettingsAudio = new JMenuItem(TEXT_MENUITEM_SETTINGS_AUDIO, Resources.ICON_SETTINGS_AUDIO);
 		itemSettingsAudio.setMnemonic(KeyEvent.VK_C);
 		itemSettingsAudio.addActionListener(this);
 		menu.add(itemSettingsAudio);
@@ -153,7 +153,8 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 			case TEXT_MENUITEM_SETTINGS_AUDIO:
 				MainTabs tabs = main.getTabs();
 				SettingsAudioTab codecs = main.getCodecs();
-				tabs.addTab(Resources.TABNAME_SETTINGS_AUDIO, codecs.getComponent());
+				tabs.addTab(Resources.TABNAME_SETTINGS_AUDIO, codecs.getComponent(),
+						Resources.ICON_SETTINGS_AUDIO);
 				tabs.showTab(Resources.TABNAME_SETTINGS_AUDIO);
 				break;
 
