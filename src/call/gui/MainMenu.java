@@ -12,10 +12,11 @@ import javax.swing.JOptionPane;
 
 import call.AbstractId;
 import call.Config;
-import call.ConfigListener;
 import call.Config.Option;
+import call.ConfigListener;
 import call.ContactList;
 import call.ContactScanner;
+import call.Id;
 
 public class MainMenu extends AbstractId implements ActionListener, ConfigListener {
 
@@ -25,16 +26,19 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 
 	private static final String TEXT_MENU_VIEW = "View";
 	private static final String TEXT_MENUITEM_SHOW_CONSOLE = "Show terminal";
-	private static final String TEXT_MENU_TOOLS = "Tools";
+
+	private static final String TEXT_MENU_SETTINGS = "Settings";
+	private static final String TEXT_MENUITEM_SETTINGS_AUDIO = "Audio Devices";
+
 	private static final String TEXT_MENU_HELP = "Help";
 
-	@SuppressWarnings("unused")
 	private final MainWindow main;
 
 	private final JMenuBar menubar;
 	private JMenuItem itemContactsAdd;
 	private JMenuItem itemContactsReload;
 	private JCheckBoxMenuItem checkboxShowConsole;
+	private JMenuItem itemSettingsAudio;
 
 	public MainMenu(MainWindow main) {
 		this.main = main;
@@ -42,7 +46,7 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 		menubar = new JMenuBar();
 		menubar.add(createContactsMenu());
 		menubar.add(createViewMenu());
-		menubar.add(createToolsMenu());
+		menubar.add(createSettingsMenu());
 		menubar.add(createHelpMenu());
 
 		// config listener
@@ -79,9 +83,14 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 		return menu;
 	}
 
-	private JMenu createToolsMenu() {
-		JMenu menu = new JMenu(TEXT_MENU_TOOLS);
-		menu.setMnemonic(KeyEvent.VK_T);
+	private JMenu createSettingsMenu() {
+		JMenu menu = new JMenu(TEXT_MENU_SETTINGS);
+		menu.setMnemonic(KeyEvent.VK_S);
+
+		itemSettingsAudio = new JMenuItem(TEXT_MENUITEM_SETTINGS_AUDIO, Resources.ICON_SETTINGS_CODECS);
+		itemSettingsAudio.setMnemonic(KeyEvent.VK_C);
+		itemSettingsAudio.addActionListener(this);
+		menu.add(itemSettingsAudio);
 
 		return menu;
 	}
@@ -141,6 +150,13 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 				Config.SHOW_CONSOLE.setBooleanValue(checkbox.getState());
 				break;
 
+			case TEXT_MENUITEM_SETTINGS_AUDIO:
+				MainTabs tabs = main.getTabs();
+				SettingsAudioTab codecs = main.getCodecs();
+				tabs.addTab(Resources.TABNAME_SETTINGS_AUDIO, codecs.getComponent());
+				tabs.showTab(Resources.TABNAME_SETTINGS_AUDIO);
+				break;
+
 			}
 		}
 
@@ -162,4 +178,7 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 
 	@Override
 	public void onConfigUpdate(Option option, String value) {}
+
+	@Override
+	public void onConfigUpdate(Option option, Id value) {}
 }

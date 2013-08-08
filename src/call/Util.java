@@ -191,4 +191,26 @@ public class Util {
 		return number + " " + unit;
 	}
 
+	public static boolean joinThreads(List<Thread> threads) {
+		boolean interrupted = false;
+		for (Thread curThread : threads) {
+			try {
+				curThread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+				interrupted = true;
+				break;
+			}
+		}
+		return interrupted;
+	}
+
+	public static void interruptThreads(List<Thread> threads) {
+		for (Thread curThread : threads) {
+			try {
+				curThread.interrupt();
+			} catch (Exception e) {}
+		}
+	}
+
 }

@@ -24,6 +24,7 @@ public class MainWindow extends AbstractId {
 	private final MainTabs tabs;
 	private final MainMenu menu;
 	private final ConsoleTab console;
+	private final SettingsAudioTab codecs;
 	private final ContactListGui contacts;
 
 	public MainWindow() {
@@ -46,6 +47,7 @@ public class MainWindow extends AbstractId {
 		window.add(BorderLayout.CENTER, horizontalSplitPane);
 
 		console = new ConsoleTab(this);
+		codecs = new SettingsAudioTab(this);
 	}
 
 	public void setTitle(String title) {
@@ -81,6 +83,10 @@ public class MainWindow extends AbstractId {
 
 	public ContactListGui getContacts() {
 		return contacts;
+	}
+
+	public SettingsAudioTab getCodecs() {
+		return codecs;
 	}
 
 	@Override

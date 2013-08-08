@@ -2,10 +2,11 @@ package call;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.InetAddress;
-import java.net.NoRouteToHostException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public abstract class AbstractClient extends AbstractId {
 	private void init(String host, int port) throws IOException {
 		try {
 			connect(host, port);
-		} catch (UnknownHostException | NoRouteToHostException | ConnectException e) {
+		} catch (UnknownHostException | SocketTimeoutException | SocketException e) {
 			throw e;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -48,7 +49,9 @@ public abstract class AbstractClient extends AbstractId {
 
 	private void connect(String host, int port) throws IOException {
 		// open socket
-		this.socket = new Socket(InetAddress.getByName(host), port);
+		SocketAddress addr = new InetSocketAddress( host, port );
+		this.socket = new Socket();
+		socket.connect( addr, Config.SOCKET_CONNECT_TIMEOUT );
 		socket.setReuseAddress(true);
 
 		// write and read headers
@@ -62,8 +65,8 @@ public abstract class AbstractClient extends AbstractId {
 		this.contact = new Contact(host, port, user);
 
 		// handle request
+		socket.setSoTimeout(Config.SOCKET_READ_TIMEOUT);
 		if (!request.equals(RequestType.Status) && !request.equals(RequestType.Ping)) {
-			socket.setSoTimeout(Config.SOCKET_TIMEOUT);
 			Util.log(this, "Connected (Client).");
 		}
 	}

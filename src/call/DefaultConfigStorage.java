@@ -18,6 +18,7 @@ import call.Config.BooleanOption;
 import call.Config.FloatOption;
 import call.Config.IntegerOption;
 import call.Config.Option;
+import call.Config.SerializedOption;
 
 public class DefaultConfigStorage extends AbstractId implements ConfigStorage {
 
@@ -87,8 +88,13 @@ public class DefaultConfigStorage extends AbstractId implements ConfigStorage {
 		} else if (option instanceof IntegerOption) {
 			Util.log(this, "notify3: " + listener);
 			listener.onConfigUpdate(option, ((IntegerOption) option).getIntegerValue());
-		} else {
+		} else if (option instanceof SerializedOption) {
 			Util.log(this, "notify4: " + listener);
+			try {
+				listener.onConfigUpdate(option, ((SerializedOption<?>) option).getDeserializedValue());
+			} catch (UnknownDefaultValueException e) {}
+		} else {
+			Util.log(this, "notify5: " + listener);
 			listener.onConfigUpdate(option, option.getStringValue());
 		}
 	}

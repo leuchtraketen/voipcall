@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ContactList {
 
 	private static Set<Contact> contacts = new HashSet<>();
-	private static List<Listener> listeners = new ArrayList<>();
+	private static List<ContactListUpdateListener> listeners = new ArrayList<>();
 	private static Map<Contact, Boolean> online = new HashMap<>();
 	private static Lock lock = new ReentrantLock();
 
@@ -67,7 +67,6 @@ public class ContactList {
 				return contact;
 			}
 		}
-		ContactScanner.addHostOfInterest(host);
 		return null;
 	}
 
@@ -102,13 +101,13 @@ public class ContactList {
 	}
 
 	private static void notifyListeners() {
-		for (Listener listener : listeners) {
+		for (ContactListUpdateListener listener : listeners) {
 			listener.onAnyContactUpdate();
 		}
 	}
 
 	private static void notifyListeners(Contact contact) {
-		for (Listener listener : listeners) {
+		for (ContactListUpdateListener listener : listeners) {
 			listener.onContactUpdate(contact);
 			listener.onAnyContactUpdate();
 		}
@@ -130,17 +129,11 @@ public class ContactList {
 		Util.log("contactlist:", "________");
 	}
 
-	public static void addListener(Listener listener) {
+	public static void addListener(ContactListUpdateListener listener) {
 		listeners.add(listener);
 	}
 
 	public static Contact me() {
 		return new Contact("127.0.0.1", Config.CURRENT_PORT, Util.getUserName());
-	}
-
-	public static interface Listener {
-		void onContactUpdate(Contact contact);
-
-		void onAnyContactUpdate();
 	}
 }

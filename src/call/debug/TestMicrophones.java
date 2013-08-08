@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import call.Microphones;
+import call.AudioDeviceScanner;
 
 public class TestMicrophones {
 	public static void main(String[] args) {
@@ -18,8 +18,7 @@ public class TestMicrophones {
 	}
 
 	public TestMicrophones(String ip) {
-		@SuppressWarnings("unused")
-		Microphones micros = new Microphones();
+		new AudioDeviceScanner().run();
 
 		int rows = 20;
 		int cols = 40;

@@ -1,17 +1,21 @@
 package call;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ContactScanner implements Runnable {
 
+	private static final List<String> hostsDefault = Arrays.asList(Config.DEFAULT_CONTACT_HOSTS);
 	private static Set<String> hostsOfInterest;
+	private static Set<String> hostsMostSeen;
 	private static boolean active;
-	private static boolean interrupt = false;
+	private static Thread scannerThread;
 
 	public ContactScanner() {
 		if (hostsOfInterest == null) {
@@ -19,74 +23,110 @@ public class ContactScanner implements Runnable {
 			String[] hosts = Util.split(";", Config.CUSTOM_CONTACTS.getStringValue());
 			hostsOfInterest.addAll(Util.asSet(hosts));
 		}
+		if (hostsMostSeen == null) {
+			hostsMostSeen = new HashSet<>();
+			String[] hosts = Util.split(";", Config.CONNECTED_CONTACTS.getStringValue());
+			hostsMostSeen.addAll(Util.asSet(hosts));
+		}
 	}
 
 	@Override
 	public void run() {
+		scannerThread = Thread.currentThread();
 		active = true;
 		while (active) {
-			interrupt = false;
-			scan();
-			for (int i = 0; i < 30 && !interrupt; ++i) {
-				Util.sleep(1000);
+			boolean hasBeenInterrupted = scan();
+			if (!hasBeenInterrupted) {
+				for (int i = 0; i < 30 && !Thread.interrupted(); ++i) {
+					Util.sleep(1000);
+				}
 			}
 		}
 	}
 
 	public static void scanNow() {
-		interrupt = true;
+		scannerThread.interrupt();
 	}
 
-	private static void scan() {
-		for (String host : Config.DEFAULT_CONTACT_HOSTS) {
-			if (interrupt)
-				return;
-			scan(host);
-		}
-		for (String host : hostsOfInterest) {
-			if (interrupt)
-				return;
-			scan(host);
-		}
-	}
-
-	private static List<Thread> scan(String host) {
+	private static boolean scan() {
 		List<Thread> threads = new ArrayList<>();
-		for (int i = 0; i <= 5; ++i) {
-			threads.add(checkContact(host, Config.DEFAULT_PORT + 10 * i));
+		for (String host : hostsMostSeen) {
+			threads.add(scan(host));
 		}
-		return threads;
+		threads.add(scan(hostsDefault));
+		threads.add(scan(hostsOfInterest));
+
+		boolean interrupted = Util.joinThreads(threads);
+		if (interrupted) {
+			Util.interruptThreads(threads);
+		}
+		threads = null;
+		System.gc();
+		return interrupted;
 	}
 
-	private static Thread checkContact(final String host, final int port) {
+	private static Thread scan(final String host) {
+		return scan(Arrays.asList(new String[] { host }));
+	}
+
+	private static Thread scan(final Collection<String> hosts) {
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					StatusClient client = new StatusClient(host, port);
-					client.close();
-					ContactList.addContact(client.getContact());
-					ContactList.setOnline(client.getContact(), true);
-
-				} catch (UnknownHostException | SocketException e) {
-					// ignore
-				} catch (Exception e) {
-					Contact found = ContactList.findContact(host, port, null);
-					if (found != null) {
-						ContactList.setOnline(found, true);
-						// ContactList.removeContact(found);
+					for (int i = 0; i <= 5; ++i) {
+						for (String host : hosts) {
+							checkContact(host, Config.DEFAULT_PORT + 10 * i);
+						}
 					}
-
+				} catch (InterruptedException e) {
+					Util.log(Thread.currentThread().toString(), "interrupted...");
 				}
+				openlock.lock();
+				Util.log("thread", "still open: " + Util.join(open, ","));
+				openlock.unlock();
 			}
 		});
 		thread.start();
 		return thread;
 	}
 
+	private static Set<String> open = new HashSet<>();
+	private static Lock openlock = new ReentrantLock();
+
+	private static void checkContact(final String host, final int port) throws InterruptedException {
+		if (Thread.interrupted()) // Clears interrupted status!
+			throw new InterruptedException();
+
+		openlock.lock();
+		open.add(host + ":" + port);
+		openlock.unlock();
+
+		try {
+			StatusClient client = new StatusClient(host, port);
+			client.close();
+			ContactList.addContact(client.getContact());
+			ContactList.setOnline(client.getContact(), true);
+			addHostMostSeen(client.getContact().getHost());
+		} catch (Exception e) {}
+
+		openlock.lock();
+		open.remove(host + ":" + port);
+		openlock.unlock();
+	}
+
+	private static void addHostMostSeen(String host) {
+		if (!hostsMostSeen.contains(host)) {
+			hostsMostSeen.add(host);
+			Config.CONNECTED_CONTACTS.setStringValue(Util.join(hostsMostSeen, ";"));
+		}
+	}
+
 	public static void addHostOfInterest(String host) {
-		hostsOfInterest.add(host);
-		Config.CUSTOM_CONTACTS.setStringValue(Util.join(hostsOfInterest, ";"));
+		if (!hostsDefault.contains(host)) {
+			hostsOfInterest.add(host);
+			Config.CUSTOM_CONTACTS.setStringValue(Util.join(hostsOfInterest, ";"));
+		}
 	}
 
 	public void close() {

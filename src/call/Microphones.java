@@ -1,53 +1,77 @@
 package call;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.TargetDataLine;
+public class Microphones extends AudioDevices<Microphone> {
 
-public class Microphones {
+	private static final Microphones instance = new Microphones();
+	private static List<Microphone> microphones = new ArrayList<>();
 
-	private Set<Microphone> microphones = new HashSet<>();
+	private Microphones() {}
 
-	public Microphones() {
-		microphones = discover();
+	public static Microphones getInstance() {
+		return instance;
 	}
 
-	private Set<Microphone> discover() {
-		Set<Microphone> microphones = new HashSet<>();
-		for (Mixer.Info mixerinfo : AudioSystem.getMixerInfo()) {
-			System.out.println("mixerinfo: " + mixerinfo);
-			Mixer mixer = AudioSystem.getMixer(mixerinfo);
-			System.out.println("mixer:     " + mixer);
-			System.out.println("mixerinfo: " + mixer.getLineInfo());
-			for (Line.Info lineinfo : mixer.getTargetLineInfo()) {
-				try {
-					Line line;
-					line = mixer.getLine(lineinfo);
-					if (line instanceof TargetDataLine) {
-						System.out.println("    lineinfo:   " + lineinfo);
-						System.out.println("    line:       " + line);
-						System.out.println("    lineinfo:   " + line.getLineInfo());
-						if (mixer.isLineSupported(lineinfo)) {
-							microphones
-									.add(new Microphone(mixerinfo, mixer, lineinfo, (TargetDataLine) line));
-						} else {
-							System.out.println("    NOT SUPPORTED!");
-						}
-					}
-				} catch (LineUnavailableException e) {
-					e.printStackTrace();
-				}
-			}
+	public static List<Microphone> getMicrophones() {
+		return microphones;
+	}
+
+	public static void setMicrophones(Collection<Microphone> microphones) {
+		Microphones.microphones = new ArrayList<>(microphones);
+		Collections.sort(Microphones.microphones, new AudioDeviceComparator());
+	}
+
+	@Override
+	public String getId() {
+		return "Microphones";
+	}
+
+	@Override
+	public List<Microphone> getAudioDevices() {
+		return microphones;
+	}
+
+	public static void setCurrentMicrophone(Microphone selected) {
+		instance.setCurrentDevice(selected);
+	}
+
+	public static Microphone getCurrentMicrophone() throws UnknownDefaultValueException {
+		return instance.getCurrentDevice();
+	}
+
+	@Override
+	public Microphone getCurrentDevice() throws UnknownDefaultValueException {
+		return (Microphone) Config.SELECTED_MICROPHONE.getDeserializedValue();
+	}
+
+	@Override
+	public void setCurrentDevice(AudioDevice selected) {
+		AudioDevice current = null;
+		try {
+			current = Config.SELECTED_MICROPHONE.getDeserializedValue();
+		} catch (UnknownDefaultValueException e) {}
+		
+		if (current == null || !current.equals(selected)) {
+			Config.SELECTED_MICROPHONE.setDeserializedValue(selected);
 		}
-		return microphones;
 	}
 
-	public Set<Microphone> getMicrophones() {
-		return microphones;
+	@Override
+	public String getConfigPrefix() {
+		return "microphone";
+	}
+
+	@Override
+	public AudioDevice getDefaultValue() throws NoAudioDeviceException {
+		List<Microphone> devicelist = getAudioDevices();
+		if (devicelist.size() > 0) {
+			return devicelist.get(0);
+		} else {
+			throw new NoAudioDeviceException("No microphone found!");
+		}
 	}
 }

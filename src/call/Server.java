@@ -118,7 +118,7 @@ public class Server extends AbstractId implements Runnable {
 
 			} else if (request.toLowerCase().equals("call")) {
 				// call connection
-				socket.setSoTimeout(Config.SOCKET_TIMEOUT);
+				socket.setSoTimeout(Config.SOCKET_READ_TIMEOUT);
 				if (!contact.isReachable()) {
 					ContactList.addContact(contact);
 				}
@@ -128,7 +128,7 @@ public class Server extends AbstractId implements Runnable {
 
 			} else if (request.toLowerCase().equals("chat")) {
 				// chat connection
-				socket.setSoTimeout(Config.SOCKET_TIMEOUT);
+				socket.setSoTimeout(Config.SOCKET_READ_TIMEOUT);
 				if (!contact.isReachable()) {
 					ContactList.addContact(contact);
 				}

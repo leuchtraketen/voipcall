@@ -9,11 +9,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import call.AbstractId;
 import call.Contact;
 import call.ContactList;
-import call.ContactList.Listener;
+import call.ContactListUpdateListener;
 
-public class ContactListGui implements Listener {
+public class ContactListGui extends AbstractId implements ContactListUpdateListener {
 
 	@SuppressWarnings("unused")
 	private final MainWindow main;
@@ -65,6 +66,11 @@ public class ContactListGui implements Listener {
 		} else {
 			peerlist.clearSelection();
 		}
+	}
+
+	@Override
+	public String getId() {
+		return "ContactListGui";
 	}
 
 }

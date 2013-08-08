@@ -8,9 +8,10 @@ import javax.swing.AbstractListModel;
 import call.Config;
 import call.Contact;
 import call.ContactList;
-import call.ContactList.Listener;
+import call.ContactListUpdateListener;
+import call.Id;
 
-public class ContactListModel extends AbstractListModel<Contact> implements Listener {
+public class ContactListModel extends AbstractListModel<Contact> implements ContactListUpdateListener {
 
 	private static final long serialVersionUID = -3163098678792030738L;
 
@@ -50,4 +51,14 @@ public class ContactListModel extends AbstractListModel<Contact> implements List
 
 	@Override
 	public void onContactUpdate(Contact contact) {}
+
+	@Override
+	public String getId() {
+		return "ContactListModel";
+	}
+
+	@Override
+	public int compareTo(Id o) {
+		return getId().compareTo(o.getId());
+	}
 }

@@ -26,15 +26,17 @@ import javax.swing.KeyStroke;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.DefaultCaret;
 
+import call.AbstractId;
 import call.ChatCapture;
 import call.Config;
 import call.Contact;
 import call.ContactList;
+import call.ContactListUpdateListener;
 import call.Ping;
 import call.PingClient;
 import call.Util;
 
-public class ChatTab implements PingClient.Listener, ContactList.Listener, Runnable {
+public class ChatTab extends AbstractId implements PingClient.Listener, ContactListUpdateListener, Runnable {
 
 	// instances
 	private static final Map<Contact, ChatTab> instances = new HashMap<>();
@@ -302,5 +304,10 @@ public class ChatTab implements PingClient.Listener, ContactList.Listener, Runna
 		public ChatTab getChatTab() {
 			return chattab;
 		}
+	}
+
+	@Override
+	public String getId() {
+		return "ChatTab";
 	}
 }

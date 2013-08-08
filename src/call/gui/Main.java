@@ -1,5 +1,6 @@
 package call.gui;
 
+import call.AudioDeviceScanner;
 import call.ContactScanner;
 import call.PingScanner;
 import call.Server;
@@ -14,13 +15,22 @@ public class Main {
 		Util.initOutputBuffer();
 		GuiUtil.setNativeLookAndFeel();
 
+		final MainWindow main = new MainWindow();
+
 		Server server = new Server();
 		Thread thr = new Thread(server);
 		thr.start();
 
-		new MainWindow().runGui();
 		new Thread(new ContactScanner()).start();
 		new Thread(new PingScanner()).start();
+
+		AudioDeviceScanner audioScanner = new AudioDeviceScanner();
+		audioScanner.setUi(new AudioDeviceScannerDialog());
+		Thread audioScannerThread = new Thread(audioScanner);
+		audioScannerThread.run();
+
+		main.runGui();
+
 		try {
 			thr.join();
 		} catch (InterruptedException e) {

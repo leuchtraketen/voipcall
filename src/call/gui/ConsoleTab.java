@@ -12,6 +12,7 @@ import call.AbstractId;
 import call.Config;
 import call.Config.Option;
 import call.ConfigListener;
+import call.Id;
 import call.Util;
 
 public class ConsoleTab extends AbstractId implements ConfigListener {
@@ -34,7 +35,7 @@ public class ConsoleTab extends AbstractId implements ConfigListener {
 
 		// system output
 		PrintStream windowStream = new PrintStream(new JTextAreaOutputStream(area));
-		Util.setOutAndErr(windowStream);
+		//Util.setOutAndErr(windowStream);
 
 		// config listener
 		Config.addConfigListener(this);
@@ -72,6 +73,9 @@ public class ConsoleTab extends AbstractId implements ConfigListener {
 
 	@Override
 	public void onConfigUpdate(Option option, String value) {}
+
+	@Override
+	public void onConfigUpdate(Option option, Id value) {}
 
 	@Override
 	public String getId() {

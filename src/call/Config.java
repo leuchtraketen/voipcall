@@ -29,7 +29,8 @@ public class Config {
 	public static final AudioFileFormat.Type DEFAULT_TARGET_TYPE = AudioFileFormat.Type.WAVE;
 
 	public static final int DEFAULT_PORT = 4000;
-	public static final int SOCKET_TIMEOUT = 7000;
+	public static final int SOCKET_READ_TIMEOUT = 7000;
+	public static final int SOCKET_CONNECT_TIMEOUT = 2000;
 	public static final long CURRENT_UPTIME = System.currentTimeMillis();
 	public static int CURRENT_PORT = DEFAULT_PORT;
 
@@ -44,8 +45,14 @@ public class Config {
 
 	public static final BooleanOption SHOW_CONSOLE = new BooleanOption("show-console", true);
 	public static final StringOption CUSTOM_CONTACTS = new StringOption("custom-contacts", "");
+	public static final StringOption CONNECTED_CONTACTS = new StringOption("connected-contacts", "");
+	public static final SerializedOption<AudioDevice> SELECTED_MICROPHONE = new SerializedOption<>(
+			"selected-microphone", Microphones.getInstance());
+	public static final SerializedOption<AudioDevice> SELECTED_SPEAKER = new SerializedOption<>(
+			"selected-speaker", Speakers.getInstance());
 
-	public static final Option ALL_OPTIONS[] = new Option[] { SHOW_CONSOLE, CUSTOM_CONTACTS };
+	public static final Option ALL_OPTIONS[] = new Option[] { SHOW_CONSOLE, CUSTOM_CONTACTS,
+			CONNECTED_CONTACTS, SELECTED_MICROPHONE, SELECTED_SPEAKER };
 
 	private static final ConfigStorage CONFIG_STORAGE = new DefaultConfigStorage();
 
@@ -248,6 +255,57 @@ public class Config {
 		@Override
 		public String getDefaultStringValue() {
 			return PREFIX + defaultvalue;
+		}
+
+		@Override
+		public String getId() {
+			return "FloatOption<" + optionname + ">";
+		}
+	}
+
+	public static class SerializedOption<A extends Id> extends AbstractOption {
+		private static final String NULL = "null";
+		private final String PREFIX;
+		private final IdSerializer<A> serializer;
+
+		protected SerializedOption(String optionname, IdSerializer<A> serializer) {
+			super(optionname);
+			this.serializer = serializer;
+			this.PREFIX = "(" + serializer.getConfigPrefix() + ")";
+		}
+
+		public A getDeserializedValue() throws UnknownDefaultValueException {
+			// try {
+			if (CONFIG_STORAGE.hasOption(this)) {
+				String value = CONFIG_STORAGE.getOption(this, "");
+				if (value.startsWith(PREFIX) && !value.substring(PREFIX.length()).equals(NULL))
+					return serializer.deserialize(value.substring(PREFIX.length()));
+				else
+					return serializer.getDefaultValue();
+			} else {
+				return serializer.getDefaultValue();
+			}
+			// } catch (UnknownDefaultValueException e) {
+			// throw new UnsupportedOperationException(e.getMessage());
+			// }
+		}
+
+		public void setDeserializedValue(A value) {
+			setStringValue(PREFIX + serializer.serialize(value));
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, getDefaultStringValue());
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			try {
+				return PREFIX + serializer.getDefaultValue();
+			} catch (UnknownDefaultValueException e) {
+				return PREFIX + NULL;
+			}
 		}
 
 		@Override
