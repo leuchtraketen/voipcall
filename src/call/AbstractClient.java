@@ -53,6 +53,7 @@ public abstract class AbstractClient extends AbstractId {
 		this.socket = new Socket();
 		socket.connect( addr, Config.SOCKET_CONNECT_TIMEOUT );
 		socket.setReuseAddress(true);
+		socket.setTcpNoDelay(true);
 
 		// write and read headers
 		SocketUtil.writeHeaders(socket.getOutputStream(), request);

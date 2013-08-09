@@ -32,7 +32,7 @@ public class TestLoop extends AbstractId {
 		try {
 			new Thread(new CallRecorder(ContactList.me(), pos)).start();
 			Util.sleep(2000);
-			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(pis), null)).start();
+			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(pis), null, 8096)).start();
 		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException | UnknownDefaultValueException e) {
 			e.printStackTrace();
 		}

@@ -22,7 +22,7 @@ public class TestFileLoad extends AbstractId {
 	public TestFileLoad() {
 		try {
 			InputStream is = new FileInputStream(new File("test.pcm"));
-			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(is), null)).start();
+			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(is), null, 8096)).start();
 		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException | UnknownDefaultValueException e) {
 			e.printStackTrace();
 		}

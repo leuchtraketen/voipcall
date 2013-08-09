@@ -81,6 +81,7 @@ public class Server extends AbstractId implements Runnable {
 
 		private void handle() throws IOException {
 			socket.setReuseAddress(true);
+			socket.setTcpNoDelay(true);
 
 			SocketUtil.writeHeaders(socket.getOutputStream(), SocketUtil.RequestType.ServerCall);
 			final InputStream instream = socket.getInputStream();
