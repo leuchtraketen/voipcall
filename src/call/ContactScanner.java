@@ -15,6 +15,10 @@ public class ContactScanner implements Runnable {
 	private static boolean active;
 	private static Thread scannerThread;
 
+	private static final int MIN_WAITTIME = 30_000;
+	private static final int MAX_WAITTIME = 300_000;
+	private static int waittime;
+
 	public ContactScanner() {
 		if (hostsOfInterest == null) {
 			hostsOfInterest = new HashSet<>();
@@ -32,10 +36,13 @@ public class ContactScanner implements Runnable {
 	public void run() {
 		scannerThread = Thread.currentThread();
 		active = true;
+		waittime = MIN_WAITTIME;
 		while (active) {
 			boolean hasBeenInterrupted = scan();
+			if (waittime < MAX_WAITTIME)
+				waittime += 60_000;
 			if (!hasBeenInterrupted) {
-				for (int i = 0; i < 30 && !Thread.interrupted(); ++i) {
+				for (int i = 0; i < waittime && !Thread.interrupted(); i += 1000) {
 					Util.sleep(1000);
 				}
 			}
@@ -44,6 +51,7 @@ public class ContactScanner implements Runnable {
 
 	public static void scanNow() {
 		scannerThread.interrupt();
+		waittime = MIN_WAITTIME;
 	}
 
 	private static boolean scan() {

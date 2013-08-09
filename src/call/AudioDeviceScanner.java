@@ -36,12 +36,12 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 	private Set<Microphone> discoverMicrophoneFormats(Set<Microphone.Info> microphoneinfos) {
 		Set<Microphone> microphones = new HashSet<>();
 		for (Microphone.Info info : microphoneinfos) {
+			Util.sleep(200);
 			if (ui != null)
 				ui.setCurrentLine(info.getMixerinfo(), info.getLineinfo());
 			PcmFormatScanner scanner = new PcmFormatScanner(info.getLine(), ui);
 			List<PcmFormat> formats = scanner.getFormats();
 			microphones.add(new Microphone(info, formats));
-			Util.sleep(200);
 		}
 		return microphones;
 	}
@@ -49,12 +49,12 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 	private Set<Speaker> discoverSpeakerFormats(Set<Speaker.Info> speakerinfos) {
 		Set<Speaker> speakers = new HashSet<>();
 		for (Speaker.Info info : speakerinfos) {
+			Util.sleep(200);
 			if (ui != null)
 				ui.setCurrentLine(info.getMixerinfo(), info.getLineinfo());
 			PcmFormatScanner scanner = new PcmFormatScanner(info.getLine(), ui);
 			List<PcmFormat> formats = scanner.getFormats();
 			speakers.add(new Speaker(info, formats));
-			Util.sleep(200);
 		}
 		return speakers;
 	}

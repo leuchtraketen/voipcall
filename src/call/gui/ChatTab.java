@@ -252,17 +252,17 @@ public class ChatTab extends AbstractId implements PingClient.Listener, ContactL
 					infolabeluptime.setText(Util.formatMilliSecondsHumanReadable(System.currentTimeMillis()
 							- ping.getUptime()));
 				}
-				Util.sleep(1000);
+				Util.sleep(5_000);
 			} else if (contact.isLoop()) {
 				infolabelping.setText(Resources.TEXT_PING_NOT_SUPPORTED);
 				infolabelping.setForeground(Color.RED);
 				infolabeluptime.setText(Util.formatMilliSecondsHumanReadable(System.currentTimeMillis()
 						- Config.CURRENT_UPTIME));
-				Util.sleep(1000);
+				Util.sleep(5_000);
 			} else {
 				infolabelping.setText(Resources.TEXT_PING_OFFLINE);
 				infolabeluptime.setText(Resources.TEXT_PING_OFFLINE);
-				Util.sleep(5000);
+				Util.sleep(15_000);
 			}
 		}
 	}
@@ -274,10 +274,16 @@ public class ChatTab extends AbstractId implements PingClient.Listener, ContactL
 
 	public void updateCallStats(float incomingSpeed, long incomingTotal, float outgoingSpeed,
 			long outgoingTotal) {
-		if (incomingSpeed != -1)
-			infolabelincoming.setText(Util.formatBytesHumanReadable(incomingSpeed) + "/s");
-		if (outgoingSpeed != -1)
-			infolabeloutgoing.setText(Util.formatBytesHumanReadable(outgoingSpeed) + "/s");
+		if (incomingSpeed != -1) {
+			String text = Util.formatBytesHumanReadable(incomingSpeed) + "/s";
+			if (!text.equals(infolabelincoming.getText()))
+				infolabelincoming.setText(text);
+		}
+		if (outgoingSpeed != -1) {
+			String text = Util.formatBytesHumanReadable(outgoingSpeed) + "/s";
+			if (!text.equals(infolabeloutgoing.getText()))
+				infolabeloutgoing.setText(text);
+		}
 	}
 
 	@Override

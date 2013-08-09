@@ -88,21 +88,22 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		add(settingspanel, 1, 1, 4, 0, 0.0, 0.0, HORIZONTAL, comboboxSpeakers);
 		add(settingspanel, 0, 2, 0, 0, 0.0, 0.0, NONE, labelCallBuffer);
 		add(settingspanel, 1, 2, 4, 0, 0.0, 0.0, HORIZONTAL, sliderCallBuffer);
-		add(settingspanel, 0, 3, 0, 0, 0.0, 0.0, NONE, labelSampleSize);
-		add(settingspanel, 1, 3, 0, 0, 0.0, 0.0, HORIZONTAL, radioSampleSize8);
-		add(settingspanel, 2, 3, 0, 0, 0.0, 0.0, HORIZONTAL, radioSampleSize16);
-		add(settingspanel, 3, 3, 0, 0, 0.0, 0.0, HORIZONTAL, checkboxStereo);
-		add(settingspanel, 0, 4, 0, 0, 0.0, 0.0, NONE, labelPcmRate);
-		add(settingspanel, 1, 4, 4, 0, 0.0, 0.0, HORIZONTAL, sliderPcmRate);
-		add(settingspanel, 0, 5, 0, 0, 0.0, 0.0, NONE, labelSelectedFormat);
-		add(settingspanel, 1, 5, 4, 0, 0.0, 0.0, NONE, textSelectedFormat);
+		add(settingspanel, 0, 3, 0, 0, 0.0, 0.0, NONE, labelPcmRate);
+		add(settingspanel, 1, 3, 4, 0, 0.0, 0.0, HORIZONTAL, sliderPcmRate);
+		add(settingspanel, 0, 4, 0, 0, 0.0, 0.0, NONE, labelSampleSize);
+		add(settingspanel, 1, 4, 0, 0, 0.0, 0.0, HORIZONTAL, radioSampleSize8);
+		add(settingspanel, 2, 4, 0, 0, 0.0, 0.0, HORIZONTAL, radioSampleSize16);
+		add(settingspanel, 3, 4, 0, 0, 0.0, 0.0, HORIZONTAL, checkboxStereo);
+		add(settingspanel, 0, 5, 0, 0, 0.0, 0.1, HORIZONTAL, new JLabel(" "));
+		add(settingspanel, 0, 6, 0, 0, 0.0, 0.0, NONE, labelSelectedFormat);
+		add(settingspanel, 1, 6, 4, 0, 0.0, 0.0, NONE, textSelectedFormat);
 
-		add(settingspanel, 0, 6, 0, 0, 0.0, 1.0, BOTH, empty());
-		add(settingspanel, 1, 6, 0, 0, 0.0, 1.0, BOTH, empty());
-		add(settingspanel, 2, 6, 0, 0, 0.0, 1.0, BOTH, empty());
-		add(settingspanel, 3, 6, 0, 0, 0.0, 1.0, BOTH, empty());
-		add(settingspanel, 4, 6, 0, 0, 0.0, 1.0, BOTH, empty());
-		add(settingspanel, 5, 6, 0, 0, 0.8, 1.0, BOTH, empty());
+		add(settingspanel, 0, 7, 0, 0, 0.0, 1.0, BOTH, empty());
+		add(settingspanel, 1, 7, 0, 0, 0.0, 1.0, BOTH, empty());
+		add(settingspanel, 2, 7, 0, 0, 0.0, 1.0, BOTH, empty());
+		add(settingspanel, 3, 7, 0, 0, 0.0, 1.0, BOTH, empty());
+		add(settingspanel, 4, 7, 0, 0, 0.0, 1.0, BOTH, empty());
+		add(settingspanel, 5, 7, 0, 0, 0.8, 1.0, BOTH, empty());
 
 		// JPanel mainpanel = new JPanel(new BorderLayout());
 		// mainpanel.add(settingspanel, BorderLayout.CENTER);

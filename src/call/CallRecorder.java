@@ -55,6 +55,7 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 					for (OutputStream out : captureStreams) {
 						out.write(buffer, 0, cnt);
 					}
+					out.flush();
 
 					sent += cnt;
 					long now = System.currentTimeMillis();

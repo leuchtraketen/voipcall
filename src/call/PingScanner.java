@@ -6,8 +6,8 @@ import java.net.UnknownHostException;
 
 public class PingScanner implements Runnable {
 
-	private static final int MIN_WAITTIME = 3000;
-	private static final int MAX_WAITTIME = 30000;
+	private static final int MIN_WAITTIME = 3_000;
+	private static final int MAX_WAITTIME = 60_000;
 
 	private static int waittime;
 	private static boolean active;
@@ -19,7 +19,7 @@ public class PingScanner implements Runnable {
 		while (active) {
 			scan();
 			if (waittime < MAX_WAITTIME)
-				waittime += 2000;
+				waittime += 10_000;
 			
 			for (int i = 0; i < waittime; i += 1000) {
 				Util.sleep(1000);

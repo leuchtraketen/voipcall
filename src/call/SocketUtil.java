@@ -86,7 +86,6 @@ public class SocketUtil {
 	public static String getHeaderValue(List<String> headers, String key, String defaultValue) {
 		String value = defaultValue;
 		for (String header : headers) {
-			System.out.println(header);
 			if (header.toLowerCase().startsWith(key.toLowerCase() + ":")) {
 				value = header.split(":", 2)[1].trim();
 				break;

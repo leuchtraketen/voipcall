@@ -66,8 +66,8 @@ public class Resources {
 	// labels in audio settings
 	public static final String LABEL_SETTINGS_AUDIO_DEFAULT_MICROPHONE = "Default Microphone:";
 	public static final String LABEL_SETTINGS_AUDIO_DEFAULT_SPEAKER = "Default Speaker:";
-	public static final String LABEL_SETTINGS_AUDIO_CALL_BUFFER = "Buffer size:";
-	public static final String LABEL_SETTINGS_AUDIO_SAMPLING_RATE = "Sampling rate:";
+	public static final String LABEL_SETTINGS_AUDIO_CALL_BUFFER = "<html>Buffer size:<br>&nbsp;</html>";
+	public static final String LABEL_SETTINGS_AUDIO_SAMPLING_RATE = "<html>Sampling rate:<br>&nbsp;</html>";
 	public static final String LABEL_SETTINGS_AUDIO_SAMPLE_SIZE = "Sample size:";
 	public static final String LABEL_SETTINGS_AUDIO_SELECTED_ENCODING = "<html>Selected Encoding:<br>&nbsp;</html>";
 

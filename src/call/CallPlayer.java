@@ -57,6 +57,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 					for (OutputStream out : captureStreams) {
 						out.write(buffer, 0, cnt);
 					}
+					line.flush();
 
 					sent += cnt;
 					long now = System.currentTimeMillis();
