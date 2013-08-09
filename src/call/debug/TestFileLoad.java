@@ -12,6 +12,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import call.AbstractId;
 import call.CallPlayer;
 import call.ContactList;
+import call.UnknownDefaultValueException;
 
 public class TestFileLoad extends AbstractId {
 	public static void main(String[] args) {
@@ -21,8 +22,8 @@ public class TestFileLoad extends AbstractId {
 	public TestFileLoad() {
 		try {
 			InputStream is = new FileInputStream(new File("test.pcm"));
-			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(is))).start();
-		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(is), null)).start();
+		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException | UnknownDefaultValueException e) {
 			e.printStackTrace();
 		}
 	}

@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
@@ -17,26 +15,22 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 	private final OutputStream out;
 	private final List<OutputStream> captureStreams = new ArrayList<>();
 
-	public CallRecorder(Contact contact, OutputStream out) throws LineUnavailableException {
+	public CallRecorder(Contact contact, OutputStream out) throws LineUnavailableException, UnknownDefaultValueException {
 		super(contact);
 		this.out = out;
 
-		int nChannels = Config.PCM_DEFAULT_CHANNELS;
-		float fRate = Config.PCM_DEFAULT_RATE;
-
-		AudioFormat.Encoding encoding = Config.DEFAULT_ENCODING;
-
-		int nFrameSize = (Config.PCM_DEFAULT_SAMPLE_SIZE / 8) * nChannels;
-		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.PCM_DEFAULT_SAMPLE_SIZE, nChannels,
-				nFrameSize, fRate, Config.PCM_DEFAULT_BIG_ENDIAN);
+		AudioFormat audioFormat = Microphones.getSelectedFormat().getAudioFormat();
 		Util.log(contact, "Recorder: start.");
 		Util.log(contact, "Recorder: target audio format: " + audioFormat);
 
-		DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class, audioFormat);
-		Util.log(contact, "Recorder: line: " + dataLineInfo);
-
+		// DataLine.Info dataLineInfo = new DataLine.Info(TargetDataLine.class,
+		// audioFormat);
 		// throws LineUnavailableException
-		line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+		// line = (TargetDataLine) AudioSystem.getLine(dataLineInfo);
+
+		Microphone microphone = Microphones.getCurrentMicrophone();
+		Util.log(contact, "Recorder: microphone: " + microphone);
+		line = (TargetDataLine) microphone.getLine();
 		line.open(audioFormat);
 
 		line.start();
@@ -48,7 +42,7 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 		long startTime = System.currentTimeMillis();
 		long lastTime = startTime;
 
-		byte buffer[] = new byte[1024 * 16];
+		byte buffer[] = new byte[Config.BUFFER_SIZE_CALLS.getIntegerValue()];
 
 		CallFactory.openCall(contact);
 

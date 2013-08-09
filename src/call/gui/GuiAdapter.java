@@ -1,6 +1,7 @@
 package call.gui;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import call.Call;
 import call.CallFactory;
@@ -17,10 +18,16 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 	}
 
 	@Override
-	public void openCall(Contact contact) {
+	public void openCall(final Contact contact) {
 		@SuppressWarnings("unused")
 		Call call = CallFactory.getCall(contact);
-		ChatTab.getInstance(contact).getCallaction().openCall();
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				ChatTab.getInstance(contact).getCallaction().openCall();
+			}
+		});
 	}
 
 	@Override
@@ -30,17 +37,27 @@ public class GuiAdapter implements CallUi.CallUiAdapter {
 		final JComponent tabContent = ChatTab.getInstance(contact).getComponent();
 		// final Icon tabIcon = Resources.getIcon(contact);
 
-		MainTabs tabs = main.getTabs();
-		tabs.closeInactiveChatTabsExcept(Util.asSet(new String[] { tabName }));
-		tabs.addTab(tabName, tabContent);
-		tabs.showTab(tabName);
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				MainTabs tabs = main.getTabs();
+				tabs.closeInactiveChatTabsExcept(Util.asSet(new String[] { tabName }));
+				tabs.addTab(tabName, tabContent);
+				tabs.showTab(tabName);
+			}
+		});
 	}
 
 	@Override
-	public void updateCallStats(Contact contact, float incomingSpeed, long incomingTotal,
-			float outgoingSpeed, long outgoingTotal) {
-		ChatTab.getInstance(contact).updateCallStats(incomingSpeed, incomingTotal, outgoingSpeed,
-				outgoingTotal);
+	public void updateCallStats(final Contact contact, final float incomingSpeed, final long incomingTotal,
+			final float outgoingSpeed, final long outgoingTotal) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				ChatTab.getInstance(contact).updateCallStats(incomingSpeed, incomingTotal, outgoingSpeed,
+						outgoingTotal);
+			}
+		});
 	}
 
 }

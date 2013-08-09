@@ -19,11 +19,12 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 
 	@Override
 	public void run() {
+		if (ui != null)
+			ui.open();
 		Set<Microphone.Info> microphoneinfos = discoverMicrophoneInfos();
 		Set<Speaker.Info> speakerinfos = discoverSpeakerInfos();
-		int maxSteps = (microphoneinfos.size() + speakerinfos.size()) * FormatScanner.getMaxSteps();
-		if (ui != null)
-			ui.open(maxSteps);
+		int maxSteps = (microphoneinfos.size() + speakerinfos.size()) * PcmFormatScanner.getMaxSteps();
+		ui.setMaxSteps(maxSteps);
 		Set<Microphone> microphones = discoverMicrophoneFormats(microphoneinfos);
 		Set<Speaker> speakers = discoverSpeakerFormats(speakerinfos);
 		if (ui != null)
@@ -37,8 +38,8 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 		for (Microphone.Info info : microphoneinfos) {
 			if (ui != null)
 				ui.setCurrentLine(info.getMixerinfo(), info.getLineinfo());
-			FormatScanner scanner = new FormatScanner(info.getLine(), ui);
-			List<Format> formats = scanner.getFormats();
+			PcmFormatScanner scanner = new PcmFormatScanner(info.getLine(), ui);
+			List<PcmFormat> formats = scanner.getFormats();
 			microphones.add(new Microphone(info, formats));
 			Util.sleep(200);
 		}
@@ -50,8 +51,8 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 		for (Speaker.Info info : speakerinfos) {
 			if (ui != null)
 				ui.setCurrentLine(info.getMixerinfo(), info.getLineinfo());
-			FormatScanner scanner = new FormatScanner(info.getLine(), ui);
-			List<Format> formats = scanner.getFormats();
+			PcmFormatScanner scanner = new PcmFormatScanner(info.getLine(), ui);
+			List<PcmFormat> formats = scanner.getFormats();
 			speakers.add(new Speaker(info, formats));
 			Util.sleep(200);
 		}

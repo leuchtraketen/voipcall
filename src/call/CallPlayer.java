@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -20,25 +18,19 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 	private final InputStream in;
 	private final List<OutputStream> captureStreams = new ArrayList<>();
 
-	public CallPlayer(Contact contact, InputStream in) throws LineUnavailableException,
-			UnsupportedAudioFileException, IOException {
+	public CallPlayer(Contact contact, InputStream in, PcmFormat format) throws LineUnavailableException,
+			UnsupportedAudioFileException, IOException, UnknownDefaultValueException {
 		super(contact);
 		this.in = in;
 
-		int nChannels = Config.PCM_DEFAULT_CHANNELS;
-		float fRate = Config.PCM_DEFAULT_RATE;
-
-		AudioFormat.Encoding encoding = Config.DEFAULT_ENCODING;
-
-		int nFrameSize = (Config.PCM_DEFAULT_SAMPLE_SIZE / 8) * nChannels;
-		AudioFormat audioFormat = new AudioFormat(encoding, fRate, Config.PCM_DEFAULT_SAMPLE_SIZE, nChannels,
-				nFrameSize, fRate, Config.PCM_DEFAULT_BIG_ENDIAN);
+		AudioFormat audioFormat = format.getAudioFormat();
 		Util.log(contact, "Player: start.");
 		Util.log(contact, "Player: source audio format: " + audioFormat);
 
-		// in = AudioSystem.getAudioInputStream(inputStream);
-		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class, audioFormat);
-		line = (SourceDataLine) AudioSystem.getLine(dataLineInfo);
+		Speaker speaker = Speakers.getCurrentSpeaker();
+		Util.log(contact, "Player: speaker: " + speaker);
+
+		line = (SourceDataLine) speaker.getLine();
 		line.open(audioFormat);
 		line.start();
 	}
@@ -49,7 +41,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 		long startTime = System.currentTimeMillis();
 		long lastTime = startTime;
 
-		byte[] buffer = new byte[1024 * 16];
+		byte[] buffer = new byte[Config.BUFFER_SIZE_CALLS.getIntegerValue()];
 
 		CallFactory.openCall(contact);
 

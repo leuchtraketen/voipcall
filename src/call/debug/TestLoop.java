@@ -12,6 +12,7 @@ import call.AbstractId;
 import call.CallPlayer;
 import call.CallRecorder;
 import call.ContactList;
+import call.UnknownDefaultValueException;
 import call.Util;
 
 public class TestLoop extends AbstractId {
@@ -31,8 +32,8 @@ public class TestLoop extends AbstractId {
 		try {
 			new Thread(new CallRecorder(ContactList.me(), pos)).start();
 			Util.sleep(2000);
-			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(pis))).start();
-		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+			new Thread(new CallPlayer(ContactList.me(), new BufferedInputStream(pis), null)).start();
+		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException | UnknownDefaultValueException e) {
 			e.printStackTrace();
 		}
 	}

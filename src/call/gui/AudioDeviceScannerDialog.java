@@ -13,15 +13,25 @@ public class AudioDeviceScannerDialog extends AbstractId implements AudioDeviceS
 	private int progress = 0;
 
 	@Override
-	public void open(final int maxSteps) {
+	public void open() {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				progress = 0;
 				progressMonitor = new ProgressMonitor(null, "Searching for audio devices...", "", progress,
-						maxSteps+1);
+						100);
 				progressMonitor.setMillisToDecideToPopup(0);
 				progressMonitor.setMillisToPopup(0);
+			}
+		});
+	}
+
+	@Override
+	public void setMaxSteps(final int maxSteps) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				progressMonitor.setMaximum(maxSteps + 1);
 			}
 		});
 	}

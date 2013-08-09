@@ -9,6 +9,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import call.AbstractId;
 import call.Config;
@@ -31,6 +32,7 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 	private static final String TEXT_MENUITEM_SETTINGS_AUDIO = "Audio Devices";
 
 	private static final String TEXT_MENU_HELP = "Help";
+	private static final String TEXT_MENUITEM_HELP_ABOUT = "About";
 
 	private final MainWindow main;
 
@@ -39,6 +41,7 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 	private JMenuItem itemContactsReload;
 	private JCheckBoxMenuItem checkboxShowConsole;
 	private JMenuItem itemSettingsAudio;
+	private JMenuItem itemHelpAbout;
 
 	public MainMenu(MainWindow main) {
 		this.main = main;
@@ -99,6 +102,11 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 		JMenu menu = new JMenu(TEXT_MENU_HELP);
 		menu.setMnemonic(KeyEvent.VK_H);
 
+		itemHelpAbout = new JMenuItem(TEXT_MENUITEM_HELP_ABOUT, Resources.ICON_HELP_ABOUT);
+		itemHelpAbout.setMnemonic(KeyEvent.VK_R);
+		itemHelpAbout.addActionListener(this);
+		menu.add(itemHelpAbout);
+
 		return menu;
 	}
 
@@ -151,16 +159,47 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 				break;
 
 			case TEXT_MENUITEM_SETTINGS_AUDIO:
-				MainTabs tabs = main.getTabs();
-				SettingsAudioTab codecs = main.getCodecs();
-				tabs.addTab(Resources.TABNAME_SETTINGS_AUDIO, codecs.getComponent(),
-						Resources.ICON_SETTINGS_AUDIO);
-				tabs.showTab(Resources.TABNAME_SETTINGS_AUDIO);
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						MainTabs tabs = main.getTabs();
+						SettingsAudioTab codecs = main.getCodecs();
+						tabs.addTab(Resources.TABNAME_SETTINGS_AUDIO, codecs.getComponent(),
+								Resources.ICON_SETTINGS_AUDIO);
+						tabs.showTab(Resources.TABNAME_SETTINGS_AUDIO);
+					}
+				});
+				break;
+
+			case TEXT_MENUITEM_HELP_ABOUT:
+				SwingUtilities.invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						JOptionPane.showMessageDialog(
+								main.getWindow(),
+								"This program is free software: you can redistribute it and/or modify\n"
+										+ "it under the terms of the GNU General Public License as published by\n"
+										+ "the Free Software Foundation, either version 3 of the License, or\n"
+										+ "(at your option) any later version."
+										+ "\n\n"
+										+ "This program is distributed in the hope that it will be useful,\n"
+										+ "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+										+ "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+										+ "GNU General Public License for more details."
+										+ "\n\n"
+										+ "You should have received a copy of the GNU General Public License\n"
+										+ "along with this program. If not, write to" + "\n\n"
+										+ "       The Free Software Foundation, Inc.\n"
+										+ "       51 Franklin Street, Fifth Floor\n"
+										+ "       Boston, MA 02110-1301  USA"
+
+								, "About", JOptionPane.PLAIN_MESSAGE);
+					}
+				});
 				break;
 
 			}
 		}
-
 	}
 
 	@Override

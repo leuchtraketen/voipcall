@@ -54,7 +54,7 @@ public class Microphones extends AudioDevices<Microphone> {
 		try {
 			current = Config.SELECTED_MICROPHONE.getDeserializedValue();
 		} catch (UnknownDefaultValueException e) {}
-		
+
 		if (current == null || !current.equals(selected)) {
 			Config.SELECTED_MICROPHONE.setDeserializedValue(selected);
 		}
@@ -73,5 +73,11 @@ public class Microphones extends AudioDevices<Microphone> {
 		} else {
 			throw new NoAudioDeviceException("No microphone found!");
 		}
+	}
+
+	public static PcmFormat getSelectedFormat() {
+		return new PcmFormat(Config.SELECTED_PCM_RATE.getIntegerValue(),
+				Config.SELECTED_PCM_SAMPLE_SIZE.getIntegerValue(),
+				Config.SELECTED_PCM_CHANNELS.getIntegerValue());
 	}
 }

@@ -14,6 +14,7 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 
 	private final Socket socket;
 	private final long time;
+	private final List<String> headers;
 	private CallRecorder out;
 	private CallPlayer in;
 
@@ -21,6 +22,7 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 		super(contact);
 		this.socket = socket;
 		this.time = System.currentTimeMillis();
+		this.headers = headers;
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 			new Thread(out).start();
 
 			InputStream instream = socket.getInputStream();
-			in = new CallPlayer(contact, new BufferedInputStream(instream));
+			in = new CallPlayer(contact, new BufferedInputStream(instream), SocketUtil.extractFormat(headers));
 			in.saveTo(new CallCapture(time, contact, "input"));
 			new Thread(in).start();
 
@@ -40,6 +42,9 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 			e.printStackTrace();
 			CallFactory.closeCall(contact);
 		} catch (IOException e) {
+			e.printStackTrace();
+			CallFactory.closeCall(contact);
+		} catch (UnknownDefaultValueException e) {
 			e.printStackTrace();
 			CallFactory.closeCall(contact);
 		}

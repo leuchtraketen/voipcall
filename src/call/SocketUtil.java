@@ -29,8 +29,37 @@ public class SocketUtil {
 		else if (request.equals(RequestType.ServerCall))
 			pw.println("Request: ServerRole");
 
+		{
+			final PcmFormat format = Microphones.getSelectedFormat();
+			final String serialized = new PcmFormat.Serializer().serialize(format);
+			pw.println("Microphone-Format: " + serialized);
+		}
+
+		if (request.equals(RequestType.Status)) {
+			try {
+				final List<PcmFormat> formats = Microphones.getCurrentMicrophone().getFormats();
+				final String serialized = new PcmFormat.Serializer().serializeAll(formats);
+				pw.println("Microphone-Formats: " + serialized);
+			} catch (UnknownDefaultValueException e) {}
+			try {
+				final List<PcmFormat> formats = Speakers.getCurrentSpeaker().getFormats();
+				final String serialized = new PcmFormat.Serializer().serializeAll(formats);
+				pw.println("Speaker-Formats: " + serialized);
+			} catch (UnknownDefaultValueException e) {}
+		}
+
 		pw.println();
 		pw.flush();
+	}
+
+	public static PcmFormat extractFormat(List<String> headers) {
+		String serialized = getHeaderValue(headers, "Microphone-Format", "");
+		if (serialized != null && serialized.length() > 0) {
+			try {
+				return new PcmFormat.Serializer().deserialize(serialized);
+			} catch (UnknownDefaultValueException e) {}
+		}
+		return Config.PCM_DEFAULT_FORMAT;
 	}
 
 	public static void writeLine(OutputStream out, String line) {
@@ -57,6 +86,7 @@ public class SocketUtil {
 	public static String getHeaderValue(List<String> headers, String key, String defaultValue) {
 		String value = defaultValue;
 		for (String header : headers) {
+			System.out.println(header);
 			if (header.toLowerCase().startsWith(key.toLowerCase() + ":")) {
 				value = header.split(":", 2)[1].trim();
 				break;

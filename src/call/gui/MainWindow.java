@@ -1,6 +1,7 @@
 package call.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
@@ -48,6 +49,10 @@ public class MainWindow extends AbstractId {
 
 		console = new ConsoleTab(this);
 		codecs = new SettingsAudioTab(this);
+	}
+
+	public Component getWindow() {
+		return window;
 	}
 
 	public void setTitle(String title) {

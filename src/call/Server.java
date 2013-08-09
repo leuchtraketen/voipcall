@@ -1,5 +1,6 @@
 package call;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
@@ -124,6 +125,7 @@ public class Server extends AbstractId implements Runnable {
 				}
 				CallClient client = new CallClient(contact, socket, headers);
 				client.startCall();
+				Util.msg(contact).println("Incoming call.", Color.green);
 				Util.log(contact, "Connected to call (Server).");
 
 			} else if (request.toLowerCase().equals("chat")) {

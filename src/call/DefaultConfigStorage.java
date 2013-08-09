@@ -32,14 +32,18 @@ public class DefaultConfigStorage extends AbstractId implements ConfigStorage {
 		save();
 	}
 
-	private File findConfigFile() {
+	public static File findConfigDirectory() {
 		File directory = Util.isWindows() ? new File(System.getenv("APPDATA")) : new File(
 				System.getProperty("user.home"), ".config");
 		directory.mkdirs();
 		directory = new File(directory, "calls");
 		directory.mkdirs();
 
-		return new File(directory, Util.isWindows() ? "config.ini" : "callrc");
+		return directory;
+	}
+
+	private File findConfigFile() {
+		return new File(findConfigDirectory(), Util.isWindows() ? "config.ini" : "callrc");
 	}
 
 	private synchronized void load() {

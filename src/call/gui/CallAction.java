@@ -80,7 +80,7 @@ public class CallAction extends AbstractId {
 	}
 
 	private void start() {
-		Util.msg(contact).println("Call...", Color.green);
+		Util.msg(contact).println("Outgoing call...", Color.green);
 		try {
 			CallClient client = new CallClient(contact);
 			@SuppressWarnings("unused")

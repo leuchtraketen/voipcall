@@ -6,8 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class ContactScanner implements Runnable {
 
@@ -82,25 +80,15 @@ public class ContactScanner implements Runnable {
 				} catch (InterruptedException e) {
 					Util.log(Thread.currentThread().toString(), "interrupted...");
 				}
-				openlock.lock();
-				Util.log("thread", "still open: " + Util.join(open, ","));
-				openlock.unlock();
 			}
 		});
 		thread.start();
 		return thread;
 	}
 
-	private static Set<String> open = new HashSet<>();
-	private static Lock openlock = new ReentrantLock();
-
 	private static void checkContact(final String host, final int port) throws InterruptedException {
 		if (Thread.interrupted()) // Clears interrupted status!
 			throw new InterruptedException();
-
-		openlock.lock();
-		open.add(host + ":" + port);
-		openlock.unlock();
 
 		try {
 			StatusClient client = new StatusClient(host, port);
@@ -109,10 +97,6 @@ public class ContactScanner implements Runnable {
 			ContactList.setOnline(client.getContact(), true);
 			addHostMostSeen(client.getContact().getHost());
 		} catch (Exception e) {}
-
-		openlock.lock();
-		open.remove(host + ":" + port);
-		openlock.unlock();
 	}
 
 	private static void addHostMostSeen(String host) {

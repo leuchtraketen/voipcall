@@ -1,6 +1,9 @@
 package call;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
@@ -39,8 +42,19 @@ public class Util {
 			stream.print(cached);
 			outputbuffer = null;
 		}
-		System.setOut(new PrintStream(new MultiOutputStream(stream, STDOUT)));
-		System.setErr(new PrintStream(new MultiOutputStream(stream, STDERR)));
+		MultiOutputStream multistream;
+		try {
+			PrintStream logfile = new PrintStream(new FileOutputStream(getLogFile(), true));
+			multistream = new MultiOutputStream(stream, STDOUT, logfile);
+		} catch (FileNotFoundException e) {
+			multistream = new MultiOutputStream(stream, STDERR);
+		}
+		System.setOut(new PrintStream(multistream));
+		System.setErr(new PrintStream(multistream));
+	}
+
+	private static File getLogFile() {
+		return new File(DefaultConfigStorage.findConfigDirectory(), "console.log");
 	}
 
 	public static void setLogProvider(LogProvider log) {
@@ -211,6 +225,23 @@ public class Util {
 				curThread.interrupt();
 			} catch (Exception e) {}
 		}
+	}
+
+	public static int indexOf(int[] array, int searchFor) {
+		for (int i = 0; i < array.length; ++i) {
+			if (array[i] == searchFor) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static int[] reverse(int[] array) {
+		int[] reversed = new int[array.length];
+		for (int i = 0; i < array.length; ++i) {
+			reversed[i] = array[array.length - 1 - i];
+		}
+		return reversed;
 	}
 
 }

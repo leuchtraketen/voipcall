@@ -47,8 +47,8 @@ public class Resources {
 	// info labels in chat tab
 	public static final String LABEL_PING = "Ping:";
 	public static final String LABEL_UPTIME = "Online:";
-	public static final String LABEL_INCOMING = "Incoming:";
-	public static final String LABEL_OUTGOING = "Outgoing:";
+	public static final String LABEL_INCOMING = "Traffic (in):";
+	public static final String LABEL_OUTGOING = "Traffic (out):";
 
 	// default info field texts in chat tab
 	public static final String TEXT_PING_NOT_SUPPORTED = "not supported";
@@ -66,6 +66,10 @@ public class Resources {
 	// labels in audio settings
 	public static final String LABEL_SETTINGS_AUDIO_DEFAULT_MICROPHONE = "Default Microphone:";
 	public static final String LABEL_SETTINGS_AUDIO_DEFAULT_SPEAKER = "Default Speaker:";
+	public static final String LABEL_SETTINGS_AUDIO_CALL_BUFFER = "Buffer size:";
+	public static final String LABEL_SETTINGS_AUDIO_SAMPLING_RATE = "Sampling rate:";
+	public static final String LABEL_SETTINGS_AUDIO_SAMPLE_SIZE = "Sample size:";
+	public static final String LABEL_SETTINGS_AUDIO_SELECTED_ENCODING = "<html>Selected Encoding:<br>&nbsp;</html>";
 
 	// closeable tabs
 	public static final String TEXT_TAB_CLOSE = "Close Tab";
@@ -88,6 +92,7 @@ public class Resources {
 	public static final Icon ICON_CONTACTS_ADD = new ImageIcon("img/contacts-add.png");
 	public static final Icon ICON_CONSOLE = new ImageIcon("img/console.png");
 	public static final Icon ICON_SETTINGS_AUDIO = new ImageIcon("img/microphone.png");
+	public static final Icon ICON_HELP_ABOUT = new ImageIcon("img/help-about.png");
 
 	public static String getToolTipText(Contact value) {
 		if (value.isUnreachable()) {

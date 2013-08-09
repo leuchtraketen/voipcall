@@ -1,5 +1,7 @@
 package call.gui;
 
+import java.util.Arrays;
+
 import call.AudioDeviceScanner;
 import call.ContactScanner;
 import call.PingScanner;
@@ -15,6 +17,11 @@ public class Main {
 		Util.initOutputBuffer();
 		GuiUtil.setNativeLookAndFeel();
 
+		AudioDeviceScanner audioScanner = new AudioDeviceScanner();
+		audioScanner.setUi(new AudioDeviceScannerDialog());
+		Thread audioScannerThread = new Thread(audioScanner);
+		audioScannerThread.start();
+
 		final MainWindow main = new MainWindow();
 
 		Server server = new Server();
@@ -24,10 +31,7 @@ public class Main {
 		new Thread(new ContactScanner()).start();
 		new Thread(new PingScanner()).start();
 
-		AudioDeviceScanner audioScanner = new AudioDeviceScanner();
-		audioScanner.setUi(new AudioDeviceScannerDialog());
-		Thread audioScannerThread = new Thread(audioScanner);
-		audioScannerThread.run();
+		Util.joinThreads(Arrays.asList(new Thread[] { audioScannerThread }));
 
 		main.runGui();
 

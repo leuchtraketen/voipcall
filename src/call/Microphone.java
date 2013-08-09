@@ -13,9 +13,9 @@ public class Microphone extends AbstractId implements AudioDevice {
 	private final Mixer mixer;
 	private final Line.Info lineinfo;
 	private final TargetDataLine line;
-	private final List<Format> formats;
+	private final List<PcmFormat> formats;
 
-	public Microphone(Info info, List<Format> formats) {
+	public Microphone(Info info, List<PcmFormat> formats) {
 		this.mixerinfo = info.getMixerinfo();
 		this.mixer = info.getMixer();
 		this.lineinfo = info.getLineinfo();
@@ -44,7 +44,7 @@ public class Microphone extends AbstractId implements AudioDevice {
 	}
 
 	@Override
-	public List<Format> getFormats() {
+	public List<PcmFormat> getFormats() {
 		return formats;
 	}
 

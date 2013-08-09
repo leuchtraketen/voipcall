@@ -7,22 +7,22 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-public class FormatScanner {
+public class PcmFormatScanner {
 	private final DataLine line;
 	private final AudioDeviceScannerUi ui;
 
-	public FormatScanner(DataLine line, AudioDeviceScannerUi ui) {
+	public PcmFormatScanner(DataLine line, AudioDeviceScannerUi ui) {
 		this.line = line;
 		this.ui = ui;
 	}
 
-	public List<Format> getFormats() {
-		List<Format> formats = new ArrayList<>();
+	public List<PcmFormat> getFormats() {
+		List<PcmFormat> formats = new ArrayList<>();
 
-		for (float rate : Config.PCM_RATES) {
+		for (int rate : Config.PCM_RATES) {
 			for (int samplesize : Config.PCM_SAMPLE_SIZES) {
 				for (int channels : Config.PCM_CHANNELS) {
-					Format format = new PCMFormat(rate, samplesize, channels);
+					PcmFormat format = new PcmFormat(rate, samplesize, channels);
 					boolean works = probFormat(format);
 					if (works) {
 						formats.add(format);

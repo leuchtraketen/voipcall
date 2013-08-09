@@ -20,6 +20,7 @@ public class ContactListCellRenderer implements ListCellRenderer<Contact> {
 
 		JPanel cell = new JPanel();
 		cell.setBorder(BorderFactory.createEmptyBorder());
+		cell.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 		BorderLayout layout = new BorderLayout();
 		layout.setHgap(5);
 		cell.setLayout(layout);

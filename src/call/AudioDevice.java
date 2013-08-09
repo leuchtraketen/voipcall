@@ -16,7 +16,7 @@ public interface AudioDevice extends Id {
 
 	DataLine getLine();
 
-	List<Format> getFormats();
+	List<PcmFormat> getFormats();
 
 	public abstract static class Info<L extends DataLine> extends AbstractId {
 

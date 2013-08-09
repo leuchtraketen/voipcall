@@ -16,13 +16,15 @@ public class Config {
 	public static final String UID_S = UID + "";
 
 	public static final AudioFormat.Encoding ENCODING_PCM_SIGNED = AudioFormat.Encoding.PCM_SIGNED;
-	public static final Float[] PCM_RATES = calcPCMRates();
-	public static final float PCM_DEFAULT_RATE = 44100.0F;
+	public static final int[] PCM_RATES = calcPCMRates();
+	public static final int PCM_DEFAULT_RATE = 44100;
 	public static final boolean PCM_DEFAULT_BIG_ENDIAN = false;
 	public static final int[] PCM_SAMPLE_SIZES = { 16, 8 };
 	public static final int PCM_DEFAULT_SAMPLE_SIZE = 16;
 	public static final int[] PCM_CHANNELS = { 1, 2 };
 	public static final int PCM_DEFAULT_CHANNELS = 1;
+	public static final PcmFormat PCM_DEFAULT_FORMAT = new PcmFormat(PCM_DEFAULT_RATE,
+			PCM_DEFAULT_SAMPLE_SIZE, PCM_DEFAULT_CHANNELS);
 
 	public static final AudioFormat.Encoding DEFAULT_ENCODING = ENCODING_PCM_SIGNED;
 	public static final int INTERNAL_BUFFER_SIZE = AudioSystem.NOT_SPECIFIED;
@@ -50,26 +52,38 @@ public class Config {
 			"selected-microphone", Microphones.getInstance());
 	public static final SerializedOption<AudioDevice> SELECTED_SPEAKER = new SerializedOption<>(
 			"selected-speaker", Speakers.getInstance());
+	public static final IntegerOption BUFFER_SIZE_CALLS = new IntegerOption("buffer-size-calls", 16 * 1024);
+	public static final IntegerOption SELECTED_PCM_RATE = new IntegerOption("pcm-rate",
+			(int) PCM_DEFAULT_RATE);
+	public static final IntegerOption SELECTED_PCM_SAMPLE_SIZE = new IntegerOption("pcm-sample-size",
+			PCM_DEFAULT_SAMPLE_SIZE);
+	public static final IntegerOption SELECTED_PCM_CHANNELS = new IntegerOption("pcm-channels",
+			PCM_DEFAULT_CHANNELS);
 
 	public static final Option ALL_OPTIONS[] = new Option[] { SHOW_CONSOLE, CUSTOM_CONTACTS,
-			CONNECTED_CONTACTS, SELECTED_MICROPHONE, SELECTED_SPEAKER };
+			CONNECTED_CONTACTS, SELECTED_MICROPHONE, SELECTED_SPEAKER, BUFFER_SIZE_CALLS, SELECTED_PCM_RATE,
+			SELECTED_PCM_SAMPLE_SIZE, SELECTED_PCM_CHANNELS };
 
 	private static final ConfigStorage CONFIG_STORAGE = new DefaultConfigStorage();
 
-	private static Float[] calcPCMRates() {
+	private static int[] calcPCMRates() {
 		final int maxmult = 24;
-		Float[] rates = new Float[2 * maxmult];
+		Integer[] rates = new Integer[2 * maxmult];
 
 		int index = 0;
 		for (int mult = 1; mult <= maxmult; ++mult) {
-			for (float base : new float[] { 11025.0f, 8000.0f }) {
+			for (int base : new int[] { 11025, 8000 }) {
 				rates[index++] = base * mult;
 			}
 		}
 
 		Arrays.sort(rates, Collections.reverseOrder());
+		int[] ratesSorted = new int[2 * maxmult];
+		for (int i = 0; i < rates.length; ++i) {
+			ratesSorted[i] = rates[i];
+		}
 
-		return rates;
+		return ratesSorted;
 
 		// { 8 * 22050.0f, 7 * 22050.0f, 6 * 22050.0f, 5 * 22050.0f,
 		// 4 * 22050.0f, 3 * 22050.0f, 2 * 22050.0f, 22050.0f, 16000.0f,

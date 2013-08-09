@@ -10,6 +10,7 @@ import javax.sound.sampled.LineUnavailableException;
 import call.AbstractId;
 import call.CallRecorder;
 import call.ContactList;
+import call.UnknownDefaultValueException;
 
 public class TestFileSave extends AbstractId {
 	public static void main(String[] args) {
@@ -20,7 +21,7 @@ public class TestFileSave extends AbstractId {
 		try {
 			OutputStream os = new FileOutputStream(new File("test.pcm"));
 			new Thread(new CallRecorder(ContactList.me(), os)).start();
-		} catch (LineUnavailableException | FileNotFoundException e) {
+		} catch (LineUnavailableException | FileNotFoundException | UnknownDefaultValueException e) {
 			e.printStackTrace();
 		}
 	}
