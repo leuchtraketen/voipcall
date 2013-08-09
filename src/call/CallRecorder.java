@@ -15,7 +15,8 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 	private final OutputStream out;
 	private final List<OutputStream> captureStreams = new ArrayList<>();
 
-	public CallRecorder(Contact contact, OutputStream out) throws LineUnavailableException, UnknownDefaultValueException {
+	public CallRecorder(Contact contact, OutputStream out) throws LineUnavailableException,
+			UnknownDefaultValueException {
 		super(contact);
 		this.out = out;
 
@@ -55,7 +56,6 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 					for (OutputStream out : captureStreams) {
 						out.write(buffer, 0, cnt);
 					}
-					out.flush();
 
 					sent += cnt;
 					long now = System.currentTimeMillis();

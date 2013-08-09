@@ -46,7 +46,7 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 			}
 
 			InputStream instream = socket.getInputStream();
-			in = new CallPlayer(contact, new BufferedInputStream(instream, buffersize), format, buffersize);
+			in = new CallPlayer(contact, new BufferedInputStream(instream), format, buffersize);
 			in.saveTo(new CallCapture(time, contact, "input"));
 			new Thread(in).start();
 
