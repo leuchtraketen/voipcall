@@ -26,10 +26,6 @@ public class Config {
 	public static final PcmFormat PCM_DEFAULT_FORMAT = new PcmFormat(PCM_DEFAULT_RATE,
 			PCM_DEFAULT_SAMPLE_SIZE, PCM_DEFAULT_CHANNELS);
 
-	public static final AudioFormat.Encoding DEFAULT_ENCODING = ENCODING_PCM_SIGNED;
-	public static final int INTERNAL_BUFFER_SIZE = AudioSystem.NOT_SPECIFIED;
-	public static final AudioFileFormat.Type DEFAULT_TARGET_TYPE = AudioFileFormat.Type.WAVE;
-
 	public static final int DEFAULT_PORT = 4000;
 	public static final int SOCKET_READ_TIMEOUT = 7000;
 	public static final int SOCKET_CONNECT_TIMEOUT = 2000;

@@ -33,9 +33,20 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 			out.saveTo(new CallCapture(time, contact, "output"));
 			new Thread(out).start();
 
+			PcmFormat format = SocketUtil.extractFormat(headers);
+			int buffersize = 16 * 1024;
+			if (buffersize < format.getByterate() / 15) {
+				buffersize = (int) (format.getByterate() / 15);
+			}
+			if (buffersize > format.getByterate() / 10) {
+				buffersize = (int) (format.getByterate() / 10);
+			}
+			if (buffersize < 4096) {
+				buffersize = 4096;
+			}
+
 			InputStream instream = socket.getInputStream();
-			// new BufferedInputStream(
-			in = new CallPlayer(contact, instream, SocketUtil.extractFormat(headers));
+			in = new CallPlayer(contact, new BufferedInputStream(instream, buffersize), format, buffersize);
 			in.saveTo(new CallCapture(time, contact, "input"));
 			new Thread(in).start();
 

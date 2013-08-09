@@ -17,11 +17,13 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 	private final SourceDataLine line;
 	private final InputStream in;
 	private final List<OutputStream> captureStreams = new ArrayList<>();
+	private int buffersize;
 
-	public CallPlayer(Contact contact, InputStream in, PcmFormat format) throws LineUnavailableException,
+	public CallPlayer(Contact contact, InputStream in, PcmFormat format, int buffersize) throws LineUnavailableException,
 			UnsupportedAudioFileException, IOException, UnknownDefaultValueException {
 		super(contact);
 		this.in = in;
+		this.buffersize = buffersize;
 
 		AudioFormat audioFormat = format.getAudioFormat();
 		Util.log(contact, "Player: start.");
@@ -31,7 +33,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 		Util.log(contact, "Player: speaker: " + speaker);
 
 		line = (SourceDataLine) speaker.getLine();
-		line.open(audioFormat);
+		line.open(audioFormat, buffersize);
 		line.start();
 	}
 
@@ -41,7 +43,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 		long startTime = System.currentTimeMillis();
 		long lastTime = startTime;
 
-		byte[] buffer = new byte[Config.BUFFER_SIZE_CALLS.getIntegerValue()];
+		byte[] buffer = new byte[buffersize];
 
 		CallFactory.openCall(contact);
 

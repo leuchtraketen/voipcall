@@ -31,7 +31,7 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 		Microphone microphone = Microphones.getCurrentMicrophone();
 		Util.log(contact, "Recorder: microphone: " + microphone);
 		line = (TargetDataLine) microphone.getLine();
-		line.open(audioFormat);
+		line.open(audioFormat, Config.BUFFER_SIZE_CALLS.getIntegerValue());
 
 		line.start();
 	}
