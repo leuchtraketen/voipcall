@@ -23,7 +23,9 @@ public class Call extends AbstractId {
 	}
 
 	public void addConnection(CallConnection connection) {
-		connections.add(connection);
+		synchronized (connections) {
+			connections.add(connection);
+		}
 	}
 
 	public Contact getContact() {
@@ -33,8 +35,10 @@ public class Call extends AbstractId {
 	public synchronized void close() {
 		if (!state.equals(ConnectionState.CLOSED)) {
 			state = ConnectionState.CLOSED;
-			for (CallConnection connection : new HashSet<>(connections)) {
-				connection.onCallClose();
+			synchronized (connections) {
+				for (CallConnection connection : new HashSet<>(connections)) {
+					connection.onCallClose();
+				}
 			}
 			try {
 				socket.close();
@@ -45,8 +49,10 @@ public class Call extends AbstractId {
 	public synchronized void open() {
 		if (!state.equals(ConnectionState.OPEN)) {
 			state = ConnectionState.OPEN;
-			for (CallConnection connection : new HashSet<>(connections)) {
-				connection.onCallOpen();
+			synchronized (connections) {
+				for (CallConnection connection : new HashSet<>(connections)) {
+					connection.onCallOpen();
+				}
 			}
 		}
 	}
