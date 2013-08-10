@@ -2,6 +2,7 @@ package call;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,10 +36,12 @@ public class Call extends AbstractId {
 	public synchronized void close() {
 		if (!state.equals(ConnectionState.CLOSED)) {
 			state = ConnectionState.CLOSED;
+			List<CallConnection> copy;
 			synchronized (connections) {
-				for (CallConnection connection : new HashSet<>(connections)) {
-					connection.onCallClose();
-				}
+				copy = new ArrayList<>(connections);
+			}
+			for (CallConnection connection : copy) {
+				connection.onCallClose();
 			}
 			try {
 				socket.close();
@@ -49,10 +52,12 @@ public class Call extends AbstractId {
 	public synchronized void open() {
 		if (!state.equals(ConnectionState.OPEN)) {
 			state = ConnectionState.OPEN;
+			List<CallConnection> copy;
 			synchronized (connections) {
-				for (CallConnection connection : new HashSet<>(connections)) {
-					connection.onCallOpen();
-				}
+				copy = new ArrayList<>(connections);
+			}
+			for (CallConnection connection : copy) {
+				connection.onCallOpen();
 			}
 		}
 	}

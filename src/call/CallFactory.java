@@ -55,20 +55,31 @@ public class CallFactory {
 	}
 
 	public static synchronized void closeCall(Contact contact) {
+		Call call = null;
 		synchronized (calls) {
 			if (calls.containsKey(contact)) {
-				calls.get(contact).close();
+				call = calls.get(contact);
+			}
+		}
+		if (call != null) {
+			call.close();
+		}
+		synchronized (calls) {
+			if (calls.containsKey(contact)) {
 				calls.remove(contact);
 			}
 		}
 	}
 
 	public static void openCall(Contact contact) {
+		Call call = null;
 		synchronized (calls) {
 			if (calls.containsKey(contact)) {
-				calls.get(contact).open();
+				call = calls.get(contact);
 			}
 		}
+		if (call != null)
+			call.open();
 	}
 
 }
