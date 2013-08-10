@@ -1,5 +1,6 @@
 package call;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,9 +19,11 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 	private final InputStream in;
 	private final List<OutputStream> captureStreams = new ArrayList<>();
 	private int buffersize;
+	private long bytesSent = 0;
 
-	public CallPlayer(Contact contact, InputStream in, PcmFormat format, int buffersize) throws LineUnavailableException,
-			UnsupportedAudioFileException, IOException, UnknownDefaultValueException {
+	public CallPlayer(Contact contact, InputStream in, PcmFormat format, int buffersize)
+			throws LineUnavailableException, UnsupportedAudioFileException, IOException,
+			UnknownDefaultValueException {
 		super(contact);
 		this.in = in;
 		this.buffersize = buffersize;
@@ -39,13 +42,31 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 
 	@Override
 	public void run() {
-		long sent = 0;
-		long startTime = System.currentTimeMillis();
-		long lastTime = startTime;
-
-		byte[] buffer = new byte[buffersize];
 
 		CallFactory.openCall(contact);
+
+		byte[] buffer = new byte[buffersize];
+		bytesSent = 0;
+		final long startTime = System.currentTimeMillis();
+
+		Thread statsThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (isCallOpen()) {
+					long now = System.currentTimeMillis();
+					long diffTime = now - startTime;
+					if (diffTime > 0) {
+						float speed = bytesSent / diffTime * 1000;
+						CallUi.updateCallStats(contact, speed, bytesSent, -1, -1);
+						Util.sleep(5_000);
+					}
+				}
+			}
+		});
+		statsThread.start();
+		statsThread.setPriority(Thread.MIN_PRIORITY);
+
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
 		try {
 			int cnt;
@@ -57,19 +78,10 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 					// it will be delivered to the speaker.
 					line.write(buffer, 0, cnt);
 					for (OutputStream out : captureStreams) {
-						out.write(buffer, 0, cnt);
+						// out.write(buffer, 0, cnt);
 					}
 
-					sent += cnt;
-					long now = System.currentTimeMillis();
-					if (now > lastTime + 3000) {
-						long diffTime = now - startTime;
-						float speed = sent / diffTime * 1000;
-						// Util.log(contact, "Speed (receive): " + speed +
-						// " bytes/s (total: " + (sent / 1024) + " KB)");
-						CallUi.updateCallStats(contact, speed, sent, -1, -1);
-						lastTime = now;
-					}
+					bytesSent += cnt;
 				}
 			}
 
@@ -99,7 +111,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 	public void saveTo(Capture capture) {
 		OutputStream out = capture.getCaptureOutputStream();
 		if (out != null) {
-			captureStreams.add(out);
+			captureStreams.add(new BufferedOutputStream(out, 256 * 1024));
 		}
 	}
 
