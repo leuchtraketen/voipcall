@@ -17,6 +17,8 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 
 	public AudioDeviceScanner() {}
 
+	private static final boolean DEBUG = false;
+
 	@Override
 	public void run() {
 		if (ui != null)
@@ -62,23 +64,30 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 	private Set<Microphone.Info> discoverMicrophoneInfos() {
 		Set<Microphone.Info> microphoneinfos = new HashSet<>();
 		for (Mixer.Info mixerinfo : AudioSystem.getMixerInfo()) {
-			System.out.println("mixerinfo: " + mixerinfo);
+			if (DEBUG)
+				System.out.println("mixerinfo: " + mixerinfo);
 			Mixer mixer = AudioSystem.getMixer(mixerinfo);
-			System.out.println("mixer:     " + mixer);
-			System.out.println("mixerinfo: " + mixer.getLineInfo());
+			if (DEBUG)
+				System.out.println("mixer:     " + mixer);
+			if (DEBUG)
+				System.out.println("mixerinfo: " + mixer.getLineInfo());
 			for (Line.Info lineinfo : mixer.getTargetLineInfo()) {
 				try {
 					Line line;
 					line = mixer.getLine(lineinfo);
 					if (line instanceof TargetDataLine) {
-						System.out.println("    lineinfo:   " + lineinfo);
-						System.out.println("    line:       " + line);
-						System.out.println("    lineinfo:   " + line.getLineInfo());
+						if (DEBUG)
+							System.out.println("    lineinfo:   " + lineinfo);
+						if (DEBUG)
+							System.out.println("    line:       " + line);
+						if (DEBUG)
+							System.out.println("    lineinfo:   " + line.getLineInfo());
 						if (mixer.isLineSupported(lineinfo)) {
 							microphoneinfos.add(new Microphone.Info(mixerinfo, mixer, lineinfo,
 									(TargetDataLine) line));
 						} else {
-							System.out.println("    NOT SUPPORTED!");
+							if (DEBUG)
+								System.out.println("    NOT SUPPORTED!");
 						}
 					}
 				} catch (LineUnavailableException e) {
@@ -92,23 +101,30 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 	private Set<Speaker.Info> discoverSpeakerInfos() {
 		Set<Speaker.Info> speakerinfos = new HashSet<>();
 		for (Mixer.Info mixerinfo : AudioSystem.getMixerInfo()) {
-			System.out.println("mixerinfo: " + mixerinfo);
+			if (DEBUG)
+				System.out.println("mixerinfo: " + mixerinfo);
 			Mixer mixer = AudioSystem.getMixer(mixerinfo);
-			System.out.println("mixer:     " + mixer);
-			System.out.println("mixerinfo: " + mixer.getLineInfo());
+			if (DEBUG)
+				System.out.println("mixer:     " + mixer);
+			if (DEBUG)
+				System.out.println("mixerinfo: " + mixer.getLineInfo());
 			for (Line.Info lineinfo : mixer.getSourceLineInfo()) {
 				try {
 					Line line;
 					line = mixer.getLine(lineinfo);
 					if (line instanceof SourceDataLine) {
-						System.out.println("    lineinfo:   " + lineinfo);
-						System.out.println("    line:       " + line);
-						System.out.println("    lineinfo:   " + line.getLineInfo());
+						if (DEBUG)
+							System.out.println("    lineinfo:   " + lineinfo);
+						if (DEBUG)
+							System.out.println("    line:       " + line);
+						if (DEBUG)
+							System.out.println("    lineinfo:   " + line.getLineInfo());
 						if (mixer.isLineSupported(lineinfo)) {
 							speakerinfos.add(new Speaker.Info(mixerinfo, mixer, lineinfo,
 									(SourceDataLine) line));
 						} else {
-							System.out.println("    NOT SUPPORTED!");
+							if (DEBUG)
+								System.out.println("    NOT SUPPORTED!");
 						}
 					}
 				} catch (LineUnavailableException e) {

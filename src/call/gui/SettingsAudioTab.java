@@ -30,6 +30,7 @@ import call.Microphones;
 import call.PcmFormat;
 import call.Speaker;
 import call.Speakers;
+import call.UnknownDefaultValueException;
 import call.Util;
 
 public class SettingsAudioTab extends AbstractId implements ConfigListener, ActionListener, ChangeListener {
@@ -74,7 +75,9 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		radioSampleSize8 = radioSampleSize[0];
 		radioSampleSize16 = radioSampleSize[1];
 		checkboxStereo = new JCheckBox("Stereo", false);
+		checkboxStereo.setFont(Resources.FONT_TEXT);
 		textSelectedFormat = new JLabel("");
+		textSelectedFormat.setFont(Resources.FONT_TEXT);
 
 		final int NONE = GridBagConstraints.NONE;
 		final int HORIZONTAL = GridBagConstraints.HORIZONTAL;
@@ -142,10 +145,12 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		radio1.setActionCommand("8");
 		radio1.addActionListener(this);
 		radio1.setSelected(true);
+		radio1.setFont(Resources.FONT_TEXT);
 
 		JRadioButton radio2 = new JRadioButton("16 bit");
 		radio2.setActionCommand("16");
 		radio2.addActionListener(this);
+		radio2.setFont(Resources.FONT_TEXT);
 
 		ButtonGroup group = new ButtonGroup();
 		group.add(radio1);
@@ -161,6 +166,7 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		slider.setMinorTickSpacing(8);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
+		slider.setFont(Resources.FONT_TEXT);
 		return slider;
 	}
 
@@ -174,6 +180,7 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		slider.setMajorTickSpacing(pcmRateDefault);
 		slider.setMinorTickSpacing(1);
 		slider.setPaintTicks(true);
+		slider.setFont(Resources.FONT_TEXT);
 		// Create the label table
 		Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
 		int pcmRateGsm = Util.indexOf(pcmRates, 8000);
@@ -190,6 +197,7 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		JComboBox<AudioDevice> combobox = new JComboBox<>();
 		combobox.setModel(new AudioDeviceListModel(Microphones.getInstance()));
 		combobox.addActionListener(this);
+		combobox.setFont(Resources.FONT_TEXT);
 		return combobox;
 	}
 
@@ -197,6 +205,7 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		JComboBox<AudioDevice> combobox = new JComboBox<>();
 		combobox.setModel(new AudioDeviceListModel(Speakers.getInstance()));
 		combobox.addActionListener(this);
+		combobox.setFont(Resources.FONT_TEXT);
 		return combobox;
 	}
 
@@ -332,6 +341,16 @@ public class SettingsAudioTab extends AbstractId implements ConfigListener, Acti
 		text += "Bitrate: <b>" + (int) (bitrate / 1024) + " kbit/s</b> (= <b>" + (int) (byterate / 1024)
 				+ " KB/s</b>), ";
 		text += "Latency: <b>" + latency + " ms</b>";
+		boolean supported;
+		try {
+			supported = Microphones.getCurrentMicrophone().supportsFormat(format);
+		} catch (UnknownDefaultValueException e) {
+			supported = true;
+		}
+		if (!supported) {
+			text += "<br>\n";
+			text += "<b><font color=red>This encoding is not supported by the selected microphone!</font></b>";
+		}
 		textSelectedFormat.setText("<html>" + text + "</html>");
 	}
 

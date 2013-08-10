@@ -49,6 +49,11 @@ public class Speaker extends AbstractId implements AudioDevice {
 	}
 
 	@Override
+	public boolean supportsFormat(PcmFormat format) {
+		return formats.contains(format);
+	}
+
+	@Override
 	public String getId() {
 		return "Speaker<" + mixerinfo.getName() + ">";
 	}

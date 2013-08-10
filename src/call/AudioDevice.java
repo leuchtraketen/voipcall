@@ -18,6 +18,8 @@ public interface AudioDevice extends Id {
 
 	List<PcmFormat> getFormats();
 
+	boolean supportsFormat(PcmFormat format);
+
 	public abstract static class Info<L extends DataLine> extends AbstractId {
 
 		private final Mixer.Info mixerinfo;
