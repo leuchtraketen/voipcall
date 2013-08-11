@@ -34,13 +34,16 @@ public class Main {
 			log("Running from a git repository.");
 			log("Auto-update disabled.");
 		} else {
-			if (!thisVersion().equals(onlineVersion()))
+			String thisversion = thisVersion();
+			String latestversion = latestVersion();
+			if (!thisversion.equals(latestversion) && !latestversion.equals("unknown")) {
 				autoupdate("compiled.zip");
-			autoupdate("dependencies.zip");
+				autoupdate("dependencies.zip");
+			}
 		}
 	}
 
-	private static Object onlineVersion() {
+	private static String latestVersion() {
 		try {
 			URL url = new URL("https://raw.github.com/tobiasschulz/voipcall/master/.version");
 			HttpURLConnection connection;
