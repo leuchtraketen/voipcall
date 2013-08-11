@@ -36,7 +36,8 @@ public class Main {
 		} else {
 			String thisversion = thisVersion();
 			String latestversion = latestVersion();
-			if (!thisversion.equals(latestversion) && !latestversion.equals("unknown")) {
+			if (!thisversion.equals(latestversion) || thisversion.equals("unknown")
+					|| latestversion.equals("unknown")) {
 				autoupdate("compiled.zip");
 				autoupdate("dependencies.zip");
 			}
