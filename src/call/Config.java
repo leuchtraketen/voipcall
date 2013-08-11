@@ -26,11 +26,13 @@ public class Config {
 	public static final PcmFormat PCM_DEFAULT_FORMAT = new PcmFormat(PCM_DEFAULT_RATE,
 			PCM_DEFAULT_SAMPLE_SIZE, PCM_DEFAULT_CHANNELS);
 
-	public static final int DEFAULT_PORT = 4000;
+	public static final int DEFAULT_PORT_STATUS = 4000;
+	public static final int DEFAULT_PORT_CALL = 4001;
+	public static int CURRENT_PORT_STATUS = DEFAULT_PORT_STATUS;
+	public static int CURRENT_PORT_CALL = DEFAULT_PORT_CALL;
 	public static final int SOCKET_READ_TIMEOUT = 7000;
 	public static final int SOCKET_CONNECT_TIMEOUT = 2000;
 	public static final long CURRENT_UPTIME = System.currentTimeMillis();
-	public static int CURRENT_PORT = DEFAULT_PORT;
 
 	public static String[] DEFAULT_CONTACT_HOSTS = { "127.0.0.1", "192.168.223.3", "192.168.223.5",
 			"192.168.223.7", "192.168.223.9", "192.168.223.150", "192.168.223.151", "192.168.223.152",

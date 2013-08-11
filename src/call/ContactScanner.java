@@ -82,7 +82,7 @@ public class ContactScanner implements Runnable {
 				try {
 					for (int i = 0; i <= 5; ++i) {
 						for (String host : hosts) {
-							checkContact(host, Config.DEFAULT_PORT + 10 * i);
+							checkContact(host, Config.DEFAULT_PORT_STATUS + 10 * i);
 						}
 					}
 				} catch (InterruptedException e) {

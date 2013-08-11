@@ -25,8 +25,8 @@ public class Main {
 		final MainWindow main = new MainWindow();
 
 		Server server = new Server();
-		Thread thr = new Thread(server);
-		thr.start();
+		Thread serverthread = new Thread(server);
+		serverthread.start();
 
 		new Thread(new ContactScanner()).start();
 		new Thread(new PingScanner()).start();
@@ -36,7 +36,7 @@ public class Main {
 		main.runGui();
 
 		try {
-			thr.join();
+			serverthread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

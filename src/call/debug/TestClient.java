@@ -25,7 +25,7 @@ public class TestClient {
 				if (ip.length() < 3)
 					ip = "127.0.0.1";
 			}
-			client = new CallClient(ip, Config.DEFAULT_PORT);
+			client = new CallClient(ip, Config.DEFAULT_PORT_STATUS);
 			Thread thr = client.startCall();
 			thr.join();
 		} catch (UnknownHostException e1) {

@@ -219,6 +219,10 @@ public class Util {
 		return interrupted;
 	}
 
+	public static boolean joinThreads(Thread... threads) {
+		return joinThreads(Arrays.asList(threads));
+	}
+
 	public static void interruptThreads(List<Thread> threads) {
 		for (Thread curThread : threads) {
 			try {

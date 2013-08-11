@@ -16,35 +16,42 @@ public class Server extends AbstractId implements Runnable {
 	@Override
 	public void run() {
 		listening = true;
+
 		while (listening) {
-			ServerSocket serverSocket = null;
+			ServerSocket serverSocket1 = openServerSocket(Config.DEFAULT_PORT_STATUS);
+			Config.CURRENT_PORT_STATUS = serverSocket1.getLocalPort();
+			ServerSocket serverSocket2 = openServerSocket(Config.DEFAULT_PORT_CALL);
+			Config.CURRENT_PORT_CALL = serverSocket2.getLocalPort();
 
-			Config.CURRENT_PORT = Config.DEFAULT_PORT;
-			while (serverSocket == null) {
-				try {
-					serverSocket = new ServerSocket(Config.CURRENT_PORT);
-					System.out.println("Server listening on port: " + Config.CURRENT_PORT);
-				} catch (IOException e) {
-					System.err.println("Could not listen on port: " + Config.CURRENT_PORT + ".");
-					serverSocket = null;
-					Util.sleep(1000);
-					Config.CURRENT_PORT += 10;
-				}
-			}
+			new Thread(new UPNPClient(new int[] { Config.CURRENT_PORT_STATUS, Config.CURRENT_PORT_CALL }))
+					.start();
 
-			while (listening) {
-				try {
-					final Socket socket = serverSocket.accept();
-					new Thread(new Acceptor(socket)).start();
-				} catch (IOException e) {
-					System.out.println("Error in call accept loop (class Server)!");
-					e.printStackTrace();
-				}
-			}
+			Thread listen1 = new Thread(new Listener(this, serverSocket1));
+			Thread listen2 = new Thread(new Listener(this, serverSocket2));
+			listen1.start();
+			listen2.start();
+			Util.joinThreads(listen1, listen2);
 		}
 	}
 
-	public boolean isConnected() {
+	private ServerSocket openServerSocket(int port) {
+		ServerSocket serverSocket = null;
+		while (serverSocket == null) {
+			try {
+				serverSocket = new ServerSocket(port);
+				break;
+			} catch (IOException e) {
+				System.err.println("Could not listen on port: " + port + ".");
+				serverSocket = null;
+				Util.sleep(1000);
+				port += 10;
+			}
+		}
+		System.out.println("Server listening on port: " + port);
+		return serverSocket;
+	}
+
+	public boolean isListening() {
 		return listening;
 	}
 
@@ -54,12 +61,36 @@ public class Server extends AbstractId implements Runnable {
 
 	@Override
 	public String toString() {
-		return "0.0.0.0:" + Config.CURRENT_PORT;
+		return "0.0.0.0:" + Config.CURRENT_PORT_STATUS;
 	}
 
 	@Override
 	public String getId() {
 		return toString();
+	}
+
+	private static class Listener implements Runnable {
+
+		private final Server server;
+		private final ServerSocket serversocket;
+
+		public Listener(Server server, ServerSocket serversocket) {
+			this.server = server;
+			this.serversocket = serversocket;
+		}
+
+		@Override
+		public void run() {
+			while (server.isListening()) {
+				try {
+					final Socket socket = serversocket.accept();
+					new Thread(new Acceptor(socket)).start();
+				} catch (IOException e) {
+					System.out.println("Error in call accept loop (class Server.Listener)!");
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private static class Acceptor implements Runnable {
