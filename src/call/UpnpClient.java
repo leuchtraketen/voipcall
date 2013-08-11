@@ -69,8 +69,7 @@ public class UpnpClient extends AbstractId implements Runnable {
 						Util.log(this, "Error: local port in port map entry (" + portMappedLocalPort
 								+ ") does not match local port (" + port + ")!");
 					} else {
-						if (i > 0)
-							break;
+						break;
 					}
 				}
 			} catch (IOException | SAXException e) {
