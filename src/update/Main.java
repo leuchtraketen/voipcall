@@ -41,9 +41,18 @@ public class Main {
 	}
 
 	private static Object onlineVersion() {
-		File dotversion = new File("https://raw.github.com/tobiasschulz/voipcall/master/.version");
 		try {
-			String text = new String(Files.readAllBytes(dotversion.toPath()));
+			URL url = new URL("https://raw.github.com/tobiasschulz/voipcall/master/.version");
+			HttpURLConnection connection;
+			connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.connect();
+
+			InputStream stream = connection.getInputStream();
+			File dotlatestversion = new File(".latestversion");
+			copy(stream, new FileOutputStream(dotlatestversion));
+			String text = new String(Files.readAllBytes(dotlatestversion.toPath()));
+
 			log("Latest version: " + text);
 			return text;
 		} catch (IOException e) {
