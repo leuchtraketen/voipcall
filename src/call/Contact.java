@@ -35,7 +35,7 @@ public class Contact extends AbstractId {
 			return user + "@" + host + " (unreachable)";
 		case NORMAL:
 		default:
-			if (port == Config.DEFAULT_PORT_STATUS)
+			if (port == Config.DEFAULT_PORT)
 				return user + "@" + host;
 			else
 				return user + "@" + host + ":" + port;

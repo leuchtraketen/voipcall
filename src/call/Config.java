@@ -26,10 +26,10 @@ public class Config {
 	public static final PcmFormat PCM_DEFAULT_FORMAT = new PcmFormat(PCM_DEFAULT_RATE,
 			PCM_DEFAULT_SAMPLE_SIZE, PCM_DEFAULT_CHANNELS);
 
-	public static final int DEFAULT_PORT_STATUS = 4000;
-	public static final int DEFAULT_PORT_CALL = 4001;
-	public static int CURRENT_PORT_STATUS = DEFAULT_PORT_STATUS;
-	public static int CURRENT_PORT_CALL = DEFAULT_PORT_CALL;
+	public static final int DEFAULT_PORT = 4000;
+	public static final int DEFAULT_PORT_OFFSET_CALL = 1;
+	public static final int DEFAULT_PORT_OFFSET_CHAT = 2;
+	public static int CURRENT_PORT = DEFAULT_PORT;
 	public static final int SOCKET_READ_TIMEOUT = 7000;
 	public static final int SOCKET_CONNECT_TIMEOUT = 2000;
 	public static final long CURRENT_UPTIME = System.currentTimeMillis();

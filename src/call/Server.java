@@ -5,26 +5,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Server extends AbstractId implements Runnable {
 
 	public Server() {}
 
 	private boolean listening = false;
+	private int[] openPorts = new int[] {};
 
 	@Override
 	public void run() {
 		listening = true;
 
 		while (listening) {
-			ServerSocket serverSocket1 = openServerSocket(Config.DEFAULT_PORT_STATUS);
-			Config.CURRENT_PORT_STATUS = serverSocket1.getLocalPort();
-			ServerSocket serverSocket2 = openServerSocket(Config.DEFAULT_PORT_CALL);
-			Config.CURRENT_PORT_CALL = serverSocket2.getLocalPort();
+			ServerSocket serverSocket1 = openServerSocket(Config.DEFAULT_PORT);
+			int normalport = serverSocket1.getLocalPort();
+			ServerSocket serverSocket2 = openServerSocket(Config.DEFAULT_PORT
+					+ Config.DEFAULT_PORT_OFFSET_CALL);
+			int callport = serverSocket2.getLocalPort();
+			ServerSocket serverSocket3 = openServerSocket(Config.DEFAULT_PORT
+					+ Config.DEFAULT_PORT_OFFSET_CHAT);
+			int chatport = serverSocket3.getLocalPort();
+			openPorts = new int[] { normalport, callport, chatport };
+			Config.CURRENT_PORT = normalport;
 
-			new Thread(new UPNPClient(new int[] { Config.CURRENT_PORT_STATUS, Config.CURRENT_PORT_CALL }))
-					.start();
+			new Thread(new UpnpClient(new int[] { normalport, callport, chatport })).start();
 
 			Thread listen1 = new Thread(new Listener(this, serverSocket1));
 			Thread listen2 = new Thread(new Listener(this, serverSocket2));
@@ -61,7 +70,7 @@ public class Server extends AbstractId implements Runnable {
 
 	@Override
 	public String toString() {
-		return "0.0.0.0:" + Config.CURRENT_PORT_STATUS;
+		return "0.0.0.0:[" + StringUtils.join(Arrays.asList(openPorts), ",") + "]";
 	}
 
 	@Override

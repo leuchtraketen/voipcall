@@ -134,6 +134,6 @@ public class ContactList {
 	}
 
 	public static Contact me() {
-		return new Contact("127.0.0.1", Config.CURRENT_PORT_STATUS, Util.getUserName());
+		return new Contact("127.0.0.1", Config.CURRENT_PORT, Util.getUserName());
 	}
 }

@@ -1,7 +1,9 @@
 package call;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
@@ -19,6 +21,15 @@ public class CallClient extends AbstractClient {
 
 	public CallClient(Contact contact, Socket socket, List<String> headers) {
 		super(contact, socket, headers, RequestType.Call);
+	}
+
+	@Override
+	protected Socket openSocket(String host, int port) throws IOException {
+		try {
+			return super.openSocket(host, port + Config.DEFAULT_PORT_OFFSET_CALL);
+		} catch (IOException e) {
+			return super.openSocket(host, port);
+		}
 	}
 
 	public Thread startCall() {

@@ -30,7 +30,7 @@ public class ContactListModel extends AbstractListModel<Contact> implements Cont
 		} else if (list.size() > 0) {
 			return list.get(0);
 		} else {
-			return new Contact("localhost", Config.CURRENT_PORT_STATUS, "this instance");
+			return new Contact("localhost", Config.CURRENT_PORT, "this instance");
 		}
 	}
 

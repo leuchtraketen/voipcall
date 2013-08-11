@@ -78,7 +78,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 					// it will be delivered to the speaker.
 					line.write(buffer, 0, cnt);
 					for (OutputStream out : captureStreams) {
-						// out.write(buffer, 0, cnt);
+						out.write(buffer, 0, cnt);
 					}
 
 					bytesSent += cnt;

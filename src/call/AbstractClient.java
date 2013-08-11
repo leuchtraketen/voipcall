@@ -49,9 +49,7 @@ public abstract class AbstractClient extends AbstractId {
 
 	private void connect(String host, int port) throws IOException {
 		// open socket
-		SocketAddress addr = new InetSocketAddress( host, port );
-		this.socket = new Socket();
-		socket.connect( addr, Config.SOCKET_CONNECT_TIMEOUT );
+		this.socket = openSocket(host, port);
 		socket.setReuseAddress(true);
 		socket.setTcpNoDelay(true);
 
@@ -70,6 +68,13 @@ public abstract class AbstractClient extends AbstractId {
 		if (!request.equals(RequestType.Status) && !request.equals(RequestType.Ping)) {
 			Util.log(this, "Connected (Client).");
 		}
+	}
+
+	protected Socket openSocket(String host, int port) throws IOException {
+		SocketAddress addr = new InetSocketAddress(host, port);
+		Socket socket = new Socket();
+		socket.connect(addr, Config.SOCKET_CONNECT_TIMEOUT);
+		return socket;
 	}
 
 	public void close() {
