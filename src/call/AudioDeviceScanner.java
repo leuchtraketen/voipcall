@@ -1,7 +1,10 @@
 package call;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.sound.sampled.AudioSystem;
@@ -23,46 +26,66 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 	public void run() {
 		if (ui != null)
 			ui.open();
-		Set<Microphone.Info> microphoneinfos = discoverMicrophoneInfos();
-		Set<Speaker.Info> speakerinfos = discoverSpeakerInfos();
-		int maxSteps = (microphoneinfos.size() + speakerinfos.size()) * PcmFormatScanner.getMaxSteps();
+		Set<Microphone> microphones = discoverMicrophones();
+		Set<Speaker> speakers = discoverSpeakers();
+		int maxSteps = (microphones.size() + speakers.size()) * PcmFormatScanner.getMaxSteps();
 		ui.setMaxSteps(maxSteps);
-		Set<Microphone> microphones = discoverMicrophoneFormats(microphoneinfos);
-		Set<Speaker> speakers = discoverSpeakerFormats(speakerinfos);
+		microphones = discoverMicrophoneFormats(microphones);
+		speakers = discoverSpeakerFormats(speakers);
 		if (ui != null)
 			ui.close();
 		Microphones.setMicrophones(microphones);
 		Speakers.setSpeakers(speakers);
 	}
 
-	private Set<Microphone> discoverMicrophoneFormats(Set<Microphone.Info> microphoneinfos) {
-		Set<Microphone> microphones = new HashSet<>();
-		for (Microphone.Info info : microphoneinfos) {
-			Util.sleep(200);
-			if (ui != null)
-				ui.setCurrentLine(info.getMixerinfo(), info.getLineinfo());
-			PcmFormatScanner scanner = new PcmFormatScanner(info.getLine(), ui);
-			List<PcmFormat> formats = scanner.getFormats();
-			microphones.add(new Microphone(info, formats));
+	private Set<Microphone> discoverMicrophoneFormats(Set<Microphone> microphones) {
+		Microphones.Serializer serializer = new Microphones.Serializer(microphones);
+		Map<Microphone, Collection<PcmFormat>> deserialized = new HashMap<>(
+				Config.FORMATS_MICROPHONES.getDeserializedValue(serializer));
+
+		for (Microphone microphone : microphones) {
+			if (deserialized.containsKey(microphone)) {
+				microphone.setFormats(deserialized.get(microphone));
+			} else {
+				Util.sleep(200);
+				if (ui != null)
+					ui.setCurrentLine(microphone.getMixerinfo(), microphone.getLineinfo());
+				PcmFormatScanner scanner = new PcmFormatScanner(microphone.getLine(), ui);
+				List<PcmFormat> formats = scanner.getFormats();
+				microphone.setFormats(formats);
+				deserialized.put(microphone, formats);
+			}
 		}
+
+		Config.FORMATS_MICROPHONES.setDeserializedValue(deserialized, serializer);
 		return microphones;
 	}
 
-	private Set<Speaker> discoverSpeakerFormats(Set<Speaker.Info> speakerinfos) {
-		Set<Speaker> speakers = new HashSet<>();
-		for (Speaker.Info info : speakerinfos) {
-			Util.sleep(200);
-			if (ui != null)
-				ui.setCurrentLine(info.getMixerinfo(), info.getLineinfo());
-			PcmFormatScanner scanner = new PcmFormatScanner(info.getLine(), ui);
-			List<PcmFormat> formats = scanner.getFormats();
-			speakers.add(new Speaker(info, formats));
+	private Set<Speaker> discoverSpeakerFormats(Set<Speaker> speakers) {
+		Speakers.Serializer serializer = new Speakers.Serializer(speakers);
+		Map<Speaker, Collection<PcmFormat>> deserialized = new HashMap<>(
+				Config.FORMATS_SPEAKERS.getDeserializedValue(serializer));
+
+		for (Speaker speaker : speakers) {
+			if (deserialized.containsKey(speaker)) {
+				speaker.setFormats(deserialized.get(speaker));
+			} else {
+				Util.sleep(200);
+				if (ui != null)
+					ui.setCurrentLine(speaker.getMixerinfo(), speaker.getLineinfo());
+				PcmFormatScanner scanner = new PcmFormatScanner(speaker.getLine(), ui);
+				List<PcmFormat> formats = scanner.getFormats();
+				speaker.setFormats(formats);
+				deserialized.put(speaker, formats);
+			}
 		}
+
+		Config.FORMATS_SPEAKERS.setDeserializedValue(deserialized, serializer);
 		return speakers;
 	}
 
-	private Set<Microphone.Info> discoverMicrophoneInfos() {
-		Set<Microphone.Info> microphoneinfos = new HashSet<>();
+	private Set<Microphone> discoverMicrophones() {
+		Set<Microphone> microphones = new HashSet<>();
 		for (Mixer.Info mixerinfo : AudioSystem.getMixerInfo()) {
 			if (DEBUG)
 				System.out.println("mixerinfo: " + mixerinfo);
@@ -83,8 +106,8 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 						if (DEBUG)
 							System.out.println("    lineinfo:   " + line.getLineInfo());
 						if (mixer.isLineSupported(lineinfo)) {
-							microphoneinfos.add(new Microphone.Info(mixerinfo, mixer, lineinfo,
-									(TargetDataLine) line));
+							microphones.add(new Microphone(new Microphone.Info(mixerinfo, mixer, lineinfo,
+									(TargetDataLine) line)));
 						} else {
 							if (DEBUG)
 								System.out.println("    NOT SUPPORTED!");
@@ -95,11 +118,11 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 				}
 			}
 		}
-		return microphoneinfos;
+		return microphones;
 	}
 
-	private Set<Speaker.Info> discoverSpeakerInfos() {
-		Set<Speaker.Info> speakerinfos = new HashSet<>();
+	private Set<Speaker> discoverSpeakers() {
+		Set<Speaker> speakers = new HashSet<>();
 		for (Mixer.Info mixerinfo : AudioSystem.getMixerInfo()) {
 			if (DEBUG)
 				System.out.println("mixerinfo: " + mixerinfo);
@@ -120,8 +143,8 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 						if (DEBUG)
 							System.out.println("    lineinfo:   " + line.getLineInfo());
 						if (mixer.isLineSupported(lineinfo)) {
-							speakerinfos.add(new Speaker.Info(mixerinfo, mixer, lineinfo,
-									(SourceDataLine) line));
+							speakers.add(new Speaker(new Speaker.Info(mixerinfo, mixer, lineinfo,
+									(SourceDataLine) line)));
 						} else {
 							if (DEBUG)
 								System.out.println("    NOT SUPPORTED!");
@@ -132,7 +155,7 @@ public class AudioDeviceScanner extends AbstractId implements Runnable {
 				}
 			}
 		}
-		return speakerinfos;
+		return speakers;
 	}
 
 	public void setUi(AudioDeviceScannerUi ui) {

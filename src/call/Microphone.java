@@ -1,5 +1,7 @@
 package call;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.sound.sampled.DataLine;
@@ -21,6 +23,14 @@ public class Microphone extends AbstractId implements AudioDevice {
 		this.lineinfo = info.getLineinfo();
 		this.line = info.getLine();
 		this.formats = formats;
+	}
+
+	public Microphone(Info info) {
+		this.mixerinfo = info.getMixerinfo();
+		this.mixer = info.getMixer();
+		this.lineinfo = info.getLineinfo();
+		this.line = info.getLine();
+		this.formats = new ArrayList<>();
 	}
 
 	@Override
@@ -46,6 +56,12 @@ public class Microphone extends AbstractId implements AudioDevice {
 	@Override
 	public List<PcmFormat> getFormats() {
 		return formats;
+	}
+
+	@Override
+	public void setFormats(Collection<PcmFormat> formats) {
+		this.formats.clear();
+		this.formats.addAll(formats);
 	}
 
 	@Override

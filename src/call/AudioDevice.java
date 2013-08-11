@@ -1,5 +1,6 @@
 package call;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.sound.sampled.DataLine;
@@ -15,6 +16,8 @@ public interface AudioDevice extends Id {
 	javax.sound.sampled.Line.Info getLineinfo();
 
 	DataLine getLine();
+
+	void setFormats(Collection<PcmFormat> formats);
 
 	List<PcmFormat> getFormats();
 

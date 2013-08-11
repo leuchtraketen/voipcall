@@ -153,9 +153,12 @@ public class DefaultConfigStorage extends AbstractId implements ConfigStorage {
 	@Override
 	public void setOption(Option option, String value) {
 		options.put(option, value);
-		Util.log(option.toString(), "set => " + value);
 		save();
 		notifyConfigListeners(option);
+
+		if (value.length() > 200)
+			value = value.substring(0, 199) + "...[cut]";
+		Util.log(option.toString(), "set => " + value);
 	}
 
 	@Override

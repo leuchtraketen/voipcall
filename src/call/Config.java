@@ -1,6 +1,8 @@
 package call;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,10 +44,10 @@ public class Config {
 	public static final BooleanOption SHOW_CONSOLE = new BooleanOption("show-console", true);
 	public static final StringOption CUSTOM_CONTACTS = new StringOption("custom-contacts", "");
 	public static final StringOption CONNECTED_CONTACTS = new StringOption("connected-contacts", "");
-	public static final SerializedOption<AudioDevice> SELECTED_MICROPHONE = new SerializedOption<>(
-			"selected-microphone", Microphones.getInstance());
-	public static final SerializedOption<AudioDevice> SELECTED_SPEAKER = new SerializedOption<>(
-			"selected-speaker", Speakers.getInstance());
+	public static final SerializedOption<Microphone> SELECTED_MICROPHONE = new SerializedOption<>(
+			"selected-microphone", new Microphones.Serializer());
+	public static final SerializedOption<Speaker> SELECTED_SPEAKER = new SerializedOption<>(
+			"selected-speaker", new Speakers.Serializer());
 	public static final IntegerOption BUFFER_SIZE_CALLS = new IntegerOption("buffer-size-calls", 16 * 1024);
 	public static final IntegerOption SELECTED_PCM_RATE = new IntegerOption("pcm-rate",
 			(int) PCM_DEFAULT_RATE);
@@ -53,10 +55,14 @@ public class Config {
 			PCM_DEFAULT_SAMPLE_SIZE);
 	public static final IntegerOption SELECTED_PCM_CHANNELS = new IntegerOption("pcm-channels",
 			PCM_DEFAULT_CHANNELS);
+	public static final MapOption<Microphone, Collection<PcmFormat>> FORMATS_MICROPHONES = new MapOption<>(
+			"formats-microphones");
+	public static final MapOption<Speaker, Collection<PcmFormat>> FORMATS_SPEAKERS = new MapOption<>(
+			"formats-speakers");
 
 	public static final Option ALL_OPTIONS[] = new Option[] { SHOW_CONSOLE, CUSTOM_CONTACTS,
 			CONNECTED_CONTACTS, SELECTED_MICROPHONE, SELECTED_SPEAKER, BUFFER_SIZE_CALLS, SELECTED_PCM_RATE,
-			SELECTED_PCM_SAMPLE_SIZE, SELECTED_PCM_CHANNELS };
+			SELECTED_PCM_SAMPLE_SIZE, SELECTED_PCM_CHANNELS, FORMATS_MICROPHONES, FORMATS_SPEAKERS };
 
 	private static final ConfigStorage CONFIG_STORAGE = new DefaultConfigStorage();
 
@@ -274,9 +280,9 @@ public class Config {
 	public static class SerializedOption<A extends Id> extends AbstractOption {
 		private static final String NULL = "null";
 		private final String PREFIX;
-		private final IdSerializer<A> serializer;
+		private final IdObjectSerializer<A> serializer;
 
-		protected SerializedOption(String optionname, IdSerializer<A> serializer) {
+		protected SerializedOption(String optionname, IdObjectSerializer<A> serializer) {
 			super(optionname);
 			this.serializer = serializer;
 			this.PREFIX = "(" + serializer.getConfigPrefix() + ")";
@@ -318,7 +324,95 @@ public class Config {
 
 		@Override
 		public String getId() {
-			return "FloatOption<" + optionname + ">";
+			return "SerializedOption<" + optionname + ">";
+		}
+	}
+
+	public static class ListOption<A extends Id> extends AbstractOption {
+		private static final String NULL = "null";
+		private final String PREFIX;
+		private final IdListSerializer<A> serializer;
+
+		protected ListOption(String optionname, IdListSerializer<A> serializer) {
+			super(optionname);
+			this.serializer = serializer;
+			this.PREFIX = "(" + serializer.getConfigPrefix() + ")";
+		}
+
+		public Collection<? extends A> getDeserializedValue() {
+			if (CONFIG_STORAGE.hasOption(this)) {
+				String value = CONFIG_STORAGE.getOption(this, "");
+				if (value.startsWith(PREFIX) && !value.substring(PREFIX.length()).equals(NULL))
+					return serializer.deserializeAll(value.substring(PREFIX.length()));
+				else
+					return new ArrayList<>();
+			} else {
+				return new ArrayList<>();
+			}
+		}
+
+		public void setDeserializedValue(Collection<? extends A> value) {
+			setStringValue(PREFIX + serializer.serializeAll(value));
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, getDefaultStringValue());
+		}
+
+		@Override
+		public String getId() {
+			return "ListOption<" + optionname + ">";
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			return PREFIX + NULL;
+		}
+	}
+
+	public static class MapOption<A extends Id, B> extends AbstractOption {
+		private static final String NULL = "null";
+
+		protected MapOption(String optionname) {
+			super(optionname);
+		}
+
+		private String getPrefix(IdMapSerializer<A, B> serializer) {
+			return "(" + serializer.getConfigPrefix() + ")";
+		}
+
+		public Map<? extends A, ? extends B> getDeserializedValue(IdMapSerializer<A, B> serializer) {
+			final String prefix = getPrefix(serializer);
+			if (CONFIG_STORAGE.hasOption(this)) {
+				String value = CONFIG_STORAGE.getOption(this, "");
+				if (value.startsWith(prefix) && !value.substring(prefix.length()).equals(NULL))
+					return serializer.deserializeMap(value.substring(prefix.length()));
+				else
+					return new HashMap<>();
+			} else {
+				return new HashMap<>();
+			}
+		}
+
+		public void setDeserializedValue(Map<? extends A, ? extends B> value, IdMapSerializer<A, B> serializer) {
+			final String prefix = getPrefix(serializer);
+			setStringValue(prefix + serializer.serializeMap(value));
+		}
+
+		@Override
+		public String getStringValue() {
+			return CONFIG_STORAGE.getOption(this, getDefaultStringValue());
+		}
+
+		@Override
+		public String getDefaultStringValue() {
+			return "(" + NULL + ")" + NULL;
+		}
+
+		@Override
+		public String getId() {
+			return "ListOption<" + optionname + ">";
 		}
 	}
 

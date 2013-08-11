@@ -20,6 +20,11 @@ public class Microphones extends AudioDevices<Microphone> {
 		return microphones;
 	}
 
+	@Override
+	public List<Microphone> getAudioDevices() {
+		return microphones;
+	}
+
 	public static void setMicrophones(Collection<Microphone> microphones) {
 		Microphones.microphones = new ArrayList<>(microphones);
 		Collections.sort(Microphones.microphones, new AudioDeviceComparator());
@@ -28,11 +33,6 @@ public class Microphones extends AudioDevices<Microphone> {
 	@Override
 	public String getId() {
 		return "Microphones";
-	}
-
-	@Override
-	public List<Microphone> getAudioDevices() {
-		return microphones;
 	}
 
 	public static void setCurrentMicrophone(Microphone selected) {
@@ -56,22 +56,7 @@ public class Microphones extends AudioDevices<Microphone> {
 		} catch (UnknownDefaultValueException e) {}
 
 		if (current == null || !current.equals(selected)) {
-			Config.SELECTED_MICROPHONE.setDeserializedValue(selected);
-		}
-	}
-
-	@Override
-	public String getConfigPrefix() {
-		return "microphone";
-	}
-
-	@Override
-	public AudioDevice getDefaultValue() throws NoAudioDeviceException {
-		List<Microphone> devicelist = getAudioDevices();
-		if (devicelist.size() > 0) {
-			return devicelist.get(0);
-		} else {
-			throw new NoAudioDeviceException("No microphone found!");
+			Config.SELECTED_MICROPHONE.setDeserializedValue((Microphone) selected);
 		}
 	}
 
@@ -79,5 +64,47 @@ public class Microphones extends AudioDevices<Microphone> {
 		return new PcmFormat(Config.SELECTED_PCM_RATE.getIntegerValue(),
 				Config.SELECTED_PCM_SAMPLE_SIZE.getIntegerValue(),
 				Config.SELECTED_PCM_CHANNELS.getIntegerValue());
+	}
+
+	public static class Serializer extends AudioDeviceSerializer<Microphone> {
+
+		private final List<Microphone> devices;
+
+		public Serializer(Collection<Microphone> microphones) {
+			this.devices = new ArrayList<>(microphones);
+		}
+
+		public Serializer() {
+			this.devices = null;
+		}
+
+		public void setAudioDevices(Collection<Microphone> devices) {
+			this.devices.addAll(devices);
+		}
+
+		@Override
+		public List<Microphone> getAudioDevices() {
+			return devices != null ? devices : microphones;
+		}
+
+		@Override
+		public String getConfigPrefix() {
+			return "microphone";
+		}
+
+		@Override
+		public Microphone getDefaultValue() throws NoAudioDeviceException {
+			List<Microphone> devicelist = getAudioDevices();
+			if (devicelist.size() > 0) {
+				return devicelist.get(0);
+			} else {
+				throw new NoAudioDeviceException("No microphone found!");
+			}
+		}
+
+		@Override
+		public String getId() {
+			return "Microphones.Serializer";
+		}
 	}
 }

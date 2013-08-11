@@ -20,6 +20,11 @@ public class Speakers extends AudioDevices<Speaker> {
 		return speakers;
 	}
 
+	@Override
+	public List<Speaker> getAudioDevices() {
+		return speakers;
+	}
+
 	public static void setSpeakers(Collection<Speaker> speakers) {
 		Speakers.speakers = new ArrayList<>(speakers);
 		Collections.sort(Speakers.speakers, new AudioDeviceComparator());
@@ -28,11 +33,6 @@ public class Speakers extends AudioDevices<Speaker> {
 	@Override
 	public String getId() {
 		return "Speakers";
-	}
-
-	@Override
-	public List<Speaker> getAudioDevices() {
-		return speakers;
 	}
 
 	public static void setCurrentSpeaker(Speaker selected) {
@@ -56,22 +56,49 @@ public class Speakers extends AudioDevices<Speaker> {
 		} catch (UnknownDefaultValueException e) {}
 
 		if (current == null || !current.equals(selected)) {
-			Config.SELECTED_SPEAKER.setDeserializedValue(selected);
+			Config.SELECTED_SPEAKER.setDeserializedValue((Speaker) selected);
 		}
 	}
 
-	@Override
-	public String getConfigPrefix() {
-		return "speaker";
-	}
+	public static class Serializer extends AudioDeviceSerializer<Speaker> {
 
-	@Override
-	public AudioDevice getDefaultValue() throws NoAudioDeviceException {
-		List<Speaker> devicelist = getAudioDevices();
-		if (devicelist.size() > 0) {
-			return devicelist.get(0);
-		} else {
-			throw new NoAudioDeviceException("No speaker found!");
+		private final List<Speaker> devices;
+
+		public Serializer(Collection<Speaker> speakers) {
+			this.devices = new ArrayList<>(speakers);
+		}
+
+		public Serializer() {
+			this.devices = null;
+		}
+
+		@Override
+		public List<Speaker> getAudioDevices() {
+			return devices != null ? devices : speakers;
+		}
+
+		public void setAudioDevices(Collection<Speaker> devices) {
+			this.devices.addAll(devices);
+		}
+
+		@Override
+		public String getConfigPrefix() {
+			return "speaker";
+		}
+
+		@Override
+		public Speaker getDefaultValue() throws NoAudioDeviceException {
+			List<Speaker> devicelist = getAudioDevices();
+			if (devicelist.size() > 0) {
+				return devicelist.get(0);
+			} else {
+				throw new NoAudioDeviceException("No speaker found!");
+			}
+		}
+
+		@Override
+		public String getId() {
+			return "Microphones.Serializer";
 		}
 	}
 }

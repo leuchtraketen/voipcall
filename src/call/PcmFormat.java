@@ -64,7 +64,7 @@ public class PcmFormat extends AbstractId implements Format {
 		return rate * samplesize * channels;
 	}
 
-	public static class Serializer implements IdSerializer<PcmFormat> {
+	public static class Serializer implements IdObjectSerializer<PcmFormat>, IdListSerializer<PcmFormat> {
 
 		@Override
 		public String serialize(PcmFormat deserialized) {
@@ -85,7 +85,7 @@ public class PcmFormat extends AbstractId implements Format {
 		}
 
 		@Override
-		public String serializeAll(Collection<PcmFormat> deserialized) {
+		public String serializeAll(Collection<? extends PcmFormat> deserialized) {
 			List<String> serialized = new ArrayList<>();
 			for (PcmFormat format : deserialized) {
 				serialized.add(serialize(format));
@@ -94,11 +94,13 @@ public class PcmFormat extends AbstractId implements Format {
 		}
 
 		@Override
-		public Collection<PcmFormat> deserializeAll(String serialized) throws UnknownDefaultValueException {
+		public Collection<PcmFormat> deserializeAll(String serialized) {
 			List<PcmFormat> deserialized = new ArrayList<>();
 			String[] all = StringUtils.split(serialized, ";");
 			for (String elem : all) {
-				deserialized.add(deserialize(elem));
+				try {
+					deserialized.add(deserialize(elem));
+				} catch (UnknownDefaultValueException e) {}
 			}
 			return deserialized;
 		}

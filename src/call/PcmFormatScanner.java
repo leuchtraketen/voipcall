@@ -7,7 +7,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-public class PcmFormatScanner {
+public class PcmFormatScanner extends AbstractId {
 	private final DataLine line;
 	private final AudioDeviceScannerUi ui;
 
@@ -45,20 +45,25 @@ public class PcmFormatScanner {
 				((TargetDataLine) (line)).open(format.getAudioFormat(), line.getBufferSize());
 				line.close();
 			} else if (line instanceof SourceDataLine) {
-				((TargetDataLine) (line)).open(format.getAudioFormat(), line.getBufferSize());
+				((SourceDataLine) (line)).open(format.getAudioFormat(), line.getBufferSize());
 				line.close();
 			} else {
 				throw new RuntimeException("WTF???");
 			}
 			return true;
 		} catch (Throwable t) {
-			// t.printStackTrace();
+			//t.printStackTrace();
 		}
 		return false;
 	}
 
 	public static int getMaxSteps() {
 		return Config.PCM_RATES.length * Config.PCM_SAMPLE_SIZES.length * Config.PCM_CHANNELS.length;
+	}
+
+	@Override
+	public String getId() {
+		return "PcmFormatScanner";
 	}
 
 }
