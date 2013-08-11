@@ -52,6 +52,7 @@ public class Main {
 
 			InputStream stream = connection.getInputStream();
 			File dotlatestversion = new File(".latestversion");
+			dotlatestversion.delete();
 			copy(stream, new FileOutputStream(dotlatestversion));
 			String text = new String(Files.readAllBytes(dotlatestversion.toPath()));
 
