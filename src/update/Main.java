@@ -13,11 +13,9 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -200,11 +198,17 @@ public class Main {
 		return size;
 	}
 
-	private static void extractFolder(File zipfile, File extractpath) throws ZipException, IOException {
+	private static void extractFolder(File zipfile, File extractpath) {
 		log("unzip: " + zipfile);
 		int BUFFER = 2048;
 
-		ZipFile zip = new ZipFile(zipfile);
+		ZipFile zip;
+		try {
+			zip = new ZipFile(zipfile);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return;
+		}
 
 		extractpath.mkdirs();
 		Enumeration<? extends ZipEntry> zipFileEntries = zip.entries();
@@ -219,23 +223,27 @@ public class Main {
 			destFile.getParentFile().mkdirs();
 
 			if (!entry.isDirectory()) {
-				BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry));
-				int currentByte;
-				// establish buffer for writing file
-				byte data[] = new byte[BUFFER];
+				try {
+					BufferedInputStream is = new BufferedInputStream(zip.getInputStream(entry));
+					int currentByte;
+					// establish buffer for writing file
+					byte data[] = new byte[BUFFER];
 
-				log("extract: " + destFile);
-				// write the current file to disk
-				FileOutputStream fos = new FileOutputStream(destFile);
-				BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
+					log("extract: " + destFile);
+					// write the current file to disk
+					FileOutputStream fos = new FileOutputStream(destFile);
+					BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER);
 
-				// read and write until last byte is encountered
-				while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
-					dest.write(data, 0, currentByte);
+					// read and write until last byte is encountered
+					while ((currentByte = is.read(data, 0, BUFFER)) != -1) {
+						dest.write(data, 0, currentByte);
+					}
+					dest.flush();
+					dest.close();
+					is.close();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				dest.flush();
-				dest.close();
-				is.close();
 
 			} else {
 				destFile.mkdirs();
@@ -251,6 +259,8 @@ public class Main {
 			}
 		}
 
-		zip.close();
+		try {
+			zip.close();
+		} catch (IOException e) {}
 	}
 }
