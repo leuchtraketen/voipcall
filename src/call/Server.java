@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -113,7 +114,7 @@ public class Server extends AbstractId implements Runnable {
 		public void run() {
 			try {
 				handle();
-			} catch (IOException e) {
+			} catch (SocketException e) {} catch (IOException e) {
 				System.out.println("Error in call accept loop (class Acceptor)!");
 				e.printStackTrace();
 			}
