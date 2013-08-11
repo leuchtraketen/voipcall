@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -32,8 +34,33 @@ public class Main {
 			log("Running from a git repository.");
 			log("Auto-update disabled.");
 		} else {
-			autoupdate("compiled.zip");
+			if (!thisVersion().equals(onlineVersion()))
+				autoupdate("compiled.zip");
 			autoupdate("dependencies.zip");
+		}
+	}
+
+	private static Object onlineVersion() {
+		File dotversion = new File("https://raw.github.com/tobiasschulz/voipcall/master/.version");
+		try {
+			String text = new String(Files.readAllBytes(dotversion.toPath()));
+			log("Latest version: " + text);
+			return text;
+		} catch (IOException e) {
+			log("Latest version: unknown");
+			return "0";
+		}
+	}
+
+	private static String thisVersion() {
+		File dotversion = new File(".version");
+		try {
+			String text = new String(Files.readAllBytes(dotversion.toPath()));
+			log("Current version: " + text);
+			return text;
+		} catch (IOException e) {
+			log("Current version: unknown");
+			return "0";
 		}
 	}
 
@@ -85,6 +112,7 @@ public class Main {
 				long oldsize = zipfile.length();
 				log("Found previous " + zipname + ".");
 				log("Old size: " + oldsize);
+				log("Downloading " + zipname + "...");
 				long newsize = copy(stream, new FileOutputStream(zipname));
 				log("New size: " + newsize);
 				if (oldsize != newsize) {
