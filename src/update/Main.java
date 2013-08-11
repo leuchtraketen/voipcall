@@ -96,6 +96,7 @@ public class Main {
 		System.out.println(str);
 		if (logout != null) {
 			logout.println(str);
+			logout.flush();
 		}
 	}
 
