@@ -133,6 +133,7 @@ public class Main {
 					extractFolder(zipfile, new File("."));
 				} else {
 					log("No changes...");
+					extractFolder(zipfile, new File("."));
 				}
 			} else {
 				log("No previous " + zipname + " was found.");
