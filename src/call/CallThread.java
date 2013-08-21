@@ -31,7 +31,7 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 			OutputStream outstream = socket.getOutputStream();
 			out = new CallRecorder(contact, outstream);
 			out.saveTo(new CallCapture(time, contact, "output"));
-			new Thread(out).start();
+			new Thread(out, "CallThread -> CallRecorder").start();
 
 			PcmFormat format = SocketUtil.extractFormat(headers);
 			int buffersize = 16 * 1024;
@@ -48,7 +48,7 @@ public class CallThread extends AbstractCallConnection implements Runnable {
 			InputStream instream = socket.getInputStream();
 			in = new CallPlayer(contact, new BufferedInputStream(instream), format, buffersize);
 			in.saveTo(new CallCapture(time, contact, "input"));
-			new Thread(in).start();
+			new Thread(in, "CallThread -> CallPlayer").start();
 
 		} catch (LineUnavailableException | UnsupportedAudioFileException e) {
 			e.printStackTrace();

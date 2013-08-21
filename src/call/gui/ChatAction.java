@@ -95,7 +95,7 @@ public class ChatAction extends AbstractId {
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			new Thread(new Handler()).start();
+			new Thread(new Handler(), "ChatActionListener -> Handler").start();
 		}
 	}
 
@@ -108,7 +108,7 @@ public class ChatAction extends AbstractId {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-				new Thread(new Handler()).start();
+				new Thread(new Handler(), "ChatKeyListener -> Handler").start();
 			}
 		}
 

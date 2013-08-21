@@ -124,7 +124,7 @@ public class MainMenu extends AbstractId implements ActionListener, ConfigListen
 		if (e.getSource() instanceof JMenuItem) {
 			JMenuItem source = (JMenuItem) e.getSource();
 
-			new Thread(new MenuItemHandler(source)).start();
+			new Thread(new MenuItemHandler(source), "MainMenu -> MenuItemHandler").start();
 		}
 	}
 

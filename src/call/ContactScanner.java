@@ -89,7 +89,7 @@ public class ContactScanner implements Runnable {
 					Util.log(Thread.currentThread().toString(), "interrupted...");
 				}
 			}
-		});
+		}, "ContactScanner -> scan()");
 		thread.start();
 		return thread;
 	}

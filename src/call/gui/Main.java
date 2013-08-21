@@ -19,17 +19,17 @@ public class Main {
 
 		AudioDeviceScanner audioScanner = new AudioDeviceScanner();
 		audioScanner.setUi(new AudioDeviceScannerDialog());
-		Thread audioScannerThread = new Thread(audioScanner);
+		Thread audioScannerThread = new Thread(audioScanner, "Main -> AudioDeviceScanner");
 		audioScannerThread.start();
 
 		final MainWindow main = new MainWindow();
 
 		Server server = new Server();
-		Thread serverthread = new Thread(server);
+		Thread serverthread = new Thread(server, "Main -> Server");
 		serverthread.start();
 
-		new Thread(new ContactScanner()).start();
-		new Thread(new PingScanner()).start();
+		new Thread(new ContactScanner(), "Main -> ContactScanner").start();
+		new Thread(new PingScanner(), "Main -> PingScanner").start();
 
 		Util.joinThreads(Arrays.asList(new Thread[] { audioScannerThread }));
 

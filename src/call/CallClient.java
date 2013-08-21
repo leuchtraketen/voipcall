@@ -1,9 +1,7 @@
 package call;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class CallClient extends AbstractClient {
 
 	public Thread startCall() {
 		CallThread call = CallFactory.createCall(contact, socket, headers);
-		Thread thr = new Thread(call);
+		Thread thr = new Thread(call, "CallClient -> CallThread");
 		thr.start();
 		return thr;
 	}

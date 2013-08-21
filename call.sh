@@ -2,7 +2,7 @@
 
 java -Xmx64m -Xms64m -cp bin:. update.Main
 
-java -Xmx128m -Xms128m -Xincgc \
+java -Xss256k -Xmx128m -Xms128m -Xincgc \
 	-Dawt.useSystemAAFontSettings=on -Dswing.aatext=true \
 	-Djavax.sound.sampled.Clip=com.sun.media.sound.DirectAudioDeviceProvider \
 	-Djavax.sound.sampled.Port=com.sun.media.sound.PortMixerProvider \

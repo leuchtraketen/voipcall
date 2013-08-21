@@ -61,7 +61,7 @@ public class CallRecorder extends AbstractCallConnection implements Runnable {
 					}
 				}
 			}
-		});
+		}, "CallRecorder -> (Stats)");
 		statsThread.start();
 		statsThread.setPriority(Thread.MIN_PRIORITY);
 

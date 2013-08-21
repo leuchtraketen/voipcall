@@ -47,7 +47,7 @@ public class ChatTab extends AbstractId implements PingClient.Listener, ContactL
 			return instances.get(c);
 		} else {
 			ChatTab instance = new ChatTab(c);
-			new Thread(instance).start();
+			new Thread(instance, "ChatTab").start();
 			instances.put(c, instance);
 			return instance;
 		}

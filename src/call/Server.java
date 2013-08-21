@@ -34,10 +34,10 @@ public class Server extends AbstractId implements Runnable {
 			openPorts = new int[] { normalport, callport, chatport };
 			Config.CURRENT_PORT = normalport;
 
-			new Thread(new UpnpClient(new int[] { normalport, callport, chatport })).start();
+			new Thread(new UpnpClient(new int[] { normalport, callport, chatport }), "UpnpClient").start();
 
-			Thread listen1 = new Thread(new Listener(this, serverSocket1));
-			Thread listen2 = new Thread(new Listener(this, serverSocket2));
+			Thread listen1 = new Thread(new Listener(this, serverSocket1), "Server.Listener");
+			Thread listen2 = new Thread(new Listener(this, serverSocket2), "Server.Listener");
 			listen1.start();
 			listen2.start();
 			Util.joinThreads(listen1, listen2);
@@ -94,7 +94,7 @@ public class Server extends AbstractId implements Runnable {
 			while (server.isListening()) {
 				try {
 					final Socket socket = serversocket.accept();
-					new Thread(new Acceptor(socket)).start();
+					new Thread(new Acceptor(socket), "Server.Acceptor").start();
 				} catch (IOException e) {
 					System.out.println("Error in call accept loop (class Server.Listener)!");
 					e.printStackTrace();
@@ -157,7 +157,7 @@ public class Server extends AbstractId implements Runnable {
 			} else if (request.toLowerCase().equals("ping")) {
 				// ping connection
 				PingClient client = new PingClient(contact, socket, headers);
-				new Thread(client).start();
+				new Thread(client, "Server -> PingClient").start();
 
 			} else if (request.toLowerCase().equals("call")) {
 				// call connection
@@ -178,7 +178,7 @@ public class Server extends AbstractId implements Runnable {
 				}
 				ChatClient client = new ChatClient(contact, socket, headers);
 				client.saveTo(new ChatCapture(contact));
-				new Thread(client).start();
+				new Thread(client, "Server -> ChatClient").start();
 				Util.log(contact, "Connected tp chat (Server).");
 
 			} else {

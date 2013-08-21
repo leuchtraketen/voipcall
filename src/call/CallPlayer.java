@@ -62,7 +62,7 @@ public class CallPlayer extends AbstractCallConnection implements Runnable {
 					}
 				}
 			}
-		});
+		}, "CallPlayer -> (Stats)");
 		statsThread.start();
 		statsThread.setPriority(Thread.MIN_PRIORITY);
 
